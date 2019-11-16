@@ -1,64 +1,36 @@
-# Psychological testing centre for drivers - [PSYCHOTEST](https://alicja-malinowska.github.io/Milestone1/)
+# CAT-CH3 - A match-3 game full of kitties!
 
 
-This is a website for a testing centre, based in Poland, that provides psychological assessments for drivers (mainly), as well as other professions. The purpose of the webiste is to inform potential clients about the services that are provided and to convince them to choose PSYCHOTEST over the competition. 
-
-The website is available in two languages: Polish and English, so foreigners living and working in Poland are also able to learn about the services and the possibility to have the tests done in English. The website is dedicated mostly for individual clients, but it also contains information for GP surgeries and companies who would like to use the services for occupational medicine purposes. 
+This is a match-3 style game written using HTML Canvas and JavaScript. The goal of the game is to match enough tiles to clear the background from yellow to white. The background under each tile is cleared when a tile is matched with at least 2 other tiles of the same kind. The tiles then disappear, background behind them gets cleared, tiles above them fall down and new tiles are added from the top to fill all rows and columns. The match attempt is made by clicking one tile and then another(adjacent) for them to swap places, if in result of that there is at least one match (a row of at least 3 tiles with the same symbol), the matching tiles are destroyed. Each destroyed tile is worth 10 points. There is a limited number of moves in which a player has to clear the board. The game is over when either the board is clear (win) or when a player runs out of moves (lose). 
 
 
 #### External user’s goal:
 
-The site users are people who need (or want) psychological assessment, and wish to learn more about it and possibly book an appointment. 
+The users are people who want to play a simple and fun game, either on their mobile, tablet or desktop. The game is especially aimed for people who like cats, but other players should find it enjoyable as well. 
 
 #### Site owner's goal:
 
-The business owner wants to inform potential clients about the services/types of psychological tests they provide, as well as encourage them to choose PSYCHOTEST over the competition.  
-
-### Context
-
-The psychological testing is mandatory for some drivers in Poland (unlike in Ireland, UK and most of other European countries). Generally, the obligation for psychological assessment comes from two sources: Occupational Medicine Act and Road Transport Act. Simplifying, everyone who drives for professional purposes needs to have regular psychological assessments. Additionally, everyone who wants to obtain a driving license for categories other than A and B, is required to submit a psychological opinion (which is a result of psychological testing). Similarly, those with revoked driving license have to be psychologically assessed before they can get their license back. 
-
-Additionally, psychological assessment is mandadory for people working with other mechanical vehicles, like forklifts and road rollers. Another group that is required to undergo psychological testing is those who apply for or want to renew their firearm license. 
-
-The rationale for psychological assessments for drivers is derived from Traffic Pyschology, a discipline of psychology that focusses on the links between cogntitive/psychological abilities/qualities and road behaviours. More on the subject can be found on [this Wikipedia page](https://en.wikipedia.org/wiki/Traffic_psychology#Psychological_assessment,_counseling,_and_rehabilitation). 
+The site owner's goal is to play an enjoyable game, share it with others and spread the love for cats!
 
  
 ## UX
 
-The majority of the users will be individuals who are mandated to undergo a psychological assessment and submit psychological opinion of their fitness to drive a mechanical vehicle (or in some cases - fitness to carry a firearm). Therefore, the question they will be asking will not be 'IF' they should choose to use the services, but rather 'WHICH' place they should choose. 
 
-People usually find psychological assessment stressful, as they are not sure what to expect. For this reason, the webiste is designed in the way to:
-
-  1. Assure the potential client that eery effort will be made to reduce the stress
-  2. Reduce the anxiety by giving as much information as possible about what they can expect during the assessment and how they should prepare
-
-Other motivations of the individual clients are:
-
-  1. Have the tests done as quickly as possible
-  2. Have flexibility with booking (e.g evenings, weekends)
-
-The smaller group of users will be GP surgeries and companies who want to offer the tests to their patients/employees as a part of occupational medicine practice. Their main goal will be to find out the details about potential cooperation between them and PSYCHOTEST. They will also be interested to get the best prices.
-
-There will also be a very small group of users interested in having the psychological assessment for other reasons, without being obligated to do them. They will want to know what kind of tests they can have.
 
 ### User stories
 
-* As an indivdual client I want to have a navigation item that will take me to the page that explains how the test is done
-* As an indivdual client I want to just touch the number on my mobile so I am able to immediately call and book an appointment
-* As an indivdual client I want to be able to click a link to the Google reviews so I can see what other people say about the service
-* As an indivdual client I want to be able to fill out a form so I can ask a question or book an appointment 
-* As an indivdual client I want to have a navigation item that will take me to the pages with services so I can see if the company provides the services I need/want to use
-* As an indivdual client I want to see a Google map so I can check the location of the business
-* As an indivdual client I want to have a button on each page that will take me to the contact page so when I decide to book an appointment after reading a relevant peace of information I can instantly get in touch
-* As an indivdual client I want to have a navigation item that will take me to the price list so I can compare it with other places
-* As a GP surgery/company I want to have a separate navigation item that takes me to the page with all the relevant information so I can quickly find out how I can use the services for groups
-* As a GP surgery/company I want to be able to download a service agreement template so I can find out the proposed rules o cooperation and fill it out electronically 
-* As a GP surgery/company I want to be able to download a referral template so I do not need to create my own documents when sending people for tests
-* As a user I want to have a navigation item that takes me to all the contact details
-* As a user I want to have a navigation item that will take me to the about section so I can learn more about the company
-* As an English speaking individual client I want to have a button that switches the language to English so I can understand the information presented on the webiste
+* As a player I want to have instructions always available so I can refer to them at any stage of the game
+* As a player I want to see a 'Play' button so I can start the game whenever I am ready
+* As a mobile user I want to have the game area fill most of my screen so I the game is big enough for me to play comfortably
+* As a player I want to to be able to click the tiles so I can move them
+* As a player I want to see a move couter so I know how many moves I have left
+* As a player I want to see a point counter so I know how many points I have earned
+* As a player I want to have a 'new game' button so I can restart the game
+* As a player I want to see a 'game over' screen so that I know that I lost
+* As a player I want to see a 'winning' screen so that I know that I won
+* As a player I want to see a 'Play again' button when I finish the game so that I can start a new game
 
-The page navigation is designed to be intuitive and enable a user to find the information they look for quickly. The design offers a user multiple places from where they can get in touch and ask questions/book appointments as this is the most important purpose of the website (next to its informative function). The chosen iconography, typography, images and colours are meant to create an impression of a professional but also a friendly place. The logo of the company is in a shade of blue and other colours were chosen to match it, using an online tool [Mycolor](https://mycolor.space/)
+
 
 
 ### Wireframes/mockups
@@ -219,15 +191,17 @@ Psychotest was a real company that I used to run and it had a website built in W
 
 ### Tools used
 
+* Balsamiq for mockups
+
 * [CSS Gradient](https://cssgradient.io/) - background gradient created using this website
 * [ColorSpace](https://mycolor.space/) - this tool was used to match the colors used on the webiste to the logo
 * [Autoprefixer](https://autoprefixer.github.io/) - used to add prefixes for the code to work on different browsers
 * [Tiny JPG](https://tinyjpg.com/) - used to compress the images to improve performance
 
 ### Media
-* The flag images, truck hero image and cards images come from [Pixabay](https://pixabay.com/)
-* The images from the 'About' section are mine
-* The fonts were imported from [Google Fonts](https://fonts.google.com/)
+* [Cat icons](https://www.iconfinder.com/) 
+*
+* 
 
 ### Acknowledgements
 
