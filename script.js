@@ -39,3 +39,34 @@ class Grid {
 
 let grid = new Grid;
 grid.draw(ctx);
+
+class Icons {
+    constructor(grid) {
+        this.icons = [...document.querySelectorAll(".icon")];
+        this.size = 40;
+        this.position = {
+            x: (grid.intervalX + grid.padding) / 2 - this.size / 2,
+            y: (grid.intervalY + grid.padding) / 2 - this.size / 2,
+        };
+    };
+    
+    draw(ctx) {
+        
+        let posY = this.position.y;
+        for(let i = 0; i < grid.rows; i++) {
+            let posX = this.position.x;
+            for(let j = 0; j < grid.columns; j++) {
+                ctx.drawImage(this.icons[Math.floor(Math.random() * 5)], posX, posY, this.size, this.size);
+                posX += grid.intervalX;
+                
+            }
+            posY += grid.intervalY;
+            
+            
+        }
+        
+    }
+}
+
+let tiles = new Icons(grid);
+tiles.draw(ctx);
