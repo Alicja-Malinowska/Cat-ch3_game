@@ -5,32 +5,37 @@ let ctx = canvas.getContext("2d");
 const GAME_WIDTH = 350;
 const GAME_HEIGHT = 470;
 
-function drawGrid() {
-    const COLUMNS = 5;
-    const ROWS = 6;
-    const GRID_WIDTH = GAME_WIDTH - 4;
-    const GRID_HEIGHT = GAME_HEIGHT - 70;
-    const INTERVAL_X = GRID_WIDTH / COLUMNS;
-    const INTERVAL_Y = GRID_HEIGHT / ROWS;
-    const PADDING = 2;
-    
-    
-    for (let x = 0; x <= GRID_WIDTH; x += INTERVAL_X) {
-        
-        ctx.moveTo(x + PADDING + 0.5, PADDING);
-        ctx.lineTo(x + PADDING + 0.5, GRID_HEIGHT + PADDING);
-        
+
+class Grid {
+    constructor() {
+        this.columns = 5;
+        this.rows = 6;
+        this.width = GAME_WIDTH - 4;
+        this.height = GAME_HEIGHT - 70;
+        this.intervalX = this.width / this.columns;
+        this.intervalY = this.height / this.rows;
+        this.padding = 2;
     }
 
-    for (let y = 0; y <= GRID_HEIGHT + PADDING; y += INTERVAL_Y) {
-        
-        ctx.moveTo(PADDING, y + PADDING + 0.5);
-        ctx.lineTo(GRID_WIDTH + PADDING, y + PADDING + 0.5);
-        
+    draw(ctx) {
+        for (let x = 0; x <= this.width; x += this.intervalX) {
+
+            ctx.moveTo(x + this.padding + 0.5, this.padding);
+            ctx.lineTo(x + this.padding + 0.5, this.height + this.padding);
+
+        }
+
+        for (let y = 0; y <= this.height + this.padding; y += this.intervalY) {
+
+            ctx.moveTo(this.padding, y + this.padding + 0.5);
+            ctx.lineTo(this.width + this.padding, y + this.padding + 0.5);
+
+        }
+
+
+        ctx.stroke();
     }
-    
-    ctx.stroke();
 }
 
-drawGrid();
-
+let grid = new Grid;
+grid.draw(ctx);
