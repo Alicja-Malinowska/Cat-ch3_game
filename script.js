@@ -16,7 +16,7 @@ class Grid {
         this.intervalY = this.height / this.rows;
         this.padding = 2;
     }
-
+    // draw a grid of equal width columns (5) and rows (6)
     draw(ctx) {
         for (let x = 0; x <= this.width; x += this.intervalX) {
 
@@ -35,10 +35,39 @@ class Grid {
 
         ctx.stroke();
     }
+
+    getCellPos() {
+        let cellPos = [];
+        let posY = this.padding;
+        for (let i = 0; i < grid.rows; i++) {
+            let cellPosRow = [];
+            let posX = this.padding;
+            for (let j = 0; j < grid.columns; j++) {
+                cellPosRow[j] = {
+                    x: posX,
+                    y: posY,
+                    xEnd: posX + this.intervalX,
+                    yEnd: posY + this.intervalY
+                }
+                posX += grid.intervalX;
+
+            }
+            posY += grid.intervalY;
+            cellPos.push(cellPosRow);
+
+        }
+        return cellPos;
+    }
+    
+
+    highlightCell(cellX, cellY, ctx) {
+        ctx.strokeRect(cellX, cellY, this.intervalX - 4, this.intervalY - 4);
+    }
 }
 
 let grid = new Grid;
 grid.draw(ctx);
+
 
 class Icons {
     constructor(grid) {
@@ -49,24 +78,48 @@ class Icons {
             y: (grid.intervalY + grid.padding) / 2 - this.size / 2,
         };
     };
-    
+
+    //draw random icons into the grid
     draw(ctx) {
-        
+
         let posY = this.position.y;
-        for(let i = 0; i < grid.rows; i++) {
+        for (let i = 0; i < grid.rows; i++) {
             let posX = this.position.x;
-            for(let j = 0; j < grid.columns; j++) {
+            for (let j = 0; j < grid.columns; j++) {
                 ctx.drawImage(this.icons[Math.floor(Math.random() * 5)], posX, posY, this.size, this.size);
                 posX += grid.intervalX;
-                
+
             }
             posY += grid.intervalY;
-            
-            
+
         }
-        
+
     }
 }
 
 let tiles = new Icons(grid);
 tiles.draw(ctx);
+
+function mousePos(canvas, event) {
+    let canvasArea = canvas.getBoundingClientRect();
+    let position = {
+    x : event.clientX - canvasArea.left,
+    y : event.clientY - canvasArea.top,
+    }
+    return position;
+}
+
+canvas.addEventListener ("mousedown", function(e) { 
+    let mousePosition = mousePos(canvas, e);
+    let cellPosArr = [].concat(...grid.getCellPos());
+    for(let i = 0; i < cellPosArr.length; i++) {
+        if(mousePosition.x > cellPosArr[i].x 
+            && mousePosition.x < cellPosArr[i].xEnd 
+            && mousePosition.y > cellPosArr[i].y
+            && mousePosition.y < cellPosArr[i].yEnd) {
+        grid.highlightCell(cellPosArr[i].x + grid.padding + 0.5, cellPosArr[i].y + grid.padding + 0.5, ctx);
+    }
+    }
+}
+    );
+
