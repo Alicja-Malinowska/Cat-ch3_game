@@ -35,7 +35,7 @@ class Grid {
 
         ctx.stroke();
     }
-
+    // creates a two-dimensional array of objects, each containing position where a cell starts and where it ends
     getCellPos() {
         let cellPos = [];
         let posY = this.padding;
@@ -58,11 +58,20 @@ class Grid {
         }
         return cellPos;
     }
-    
+
 
     highlightCell(cellX, cellY, ctx) {
-        ctx.strokeRect(cellX, cellY, this.intervalX - 4, this.intervalY - 4);
+        ctx.strokeRect(cellX, cellY, this.intervalX - 8, this.intervalY - 8);
     }
+
+    removeHighlight(cellX, cellY, ctx) {
+        ctx.clearRect(cellX - 1, cellY - 1, this.intervalX - 6, 8);
+        ctx.clearRect(cellX - 1, cellY - 1, 8, this.intervalY - 6);
+        ctx.clearRect(cellX - 1, cellY + this.intervalY - 14, this.intervalX - 6, 8);
+        ctx.clearRect(cellX - 1 + this.intervalX - 14, cellY - 1, 8, this.intervalY - 6);
+
+    }
+    
 }
 
 let grid = new Grid;
@@ -100,26 +109,56 @@ class Icons {
 let tiles = new Icons(grid);
 tiles.draw(ctx);
 
+// get a mouse position
 function mousePos(canvas, event) {
     let canvasArea = canvas.getBoundingClientRect();
     let position = {
-    x : event.clientX - canvasArea.left,
-    y : event.clientY - canvasArea.top,
+        x: event.clientX - canvasArea.left,
+        y: event.clientY - canvasArea.top,
     }
     return position;
 }
 
-canvas.addEventListener ("mousedown", function(e) { 
-    let mousePosition = mousePos(canvas, e);
+    let clicked = "";
     let cellPosArr = [].concat(...grid.getCellPos());
-    for(let i = 0; i < cellPosArr.length; i++) {
-        if(mousePosition.x > cellPosArr[i].x 
-            && mousePosition.x < cellPosArr[i].xEnd 
-            && mousePosition.y > cellPosArr[i].y
-            && mousePosition.y < cellPosArr[i].yEnd) {
-        grid.highlightCell(cellPosArr[i].x + grid.padding + 0.5, cellPosArr[i].y + grid.padding + 0.5, ctx);
+// highlight a cell that was clicked
+canvas.addEventListener("mousedown", function (e) {
+    let mousePosition = mousePos(canvas, e);
+    
+    
+    for (let i = 0; i < cellPosArr.length; i++) {
+        
+        /*console.log(current);
+        console.log(clicked);
+        
+        if(clicked){
+            //console.log(current, clicked);
+            //console.log(clicked.x === current.x);
+            if(current === clicked){
+            console.log("yay");
+        }
+    }*/
+        if (mousePosition.x > cellPosArr[i].x &&
+            mousePosition.x < cellPosArr[i].xEnd &&
+            mousePosition.y > cellPosArr[i].y &&
+            mousePosition.y < cellPosArr[i].yEnd) {
+                
+                if(cellPosArr[i] === clicked) {
+                //if(cellPosArr[i].x === clicked.x && cellPosArr[i].y === clicked.y) {
+                    grid.removeHighlight(cellPosArr[i].x + grid.padding + 2.5, cellPosArr[i].y + grid.padding + 2.5, ctx);
+                    clicked = "";
+                } else {
+                    ctx.strokeStyle = "#000000";
+                    grid.highlightCell(cellPosArr[i].x + grid.padding + 2.5, cellPosArr[i].y + grid.padding + 2.5, ctx);
+                    clicked = cellPosArr[i];
+                }
+               
+               
+                
+            
+        }
+    
     }
-    }
-}
-    );
+  
+});
 
