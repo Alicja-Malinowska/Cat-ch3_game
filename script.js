@@ -109,6 +109,7 @@ class Icons {
 let tiles = new Icons(grid);
 tiles.draw(ctx);
 
+
 // get a mouse position
 function mousePos(canvas, event) {
     let canvasArea = canvas.getBoundingClientRect();
@@ -150,6 +151,7 @@ canvas.addEventListener("mousedown", function (e) {
                 } else {
                     ctx.strokeStyle = "#000000";
                     grid.highlightCell(cellPosArr[i].x + grid.padding + 2.5, cellPosArr[i].y + grid.padding + 2.5, ctx);
+                    grid.removeHighlight(clicked.x + grid.padding + 2.5, clicked.y + grid.padding + 2.5, ctx);
                     clicked = cellPosArr[i];
                 }
                
