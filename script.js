@@ -128,18 +128,18 @@ class InputHandler {
 
         // highlight a cell that was clicked
         canvas.addEventListener("mousedown", function (e) {
-            this.mousePosition = mousePos(canvas, e);
+            let mousePosition = mousePos(canvas, e);
             
 
 
             for (let i = 0; i < self.cellPosArr.length; i++) {
 
 
-                if (this.mousePosition.x > self.cellPosArr[i].x &&
-                    this.mousePosition.x < self.cellPosArr[i].xEnd &&
-                    this.mousePosition.y > self.cellPosArr[i].y &&
-                    this.mousePosition.y < self.cellPosArr[i].yEnd) {
-
+                if (mousePosition.x > self.cellPosArr[i].x &&
+                    mousePosition.x < self.cellPosArr[i].xEnd &&
+                    mousePosition.y > self.cellPosArr[i].y &&
+                    mousePosition.y < self.cellPosArr[i].yEnd) {
+//***************************note to self - consider deleting some part of this later on depending if you need to have only one cell highlighted or more */
                     if (self.cellPosArr[i] === self.clicked) {
                         grid.removeHighlight(self.cellPosArr[i].x + grid.padding + 2.5, self.cellPosArr[i].y + grid.padding + 2.5, ctx);
                         self.clicked = "";
