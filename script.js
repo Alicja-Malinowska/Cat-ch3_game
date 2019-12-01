@@ -71,7 +71,7 @@ class Grid {
         ctx.clearRect(cellX - 1 + this.intervalX - 14, cellY - 1, 8, this.intervalY - 6);
 
     }
-    
+
 }
 
 let grid = new Grid;
@@ -120,47 +120,45 @@ function mousePos(canvas, event) {
     return position;
 }
 
-    let clicked = "";
-    let cellPosArr = [].concat(...grid.getCellPos());
-// highlight a cell that was clicked
-canvas.addEventListener("mousedown", function (e) {
-    let mousePosition = mousePos(canvas, e);
-    
-    
-    for (let i = 0; i < cellPosArr.length; i++) {
-        
-        /*console.log(current);
-        console.log(clicked);
-        
-        if(clicked){
-            //console.log(current, clicked);
-            //console.log(clicked.x === current.x);
-            if(current === clicked){
-            console.log("yay");
-        }
-    }*/
-        if (mousePosition.x > cellPosArr[i].x &&
-            mousePosition.x < cellPosArr[i].xEnd &&
-            mousePosition.y > cellPosArr[i].y &&
-            mousePosition.y < cellPosArr[i].yEnd) {
-                
-                if(cellPosArr[i] === clicked) {
-                //if(cellPosArr[i].x === clicked.x && cellPosArr[i].y === clicked.y) {
-                    grid.removeHighlight(cellPosArr[i].x + grid.padding + 2.5, cellPosArr[i].y + grid.padding + 2.5, ctx);
-                    clicked = "";
-                } else {
-                    ctx.strokeStyle = "#000000";
-                    grid.highlightCell(cellPosArr[i].x + grid.padding + 2.5, cellPosArr[i].y + grid.padding + 2.5, ctx);
-                    grid.removeHighlight(clicked.x + grid.padding + 2.5, clicked.y + grid.padding + 2.5, ctx);
-                    clicked = cellPosArr[i];
-                }
-               
-               
-                
-            
-        }
-    
-    }
-  
-});
+class InputHandler {
+    constructor(grid) {
+        this.clicked = "";
+        this.cellPosArr = [].concat(...grid.getCellPos());
+        let self = this;
 
+        // highlight a cell that was clicked
+        canvas.addEventListener("mousedown", function (e) {
+            this.mousePosition = mousePos(canvas, e);
+            
+
+
+            for (let i = 0; i < self.cellPosArr.length; i++) {
+
+
+                if (this.mousePosition.x > self.cellPosArr[i].x &&
+                    this.mousePosition.x < self.cellPosArr[i].xEnd &&
+                    this.mousePosition.y > self.cellPosArr[i].y &&
+                    this.mousePosition.y < self.cellPosArr[i].yEnd) {
+
+                    if (self.cellPosArr[i] === self.clicked) {
+                        grid.removeHighlight(self.cellPosArr[i].x + grid.padding + 2.5, self.cellPosArr[i].y + grid.padding + 2.5, ctx);
+                        self.clicked = "";
+                    } else {
+                        ctx.strokeStyle = "#000000";
+                        grid.highlightCell(self.cellPosArr[i].x + grid.padding + 2.5, self.cellPosArr[i].y + grid.padding + 2.5, ctx);
+                        grid.removeHighlight(self.clicked.x + grid.padding + 2.5, self.clicked.y + grid.padding + 2.5, ctx);
+                        self.clicked = self.cellPosArr[i];
+                    }
+
+
+
+
+                }
+
+            }
+
+        });
+    }
+}
+
+let handle = new InputHandler(grid);
