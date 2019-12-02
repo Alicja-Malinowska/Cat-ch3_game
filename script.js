@@ -104,6 +104,11 @@ class Icons {
         }
 
     }
+
+    swap(firstPosX, firstPosY, secondPosX, secondPosY) {
+        [firstPosX, secondPosX] = [secondPosX, firstPosX];
+        [firstPosY, secondPosY] = [secondPosY, firstPosY];
+    }
 }
 
 let tiles = new Icons(grid);
@@ -122,14 +127,14 @@ function mousePos(canvas, event) {
 
 class InputHandler {
     constructor(grid) {
-        this.clicked = "";
+        this.clicked = [];
         this.cellPosArr = [].concat(...grid.getCellPos());
         let self = this;
 
         // highlight a cell that was clicked
         canvas.addEventListener("mousedown", function (e) {
             let mousePosition = mousePos(canvas, e);
-            
+
 
 
             for (let i = 0; i < self.cellPosArr.length; i++) {
@@ -139,17 +144,22 @@ class InputHandler {
                     mousePosition.x < self.cellPosArr[i].xEnd &&
                     mousePosition.y > self.cellPosArr[i].y &&
                     mousePosition.y < self.cellPosArr[i].yEnd) {
-//***************************note to self - consider deleting some part of this later on depending if you need to have only one cell highlighted or more */
-                    if (self.cellPosArr[i] === self.clicked) {
+                    //***************************note to self - consider deleting some part of this later on depending if you need to have only one cell highlighted or more */
+                    if (self.cellPosArr[i] === self.clicked[0] || self.cellPosArr[i] === self.clicked[1]) {
                         grid.removeHighlight(self.cellPosArr[i].x + grid.padding + 2.5, self.cellPosArr[i].y + grid.padding + 2.5, ctx);
-                        self.clicked = "";
+                        self.clicked = self.clicked.filter(e => e !== self.cellPosArr[i]);
+                        
                     } else {
-                        ctx.strokeStyle = "#000000";
-                        grid.highlightCell(self.cellPosArr[i].x + grid.padding + 2.5, self.cellPosArr[i].y + grid.padding + 2.5, ctx);
-                        grid.removeHighlight(self.clicked.x + grid.padding + 2.5, self.clicked.y + grid.padding + 2.5, ctx);
-                        self.clicked = self.cellPosArr[i];
+                        if (self.clicked.length === 2) {
+                            grid.removeHighlight(self.clicked[0].x + grid.padding + 2.5, self.clicked[0].y + grid.padding + 2.5, ctx);
+                            self.clicked.shift();
+                        } else {
+                            ctx.strokeStyle = "#000000";
+                            grid.highlightCell(self.cellPosArr[i].x + grid.padding + 2.5, self.cellPosArr[i].y + grid.padding + 2.5, ctx);
+                            //grid.removeHighlight(self.clicked.x + grid.padding + 2.5, self.clicked.y + grid.padding + 2.5, ctx);
+                            self.clicked.push(self.cellPosArr[i]);
+                        }
                     }
-
 
 
 
@@ -162,3 +172,7 @@ class InputHandler {
 }
 
 let handle = new InputHandler(grid);
+
+function swappingLogic(tiles) {
+
+}
