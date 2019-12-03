@@ -148,17 +148,35 @@ class InputHandler {
                     if (self.cellPosArr[i] === self.clicked[0] || self.cellPosArr[i] === self.clicked[1]) {
                         grid.removeHighlight(self.cellPosArr[i].x + grid.padding + 2.5, self.cellPosArr[i].y + grid.padding + 2.5, ctx);
                         self.clicked = self.clicked.filter(e => e !== self.cellPosArr[i]);
-                        
+
                     } else {
                         if (self.clicked.length === 2) {
                             grid.removeHighlight(self.clicked[0].x + grid.padding + 2.5, self.clicked[0].y + grid.padding + 2.5, ctx);
                             self.clicked.shift();
+                        }
+
+                        if (self.clicked.length === 1) {
+                            if ((self.cellPosArr[i].x === self.clicked[0].x &&
+                                    Math.abs(self.clicked[0].y - self.cellPosArr[i].y) <= grid.intervalY + 0.5) ||
+                                (self.clicked[0].y === self.cellPosArr[i].y &&
+                                    Math.abs(self.clicked[0].x - self.cellPosArr[i].x) <= grid.intervalX + 0.5)) {
+                                ctx.strokeStyle = "#000000";
+                                grid.highlightCell(self.cellPosArr[i].x + grid.padding + 2.5, self.cellPosArr[i].y + grid.padding + 2.5, ctx);
+                                //grid.removeHighlight(self.clicked.x + grid.padding + 2.5, self.clicked.y + grid.padding + 2.5, ctx);
+                                self.clicked.push(self.cellPosArr[i]);
+                            } else {
+                                grid.removeHighlight(self.clicked[0].x + grid.padding + 2.5, self.clicked[0].y + grid.padding + 2.5, ctx);
+                                self.clicked.shift();
+                                grid.highlightCell(self.cellPosArr[i].x + grid.padding + 2.5, self.cellPosArr[i].y + grid.padding + 2.5, ctx);
+                                self.clicked.push(self.cellPosArr[i]);
+                            }
                         } else {
                             ctx.strokeStyle = "#000000";
                             grid.highlightCell(self.cellPosArr[i].x + grid.padding + 2.5, self.cellPosArr[i].y + grid.padding + 2.5, ctx);
                             //grid.removeHighlight(self.clicked.x + grid.padding + 2.5, self.clicked.y + grid.padding + 2.5, ctx);
                             self.clicked.push(self.cellPosArr[i]);
                         }
+
                     }
 
 
