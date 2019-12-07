@@ -74,13 +74,14 @@ class Grid {
 
 }
 
-let grid = new Grid;
+let grid = new Grid();
 grid.draw(ctx);
 
 
 class Icons {
     constructor(grid) {
         this.icons = [...document.querySelectorAll(".icon")];
+        //this.selectedIcons = [];
         this.size = 40;
         this.position = {
             x: (grid.intervalX + grid.padding) / 2 - this.size / 2,
@@ -89,20 +90,26 @@ class Icons {
     };
 
     //draw random icons into the grid
-    draw(ctx) {
+    draw(ctx, currentIcon, posX, posY) {
 
-        let posY = this.position.y;
-        for (let i = 0; i < grid.rows; i++) {
-            let posX = this.position.x;
-            for (let j = 0; j < grid.columns; j++) {
-                ctx.drawImage(this.icons[Math.floor(Math.random() * 5)], posX, posY, this.size, this.size);
-                posX += grid.intervalX;
+        //let posY = this.position.y;
+        //for (let i = 0; i < grid.rows; i++) {
+            //let posX = this.position.x;
+            //let selectedIconsRow = [];
+            //for (let j = 0; j < grid.columns; j++) {
+                //let currentIcon = this.icons[Math.floor(Math.random() * 5)];
+                ctx.drawImage(currentIcon, posX, posY, this.size, this.size);
+                //selectedIconsRow[j] = {
+                    //image: currentIcon,
+                    //x: posX,
+                    //y: posY
+                //};
+                //posX += grid.intervalX;
 
-            }
-            posY += grid.intervalY;
-
-        }
-
+            //}
+            //posY += grid.intervalY;
+            //this.selectedIcons.push(selectedIconsRow);
+        //}
     }
 
     swap(firstPosX, firstPosY, secondPosX, secondPosY) {
@@ -112,7 +119,7 @@ class Icons {
 }
 
 let tiles = new Icons(grid);
-tiles.draw(ctx);
+
 
 
 // get a mouse position
@@ -126,12 +133,12 @@ function mousePos(canvas, event) {
 }
 
 class InputHandler {
-    constructor(grid) {
+    constructor(grid, tiles) {
         this.clicked = [];
         this.cellPosArr = [].concat(...grid.getCellPos());
         let self = this;
 
-        // highlight a cell that was clicked
+        // while cell clicked apply highlighting logic
         canvas.addEventListener("mousedown", function (e) {
             let mousePosition = mousePos(canvas, e);
 
@@ -147,7 +154,7 @@ class InputHandler {
                     // if the same cell is clicked twice remove highlight
                     if (self.cellPosArr[i] === self.clicked[0] || self.cellPosArr[i] === self.clicked[1]) {
                         grid.removeHighlight(self.cellPosArr[i].x + grid.padding + 2.5, self.cellPosArr[i].y + grid.padding + 2.5, ctx);
-                        self.clicked = self.clicked.filter(e => e !== self.cellPosArr[i]);
+                        self.clicked = self.clicked.filter(el => el !== self.cellPosArr[i]);
 
                     } else {
                         // if two cells were clicked remove the higlight from the first one that was clicked
@@ -164,7 +171,7 @@ class InputHandler {
                                     Math.abs(self.clicked[0].x - self.cellPosArr[i].x) <= grid.intervalX + 0.5)) {
                                 ctx.strokeStyle = "#000000";
                                 grid.highlightCell(self.cellPosArr[i].x + grid.padding + 2.5, self.cellPosArr[i].y + grid.padding + 2.5, ctx);
-                                //grid.removeHighlight(self.clicked.x + grid.padding + 2.5, self.clicked.y + grid.padding + 2.5, ctx);
+                                
                                 self.clicked.push(self.cellPosArr[i]);
                             } else {
                                 // remove highlight from the previous one and add it to the current one
@@ -194,6 +201,41 @@ class InputHandler {
 
 let handle = new InputHandler(grid);
 
-function swappingLogic(tiles) {
+class Game {
+    constructor(grid, tiles) {
+        this.position = tiles.position;
+        this.selectedIcons = [];
+        this.icons = tiles.icons;
+    }
+
+    drawLevel(ctx) {
+        let posY = this.position.y;
+        for (let i = 0; i < grid.rows; i++) {
+            let posX = this.position.x;
+            let selectedIconsRow = [];
+            for (let j = 0; j < grid.columns; j++) {
+                let currentIcon = this.icons[Math.floor(Math.random() * 5)];
+                tiles.draw(ctx, currentIcon, posX, posY);
+                selectedIconsRow[j] = {
+                    image: currentIcon,
+                    x: posX,
+                    y: posY
+                };
+                posX += grid.intervalX;
+
+            }
+            posY += grid.intervalY;
+            this.selectedIcons.push(selectedIconsRow);
+        }
+    }
 
 }
+
+let game = new Game(grid,tiles);
+game.drawLevel(ctx);
+
+function swappingLogic(game) {
+        console.log(game.selectedIcons);
+}
+
+swappingLogic(game);
