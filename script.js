@@ -136,26 +136,28 @@ class InputHandler {
             let mousePosition = mousePos(canvas, e);
 
 
-
+        // go through the array of all cell positions
             for (let i = 0; i < self.cellPosArr.length; i++) {
 
-
+                // detect which cell was clicked
                 if (mousePosition.x > self.cellPosArr[i].x &&
                     mousePosition.x < self.cellPosArr[i].xEnd &&
                     mousePosition.y > self.cellPosArr[i].y &&
                     mousePosition.y < self.cellPosArr[i].yEnd) {
-                    //***************************note to self - consider deleting some part of this later on depending if you need to have only one cell highlighted or more */
+                    // if the same cell is clicked twice remove highlight
                     if (self.cellPosArr[i] === self.clicked[0] || self.cellPosArr[i] === self.clicked[1]) {
                         grid.removeHighlight(self.cellPosArr[i].x + grid.padding + 2.5, self.cellPosArr[i].y + grid.padding + 2.5, ctx);
                         self.clicked = self.clicked.filter(e => e !== self.cellPosArr[i]);
 
                     } else {
+                        // if two cells were clicked remove the higlight from the first one that was clicked
                         if (self.clicked.length === 2) {
                             grid.removeHighlight(self.clicked[0].x + grid.padding + 2.5, self.clicked[0].y + grid.padding + 2.5, ctx);
                             self.clicked.shift();
                         }
-
+                        //if one cell was clicked
                         if (self.clicked.length === 1) {
+                            // if the currently clicked one is adjacent to clicked, highlight it
                             if ((self.cellPosArr[i].x === self.clicked[0].x &&
                                     Math.abs(self.clicked[0].y - self.cellPosArr[i].y) <= grid.intervalY + 0.5) ||
                                 (self.clicked[0].y === self.cellPosArr[i].y &&
@@ -165,6 +167,7 @@ class InputHandler {
                                 //grid.removeHighlight(self.clicked.x + grid.padding + 2.5, self.clicked.y + grid.padding + 2.5, ctx);
                                 self.clicked.push(self.cellPosArr[i]);
                             } else {
+                                // remove highlight from the previous one and add it to the current one
                                 grid.removeHighlight(self.clicked[0].x + grid.padding + 2.5, self.clicked[0].y + grid.padding + 2.5, ctx);
                                 self.clicked.shift();
                                 grid.highlightCell(self.cellPosArr[i].x + grid.padding + 2.5, self.cellPosArr[i].y + grid.padding + 2.5, ctx);
