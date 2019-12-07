@@ -91,25 +91,7 @@ class Icons {
 
     //draw random icons into the grid
     draw(ctx, currentIcon, posX, posY) {
-
-        //let posY = this.position.y;
-        //for (let i = 0; i < grid.rows; i++) {
-            //let posX = this.position.x;
-            //let selectedIconsRow = [];
-            //for (let j = 0; j < grid.columns; j++) {
-                //let currentIcon = this.icons[Math.floor(Math.random() * 5)];
-                ctx.drawImage(currentIcon, posX, posY, this.size, this.size);
-                //selectedIconsRow[j] = {
-                    //image: currentIcon,
-                    //x: posX,
-                    //y: posY
-                //};
-                //posX += grid.intervalX;
-
-            //}
-            //posY += grid.intervalY;
-            //this.selectedIcons.push(selectedIconsRow);
-        //}
+        ctx.drawImage(currentIcon, posX, posY, this.size, this.size);
     }
 
     swap(firstPosX, firstPosY, secondPosX, secondPosY) {
@@ -132,80 +114,14 @@ function mousePos(canvas, event) {
     return position;
 }
 
-class InputHandler {
-    constructor(grid, tiles) {
-        this.clicked = [];
-        this.cellPosArr = [].concat(...grid.getCellPos());
-        let self = this;
-
-        // while cell clicked apply highlighting logic
-        canvas.addEventListener("mousedown", function (e) {
-            let mousePosition = mousePos(canvas, e);
-
-
-        // go through the array of all cell positions
-            for (let i = 0; i < self.cellPosArr.length; i++) {
-
-                // detect which cell was clicked
-                if (mousePosition.x > self.cellPosArr[i].x &&
-                    mousePosition.x < self.cellPosArr[i].xEnd &&
-                    mousePosition.y > self.cellPosArr[i].y &&
-                    mousePosition.y < self.cellPosArr[i].yEnd) {
-                    // if the same cell is clicked twice remove highlight
-                    if (self.cellPosArr[i] === self.clicked[0] || self.cellPosArr[i] === self.clicked[1]) {
-                        grid.removeHighlight(self.cellPosArr[i].x + grid.padding + 2.5, self.cellPosArr[i].y + grid.padding + 2.5, ctx);
-                        self.clicked = self.clicked.filter(el => el !== self.cellPosArr[i]);
-
-                    } else {
-                        // if two cells were clicked remove the higlight from the first one that was clicked
-                        if (self.clicked.length === 2) {
-                            grid.removeHighlight(self.clicked[0].x + grid.padding + 2.5, self.clicked[0].y + grid.padding + 2.5, ctx);
-                            self.clicked.shift();
-                        }
-                        //if one cell was clicked
-                        if (self.clicked.length === 1) {
-                            // if the currently clicked one is adjacent to clicked, highlight it
-                            if ((self.cellPosArr[i].x === self.clicked[0].x &&
-                                    Math.abs(self.clicked[0].y - self.cellPosArr[i].y) <= grid.intervalY + 0.5) ||
-                                (self.clicked[0].y === self.cellPosArr[i].y &&
-                                    Math.abs(self.clicked[0].x - self.cellPosArr[i].x) <= grid.intervalX + 0.5)) {
-                                ctx.strokeStyle = "#000000";
-                                grid.highlightCell(self.cellPosArr[i].x + grid.padding + 2.5, self.cellPosArr[i].y + grid.padding + 2.5, ctx);
-                                
-                                self.clicked.push(self.cellPosArr[i]);
-                            } else {
-                                // remove highlight from the previous one and add it to the current one
-                                grid.removeHighlight(self.clicked[0].x + grid.padding + 2.5, self.clicked[0].y + grid.padding + 2.5, ctx);
-                                self.clicked.shift();
-                                grid.highlightCell(self.cellPosArr[i].x + grid.padding + 2.5, self.cellPosArr[i].y + grid.padding + 2.5, ctx);
-                                self.clicked.push(self.cellPosArr[i]);
-                            }
-                        } else {
-                            ctx.strokeStyle = "#000000";
-                            grid.highlightCell(self.cellPosArr[i].x + grid.padding + 2.5, self.cellPosArr[i].y + grid.padding + 2.5, ctx);
-                            //grid.removeHighlight(self.clicked.x + grid.padding + 2.5, self.clicked.y + grid.padding + 2.5, ctx);
-                            self.clicked.push(self.cellPosArr[i]);
-                        }
-
-                    }
-
-
-
-                }
-
-            }
-
-        });
-    }
-}
-
-let handle = new InputHandler(grid);
-
 class Game {
     constructor(grid, tiles) {
         this.position = tiles.position;
         this.selectedIcons = [];
         this.icons = tiles.icons;
+        this.clicked = [];
+        this.cellPosArr = [].concat(...grid.getCellPos());
+        
     }
 
     drawLevel(ctx) {
@@ -229,13 +145,87 @@ class Game {
         }
     }
 
+    highlightAndSwap(canvas,e) {
+        let mousePosition = mousePos(canvas, e);
+        let self = this;
+    
+                // go through the array of all cell positions
+                for (let i = 0; i < self.cellPosArr.length; i++) {
+    
+                    // detect which cell was clicked
+                    if (mousePosition.x > self.cellPosArr[i].x &&
+                        mousePosition.x < self.cellPosArr[i].xEnd &&
+                        mousePosition.y > self.cellPosArr[i].y &&
+                        mousePosition.y < self.cellPosArr[i].yEnd) {
+                        // if the same cell is clicked twice remove highlight
+                        if (self.cellPosArr[i] === self.clicked[0] || self.cellPosArr[i] === self.clicked[1]) {
+                            grid.removeHighlight(self.cellPosArr[i].x + grid.padding + 2.5, self.cellPosArr[i].y + grid.padding + 2.5, ctx);
+                            self.clicked = self.clicked.filter(el => el !== self.cellPosArr[i]);
+    
+                        } else {
+                            // if two cells were clicked remove the higlight from the first one that was clicked
+                            if (self.clicked.length === 2) {
+                                grid.removeHighlight(self.clicked[0].x + grid.padding + 2.5, self.clicked[0].y + grid.padding + 2.5, ctx);
+                                self.clicked.shift();
+                            }
+                            //if one cell was clicked
+                            if (self.clicked.length === 1) {
+                                // if the currently clicked one is adjacent to clicked, highlight it
+                                if ((self.cellPosArr[i].x === self.clicked[0].x &&
+                                        Math.abs(self.clicked[0].y - self.cellPosArr[i].y) <= grid.intervalY + 0.5) ||
+                                    (self.clicked[0].y === self.cellPosArr[i].y &&
+                                        Math.abs(self.clicked[0].x - self.cellPosArr[i].x) <= grid.intervalX + 0.5)) {
+                                    ctx.strokeStyle = "#000000";
+                                    grid.highlightCell(self.cellPosArr[i].x + grid.padding + 2.5, self.cellPosArr[i].y + grid.padding + 2.5, ctx);
+    
+                                    self.clicked.push(self.cellPosArr[i]);
+                                } else {
+                                    // remove highlight from the previous one and add it to the current one
+                                    grid.removeHighlight(self.clicked[0].x + grid.padding + 2.5, self.clicked[0].y + grid.padding + 2.5, ctx);
+                                    self.clicked.shift();
+                                    grid.highlightCell(self.cellPosArr[i].x + grid.padding + 2.5, self.cellPosArr[i].y + grid.padding + 2.5, ctx);
+                                    self.clicked.push(self.cellPosArr[i]);
+                                }
+                            } else {
+                                ctx.strokeStyle = "#000000";
+                                grid.highlightCell(self.cellPosArr[i].x + grid.padding + 2.5, self.cellPosArr[i].y + grid.padding + 2.5, ctx);
+                                //grid.removeHighlight(self.clicked.x + grid.padding + 2.5, self.clicked.y + grid.padding + 2.5, ctx);
+                                self.clicked.push(self.cellPosArr[i]);
+                            }
+    
+                        }
+    
+    
+    
+                    }
+    
+                }
+    }
 }
 
-let game = new Game(grid,tiles);
+let game = new Game(grid, tiles);
 game.drawLevel(ctx);
 
+class InputHandler {
+    constructor(game) {
+        
+
+        // while cell clicked apply highlighting logic
+        canvas.addEventListener("mousedown", function(e) {
+            game.highlightAndSwap(canvas,e);
+
+        });
+    }
+}
+
+
+
+let handle = new InputHandler(game);
+
+
+
 function swappingLogic(game) {
-        console.log(game.selectedIcons);
+    console.log(game.selectedIcons);
 }
 
 swappingLogic(game);
