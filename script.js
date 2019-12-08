@@ -130,7 +130,7 @@ class Game {
         this.clicked = [];
         this.clickedIcon = [];
         this.cellPosArr = [].concat(...grid.getCellPos());
-        this.matchesRows = [];
+        this.matches = [];
         
     }
 
@@ -156,6 +156,9 @@ class Game {
     }
 
     findMatches() {
+        //finds matches in rows
+        let matchesRows = [];
+        let matchesCols = [];
         for (let i = 0; i < this.selectedIcons.length; i++) {
             let current = {};
             let rowMatch = [];
@@ -168,20 +171,54 @@ class Game {
                     rowMatch.push(this.selectedIcons[i][j]);
                 }
                 else {
-                    current = this.selectedIcons[i][j];
-                    if (rowMatch.length < 3) {
+                    
+                    if (rowMatch.length >= 3) {
+                        matchesRows.push(rowMatch);
+                        rowMatch = [];
+                    } else  {
                         rowMatch = [];
                     }
+                    current = this.selectedIcons[i][j];
                     
                     
                 }
             }
             if(rowMatch.length >= 3) {
-                this.matchesRows.push(rowMatch);
+                matchesRows.push(rowMatch);
             }
         }
-        return this.matchesRows;
+    
+
+        //find matches in columns
+        for(let i = 0; i < this.selectedIcons[0].length; i++) {
+            let current = {};
+            let colMatch = [];
+            for (let j = 0; j < this.selectedIcons.length; j++) {
+                if(current.image === this.selectedIcons[j][i].image) {
+                    if(colMatch.length === 0) {
+                    colMatch.push(current);
+                    };
+
+                    colMatch.push(this.selectedIcons[j][i]);
+                }
+                else {
+                    if (colMatch.length >= 3) {
+                        matchesCols.push(colMatch);
+                        colMatch = [];
+                    } else  {
+                        colMatch = [];
+                    }
+                    current = this.selectedIcons[j][i];
+                    
+                    
+                }
+            }
+            if(colMatch.length >= 3) {
+                matchesCols.push(colMatch);
+        }
     }
+    console.log(matchesCols);
+}
 
     highlightAndSwap(canvas,e) {
         let selectedIconsArr = [].concat(...this.selectedIcons);
