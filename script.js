@@ -97,11 +97,19 @@ class Icons {
     swap(firstPosX, firstPosY, secondPosX, secondPosY) {
         [firstPosX, secondPosX] = [secondPosX, firstPosX];
         [firstPosY, secondPosY] = [secondPosY, firstPosY];
+        return [firstPosX, firstPosY, secondPosX, secondPosY];
+    }
+
+    update(firstPosX, firstPosY, secondPosX, secondPosY, icon1, icon2) {
+        ctx.clearRect(firstPosX, firstPosY, this.size, this.size);
+        ctx.clearRect(secondPosX, secondPosY, this.size, this.size);
+        ctx.drawImage(icon1, firstPosX, firstPosY, this.size, this.size);
+        ctx.drawImage(icon2, secondPosX, secondPosY, this.size, this.size);
     }
 }
 
 let tiles = new Icons(grid);
-
+console.log(tiles.swap(1,2,3,4));
 
 
 // get a mouse position
@@ -120,6 +128,7 @@ class Game {
         this.selectedIcons = [];
         this.icons = tiles.icons;
         this.clicked = [];
+        this.clickedIcon = [];
         this.cellPosArr = [].concat(...grid.getCellPos());
         
     }
@@ -146,6 +155,7 @@ class Game {
     }
 
     highlightAndSwap(canvas,e) {
+        let selectedIconsArr = [].concat(...this.selectedIcons);
         let mousePosition = mousePos(canvas, e);
         let self = this;
     
@@ -161,12 +171,14 @@ class Game {
                         if (self.cellPosArr[i] === self.clicked[0] || self.cellPosArr[i] === self.clicked[1]) {
                             grid.removeHighlight(self.cellPosArr[i].x + grid.padding + 2.5, self.cellPosArr[i].y + grid.padding + 2.5, ctx);
                             self.clicked = self.clicked.filter(el => el !== self.cellPosArr[i]);
+                            self.clickedIcon = self.clicked.filter(el => el !== i);
     
                         } else {
                             // if two cells were clicked remove the higlight from the first one that was clicked
                             if (self.clicked.length === 2) {
                                 grid.removeHighlight(self.clicked[0].x + grid.padding + 2.5, self.clicked[0].y + grid.padding + 2.5, ctx);
                                 self.clicked.shift();
+                                self.clickedIcon.shift();
                             }
                             //if one cell was clicked
                             if (self.clicked.length === 1) {
@@ -177,20 +189,28 @@ class Game {
                                         Math.abs(self.clicked[0].x - self.cellPosArr[i].x) <= grid.intervalX + 0.5)) {
                                     ctx.strokeStyle = "#000000";
                                     grid.highlightCell(self.cellPosArr[i].x + grid.padding + 2.5, self.cellPosArr[i].y + grid.padding + 2.5, ctx);
-    
+                        
+                                    let swapped = tiles.swap(selectedIconsArr[self.clickedIcon[0]].x, selectedIconsArr[self.clickedIcon[0]].y, selectedIconsArr[i].x, selectedIconsArr[i].y);
+                                    selectedIconsArr[self.clickedIcon[0]].x = swapped[0];
+                                    selectedIconsArr[self.clickedIcon[0]].y = swapped[1];
+                                    selectedIconsArr[i].x = swapped[2];
+                                    selectedIconsArr[i].y = swapped[3];
+                                    tiles.update(selectedIconsArr[self.clickedIcon[0]].x, selectedIconsArr[self.clickedIcon[0]].y, selectedIconsArr[i].x, selectedIconsArr[i].y, selectedIconsArr[self.clickedIcon[0]].image, selectedIconsArr[i].image);
                                     self.clicked.push(self.cellPosArr[i]);
+                                    self.clickedIcon.push(i);
                                 } else {
                                     // remove highlight from the previous one and add it to the current one
                                     grid.removeHighlight(self.clicked[0].x + grid.padding + 2.5, self.clicked[0].y + grid.padding + 2.5, ctx);
                                     self.clicked.shift();
                                     grid.highlightCell(self.cellPosArr[i].x + grid.padding + 2.5, self.cellPosArr[i].y + grid.padding + 2.5, ctx);
                                     self.clicked.push(self.cellPosArr[i]);
+                                    self.clickedIcon.push(i);
                                 }
                             } else {
                                 ctx.strokeStyle = "#000000";
                                 grid.highlightCell(self.cellPosArr[i].x + grid.padding + 2.5, self.cellPosArr[i].y + grid.padding + 2.5, ctx);
-                                //grid.removeHighlight(self.clicked.x + grid.padding + 2.5, self.clicked.y + grid.padding + 2.5, ctx);
                                 self.clicked.push(self.cellPosArr[i]);
+                                self.clickedIcon.push(i);
                             }
     
                         }
