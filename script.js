@@ -130,6 +130,7 @@ class Game {
         this.clicked = [];
         this.clickedIcon = [];
         this.cellPosArr = [].concat(...grid.getCellPos());
+        this.matchesRows = [];
         
     }
 
@@ -152,6 +153,34 @@ class Game {
             posY += grid.intervalY;
             this.selectedIcons.push(selectedIconsRow);
         }
+    }
+
+    findMatches() {
+        for (let i = 0; i < this.selectedIcons.length; i++) {
+            let current = {};
+            let rowMatch = [];
+            for (let j = 0; j < this.selectedIcons[i].length; j++) {
+                if(current.image === this.selectedIcons[i][j].image) {
+                    if(rowMatch.length === 0) {
+                    rowMatch.push(current);
+                    };
+
+                    rowMatch.push(this.selectedIcons[i][j]);
+                }
+                else {
+                    current = this.selectedIcons[i][j];
+                    if (rowMatch.length < 3) {
+                        rowMatch = [];
+                    }
+                    
+                    
+                }
+            }
+            if(rowMatch.length >= 3) {
+                this.matchesRows.push(rowMatch);
+            }
+        }
+        return this.matchesRows;
     }
 
     highlightAndSwap(canvas,e) {
@@ -225,6 +254,7 @@ class Game {
 
 let game = new Game(grid, tiles);
 game.drawLevel(ctx);
+console.log(game.findMatches());
 
 class InputHandler {
     constructor(game) {
