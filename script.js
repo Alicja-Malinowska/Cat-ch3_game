@@ -217,7 +217,10 @@ class Game {
                 matchesCols.push(colMatch);
         }
     }
-    console.log(matchesCols);
+
+    //all matches with duplicates removed
+    this.matches = new Set([].concat(...matchesCols.concat(matchesRows)));
+    return this.matches;
 }
 
     highlightAndSwap(canvas,e) {
