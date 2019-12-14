@@ -124,7 +124,7 @@ function mousePos(canvas, event) {
 
 class Game {
     constructor(grid, tiles) {
-        this.position = tiles.position;
+        this.tPosition = tiles.position;
         this.selectedIcons = [];
         this.icons = tiles.icons;
         this.clicked = [];
@@ -135,9 +135,9 @@ class Game {
     }
 
     drawLevel(ctx) {
-        let posY = this.position.y;
+        let posY = this.tPosition.y;
         for (let i = 0; i < grid.rows; i++) {
-            let posX = this.position.x;
+            let posX = this.tPosition.x;
             let selectedIconsRow = [];
             for (let j = 0; j < grid.columns; j++) {
                 let currentIcon = this.icons[Math.floor(Math.random() * 5)];
@@ -223,6 +223,11 @@ class Game {
     return this.matches;
 }
 
+    removeMatches(ctx) {
+        this.matches.forEach(element => {ctx.clearRect(element.x, element.y, tiles.size, tiles.size)
+    });
+}
+
     highlightAndSwap(canvas,e) {
         let selectedIconsArr = [].concat(...this.selectedIcons);
         let mousePosition = mousePos(canvas, e);
@@ -295,6 +300,7 @@ class Game {
 let game = new Game(grid, tiles);
 game.drawLevel(ctx);
 console.log(game.findMatches());
+game.removeMatches(ctx);
 
 class InputHandler {
     constructor(game) {
@@ -314,8 +320,12 @@ let handle = new InputHandler(game);
 
 
 
-function swappingLogic(game) {
+function test(game, ctx, tiles) {
     console.log(game.selectedIcons);
+    console.log(game.matches);
+    //game.matches.forEach(element => {ctx.clearRect(element.x, element.y, tiles.size, tiles.size)
+        
+    //});
 }
 
-swappingLogic(game);
+test(game, ctx, tiles);
