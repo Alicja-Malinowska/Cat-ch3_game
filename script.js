@@ -2,6 +2,7 @@ let canvas = document.getElementById("gameArea");
 let ctx = canvas.getContext("2d");
 
 
+
 const GAME_WIDTH = 350;
 const GAME_HEIGHT = 470;
 
@@ -133,7 +134,10 @@ class Game {
         this.matches = [];
         
     }
-
+/**
+ * draws random icons into the canvas
+ * @param {Object} ctx 
+ */
     drawLevel(ctx) {
         let posY = this.tPosition.y;
         for (let i = 0; i < grid.rows; i++) {
