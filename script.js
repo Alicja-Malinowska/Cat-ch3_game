@@ -268,12 +268,12 @@ class Game {
                                     ctx.strokeStyle = "#000000";
                                     grid.highlightCell(self.cellPosArr[i].x + grid.padding + 2.5, self.cellPosArr[i].y + grid.padding + 2.5, ctx);
                         
-                                    let swapped = tiles.swap(selectedIconsArr[self.clickedIcon[0]].x, selectedIconsArr[self.clickedIcon[0]].y, selectedIconsArr[i].x, selectedIconsArr[i].y);
+                                    /*let swapped = tiles.swap(selectedIconsArr[self.clickedIcon[0]].x, selectedIconsArr[self.clickedIcon[0]].y, selectedIconsArr[i].x, selectedIconsArr[i].y);
                                     selectedIconsArr[self.clickedIcon[0]].x = swapped[0];
                                     selectedIconsArr[self.clickedIcon[0]].y = swapped[1];
                                     selectedIconsArr[i].x = swapped[2];
                                     selectedIconsArr[i].y = swapped[3];
-                                    tiles.update(selectedIconsArr[self.clickedIcon[0]].x, selectedIconsArr[self.clickedIcon[0]].y, selectedIconsArr[i].x, selectedIconsArr[i].y, selectedIconsArr[self.clickedIcon[0]].image, selectedIconsArr[i].image);
+                                    tiles.update(selectedIconsArr[self.clickedIcon[0]].x, selectedIconsArr[self.clickedIcon[0]].y, selectedIconsArr[i].x, selectedIconsArr[i].y, selectedIconsArr[self.clickedIcon[0]].image, selectedIconsArr[i].image);*/
                                     self.clicked.push(self.cellPosArr[i]);
                                     self.clickedIcon.push(i);
                                 } else {
