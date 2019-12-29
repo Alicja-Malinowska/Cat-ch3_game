@@ -343,40 +343,49 @@ game.removeMatches(ctx);
 class InputHandler {
     constructor(game, grid) {
 
-
-        // while cell clicked apply highlighting logic
+/**
+ * on click detect which cell was clicked and apply hihlighting logic
+ */
+        
         canvas.addEventListener("mousedown", function (e) {
             //game.highlightAndSwap(canvas,e);
             game.detectCell(canvas, e);
 
-
+            //if clicked within the grid
             if (game.validClick) {
                 switch (game.clicked.length) {
+                    // if there are no other highigted cells, highlight the clicked one
                     case 1:
                         grid.highlightCell(game.clicked[0].x, game.clicked[0].y, ctx);
                         break;
+                    // if second cell is clicked
                     case 2:
+                        // if it's the same as first, remove highlight
                         if (game.clicked[0] === game.clicked[1]) {
                             grid.removeHighlight(game.clicked[0].x, game.clicked[0].y, ctx);
                             game.clicked = [];
-
+                        // if it's adjacent to the first, highlight it as well
+                        // also, this is a condition when two cells can be swapped
                         } else if ((game.clicked[0].x === game.clicked[1].x &&
                                 Math.abs(game.clicked[0].y - game.clicked[1].y) <= grid.intervalY + 0.5) ||
                             (game.clicked[0].y === game.clicked[1].y &&
                                 Math.abs(game.clicked[0].x - game.clicked[1].x) <= grid.intervalX + 0.5)) {
                             grid.highlightCell(game.clicked[1].x, game.clicked[1].y, ctx);
                             game.validSwap = true;
+                        // if not adjacent cell clicked remove highlight from thr first and add to the second
                         } else {
                             grid.removeHighlight(game.clicked[0].x, game.clicked[0].y, ctx);
                             grid.highlightCell(game.clicked[1].x, game.clicked[1].y, ctx);
                             game.clicked.shift();
                         }
                         break;
+                    // if there are two highighted cells
                     case 3:
+                        //if the third one is same as first or second, remove the highlight from it
                         if (game.clicked[1] === game.clicked[2] || game.clicked[0] === game.clicked[2]) {
                             grid.removeHighlight(game.clicked[2].x, game.clicked[2].y, ctx);
                             game.clicked = game.clicked.filter(el => el !== game.clicked[2]);
-
+                        //if the third one is different, remove highlight from the first and the second and add to the third
                         } else {
                             grid.removeHighlight(game.clicked[0].x, game.clicked[0].y, ctx);
                             grid.removeHighlight(game.clicked[1].x, game.clicked[1].y, ctx);
