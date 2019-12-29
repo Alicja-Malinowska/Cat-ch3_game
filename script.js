@@ -16,6 +16,7 @@ class Grid {
         this.intervalX = this.width / this.columns;
         this.intervalY = this.height / this.rows;
         this.padding = 2;
+        this.higlightPadding = this.padding + 2.5;
     }
     // draw a grid of equal width columns (5) and rows (6)
     draw(ctx) {
@@ -63,14 +64,14 @@ class Grid {
 
     highlightCell(cellX, cellY, ctx) {
         ctx.strokeStyle = "#000000";
-        ctx.strokeRect(cellX, cellY, this.intervalX - 8, this.intervalY - 8);
+        ctx.strokeRect(cellX + this.higlightPadding, cellY + this.higlightPadding, this.intervalX - 8, this.intervalY - 8);
     }
 
     removeHighlight(cellX, cellY, ctx) {
-        ctx.clearRect(cellX - 1, cellY - 1, this.intervalX - 6, 8);
-        ctx.clearRect(cellX - 1, cellY - 1, 8, this.intervalY - 6);
-        ctx.clearRect(cellX - 1, cellY + this.intervalY - 14, this.intervalX - 6, 8);
-        ctx.clearRect(cellX - 1 + this.intervalX - 14, cellY - 1, 8, this.intervalY - 6);
+        ctx.clearRect(cellX - 1 + this.higlightPadding, cellY - 1 + this.higlightPadding, this.intervalX - 6, 8);
+        ctx.clearRect(cellX - 1 + this.higlightPadding, cellY - 1 + this.higlightPadding, 8, this.intervalY - 6);
+        ctx.clearRect(cellX - 1 + this.higlightPadding, cellY + this.higlightPadding + this.intervalY - 14, this.intervalX - 6, 8);
+        ctx.clearRect(cellX - 1 + this.higlightPadding + this.intervalX - 14, cellY - 1 + this.higlightPadding, 8, this.intervalY - 6);
 
     }
 
@@ -243,10 +244,11 @@ class Game {
             mousePosition.x < grid.width + grid.padding &&
             mousePosition.y > grid.padding &&
             mousePosition.y < grid.height + grid.padding) {
-                self.validClick = true;
-            } else {
-                return;
-            }
+            self.validClick = true;
+        } else {
+            return;
+        }
+
         function checkPos(position) {
 
             return mousePosition.x > position.x &&
@@ -255,11 +257,11 @@ class Game {
                 mousePosition.y < position.yEnd
         }
 
-        
-            
-                self.clicked.push(self.cellPosArr.find(checkPos));
-            console.log(self.clicked);
-        
+
+
+        self.clicked.push(self.cellPosArr.find(checkPos));
+        console.log(self.clicked);
+
     }
 
 
@@ -348,44 +350,44 @@ class InputHandler {
             game.detectCell(canvas, e);
 
 
-if(game.validClick) {
-            switch (game.clicked.length) {
-                case 1:
-                    grid.highlightCell(game.clicked[0].x + grid.padding + 2.5, game.clicked[0].y + grid.padding + 2.5, ctx);
-                    break;
-                case 2:
-                    if (game.clicked[0] === game.clicked[1]) {
-                        grid.removeHighlight(game.clicked[0].x + grid.padding + 2.5, game.clicked[0].y + grid.padding + 2.5, ctx);
-                        game.clicked = [];
+            if (game.validClick) {
+                switch (game.clicked.length) {
+                    case 1:
+                        grid.highlightCell(game.clicked[0].x, game.clicked[0].y, ctx);
+                        break;
+                    case 2:
+                        if (game.clicked[0] === game.clicked[1]) {
+                            grid.removeHighlight(game.clicked[0].x, game.clicked[0].y, ctx);
+                            game.clicked = [];
 
-                    } else if ((game.clicked[0].x === game.clicked[1].x &&
-                            Math.abs(game.clicked[0].y - game.clicked[1].y) <= grid.intervalY + 0.5) ||
-                        (game.clicked[0].y === game.clicked[1].y &&
-                            Math.abs(game.clicked[0].x - game.clicked[1].x) <= grid.intervalX + 0.5)) {
-                        grid.highlightCell(game.clicked[1].x + grid.padding + 2.5, game.clicked[1].y + grid.padding + 2.5, ctx);
-                        game.validSwap = true;
-                    } else {
-                        grid.removeHighlight(game.clicked[0].x + grid.padding + 2.5, game.clicked[0].y + grid.padding + 2.5, ctx);
-                        grid.highlightCell(game.clicked[1].x + grid.padding + 2.5, game.clicked[1].y + grid.padding + 2.5, ctx);
-                        game.clicked.shift();
-                    }
-                    break;
-                case 3:
-                    if (game.clicked[1] === game.clicked[2] || game.clicked[0] === game.clicked[2]) {
-                        grid.removeHighlight(game.clicked[2].x + grid.padding + 2.5, game.clicked[2].y + grid.padding + 2.5, ctx);
-                        game.clicked = game.clicked.filter(el => el !== game.clicked[2]);
+                        } else if ((game.clicked[0].x === game.clicked[1].x &&
+                                Math.abs(game.clicked[0].y - game.clicked[1].y) <= grid.intervalY + 0.5) ||
+                            (game.clicked[0].y === game.clicked[1].y &&
+                                Math.abs(game.clicked[0].x - game.clicked[1].x) <= grid.intervalX + 0.5)) {
+                            grid.highlightCell(game.clicked[1].x, game.clicked[1].y, ctx);
+                            game.validSwap = true;
+                        } else {
+                            grid.removeHighlight(game.clicked[0].x, game.clicked[0].y, ctx);
+                            grid.highlightCell(game.clicked[1].x, game.clicked[1].y, ctx);
+                            game.clicked.shift();
+                        }
+                        break;
+                    case 3:
+                        if (game.clicked[1] === game.clicked[2] || game.clicked[0] === game.clicked[2]) {
+                            grid.removeHighlight(game.clicked[2].x, game.clicked[2].y, ctx);
+                            game.clicked = game.clicked.filter(el => el !== game.clicked[2]);
 
-                    } else {
-                        grid.removeHighlight(game.clicked[0].x + grid.padding + 2.5, game.clicked[0].y + grid.padding + 2.5, ctx);
-                        grid.removeHighlight(game.clicked[1].x + grid.padding + 2.5, game.clicked[1].y + grid.padding + 2.5, ctx);
-                        grid.highlightCell(game.clicked[2].x + grid.padding + 2.5, game.clicked[2].y + grid.padding + 2.5, ctx);
-                        game.clicked.splice(0, 2);
-                    }
+                        } else {
+                            grid.removeHighlight(game.clicked[0].x, game.clicked[0].y, ctx);
+                            grid.removeHighlight(game.clicked[1].x, game.clicked[1].y, ctx);
+                            grid.highlightCell(game.clicked[2].x, game.clicked[2].y, ctx);
+                            game.clicked.splice(0, 2);
+                        }
 
 
 
+                }
             }
-        }
         });
     }
 }
