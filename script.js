@@ -62,6 +62,7 @@ class Grid {
 
 
     highlightCell(cellX, cellY, ctx) {
+        ctx.strokeStyle = "#000000";
         ctx.strokeRect(cellX, cellY, this.intervalX - 8, this.intervalY - 8);
     }
 
@@ -110,7 +111,7 @@ class Icons {
 }
 
 let tiles = new Icons(grid);
-console.log(tiles.swap(1,2,3,4));
+console.log(tiles.swap(1, 2, 3, 4));
 
 
 // get a mouse position
@@ -132,12 +133,14 @@ class Game {
         this.clickedIcon = [];
         this.cellPosArr = [].concat(...grid.getCellPos());
         this.matches = [];
-        
+        this.validSwap = false;
+        this.validClick = false;
+
     }
-/**
- * draws random icons into the canvas
- * @param {Object} ctx 
- */
+    /**
+     * draws random icons into the canvas
+     * @param {Object} ctx 
+     */
     drawLevel(ctx) {
         let posY = this.tPosition.y;
         for (let i = 0; i < grid.rows; i++) {
@@ -167,86 +170,101 @@ class Game {
             let current = {};
             let rowMatch = [];
             for (let j = 0; j < this.selectedIcons[i].length; j++) {
-                if(current.image === this.selectedIcons[i][j].image) {
-                    if(rowMatch.length === 0) {
-                    rowMatch.push(current);
+                if (current.image === this.selectedIcons[i][j].image) {
+                    if (rowMatch.length === 0) {
+                        rowMatch.push(current);
                     };
 
                     rowMatch.push(this.selectedIcons[i][j]);
-                }
-                else {
-                    
+                } else {
+
                     if (rowMatch.length >= 3) {
                         matchesRows.push(rowMatch);
                         rowMatch = [];
-                    } else  {
+                    } else {
                         rowMatch = [];
                     }
                     current = this.selectedIcons[i][j];
-                    
-                    
+
+
                 }
             }
-            if(rowMatch.length >= 3) {
+            if (rowMatch.length >= 3) {
                 matchesRows.push(rowMatch);
             }
         }
-    
+
 
         //find matches in columns
-        for(let i = 0; i < this.selectedIcons[0].length; i++) {
+        for (let i = 0; i < this.selectedIcons[0].length; i++) {
             let current = {};
             let colMatch = [];
             for (let j = 0; j < this.selectedIcons.length; j++) {
-                if(current.image === this.selectedIcons[j][i].image) {
-                    if(colMatch.length === 0) {
-                    colMatch.push(current);
+                if (current.image === this.selectedIcons[j][i].image) {
+                    if (colMatch.length === 0) {
+                        colMatch.push(current);
                     };
 
                     colMatch.push(this.selectedIcons[j][i]);
-                }
-                else {
+                } else {
                     if (colMatch.length >= 3) {
                         matchesCols.push(colMatch);
                         colMatch = [];
-                    } else  {
+                    } else {
                         colMatch = [];
                     }
                     current = this.selectedIcons[j][i];
-                    
-                    
+
+
                 }
             }
-            if(colMatch.length >= 3) {
+            if (colMatch.length >= 3) {
                 matchesCols.push(colMatch);
+            }
         }
+
+        //all matches with duplicates removed
+        this.matches = new Set([].concat(...matchesCols.concat(matchesRows)));
+        return this.matches;
     }
 
-    //all matches with duplicates removed
-    this.matches = new Set([].concat(...matchesCols.concat(matchesRows)));
-    return this.matches;
-}
-
     removeMatches(ctx) {
-        this.matches.forEach(element => {ctx.clearRect(element.x, element.y, tiles.size, tiles.size)
-    });
-}
+        this.matches.forEach(element => {
+            ctx.clearRect(element.x, element.y, tiles.size, tiles.size)
+        });
+    }
 
     detectCell(canvas, e) {
         let mousePosition = mousePos(canvas, e);
         let self = this;
+        self.validClick = false;
 
+        if (mousePosition.x > grid.padding &&
+            mousePosition.x < grid.width + grid.padding &&
+            mousePosition.y > grid.padding &&
+            mousePosition.y < grid.height + grid.padding) {
+                self.validClick = true;
+            } else {
+                return;
+            }
         function checkPos(position) {
+
             return mousePosition.x > position.x &&
-            mousePosition.x < position.xEnd &&
-            mousePosition.y > position.y &&
-            mousePosition.y < position.yEnd
+                mousePosition.x < position.xEnd &&
+                mousePosition.y > position.y &&
+                mousePosition.y < position.yEnd
         }
 
-        console.log (self.cellPosArr.find(checkPos));
+        
+            
+                self.clicked.push(self.cellPosArr.find(checkPos));
+            console.log(self.clicked);
+        
     }
 
-    highlightAndSwap(canvas,e) {
+
+
+    /*highlightAndSwap(canvas,e) {
         let selectedIconsArr = [].concat(...this.selectedIcons);
         let mousePosition = mousePos(canvas, e);
         let self = this;
@@ -280,15 +298,15 @@ class Game {
                                     (self.clicked[0].y === self.cellPosArr[i].y &&
                                         Math.abs(self.clicked[0].x - self.cellPosArr[i].x) <= grid.intervalX + 0.5)) {
                                     ctx.strokeStyle = "#000000";
-                                    grid.highlightCell(self.cellPosArr[i].x + grid.padding + 2.5, self.cellPosArr[i].y + grid.padding + 2.5, ctx);
-                        
-                                    /*let swapped = tiles.swap(selectedIconsArr[self.clickedIcon[0]].x, selectedIconsArr[self.clickedIcon[0]].y, selectedIconsArr[i].x, selectedIconsArr[i].y);
-                                    selectedIconsArr[self.clickedIcon[0]].x = swapped[0];
-                                    selectedIconsArr[self.clickedIcon[0]].y = swapped[1];
-                                    selectedIconsArr[i].x = swapped[2];
-                                    selectedIconsArr[i].y = swapped[3];
-                                    tiles.update(selectedIconsArr[self.clickedIcon[0]].x, selectedIconsArr[self.clickedIcon[0]].y, selectedIconsArr[i].x, selectedIconsArr[i].y, selectedIconsArr[self.clickedIcon[0]].image, selectedIconsArr[i].image);*/
-                                    self.clicked.push(self.cellPosArr[i]);
+                                    grid.highlightCell(self.cellPosArr[i].x + grid.padding + 2.5, self.cellPosArr[i].y + grid.padding + 2.5, ctx);*/
+
+    /*let swapped = tiles.swap(selectedIconsArr[self.clickedIcon[0]].x, selectedIconsArr[self.clickedIcon[0]].y, selectedIconsArr[i].x, selectedIconsArr[i].y);
+    selectedIconsArr[self.clickedIcon[0]].x = swapped[0];
+    selectedIconsArr[self.clickedIcon[0]].y = swapped[1];
+    selectedIconsArr[i].x = swapped[2];
+    selectedIconsArr[i].y = swapped[3];
+    tiles.update(selectedIconsArr[self.clickedIcon[0]].x, selectedIconsArr[self.clickedIcon[0]].y, selectedIconsArr[i].x, selectedIconsArr[i].y, selectedIconsArr[self.clickedIcon[0]].image, selectedIconsArr[i].image);*/
+    /*self.clicked.push(self.cellPosArr[i]);
                                     self.clickedIcon.push(i);
                                 } else {
                                     // remove highlight from the previous one and add it to the current one
@@ -312,7 +330,7 @@ class Game {
                     }
     
                 }
-    }
+    }*/
 }
 
 let game = new Game(grid, tiles);
@@ -321,21 +339,60 @@ console.log(game.findMatches());
 game.removeMatches(ctx);
 
 class InputHandler {
-    constructor(game) {
-        
+    constructor(game, grid) {
+
 
         // while cell clicked apply highlighting logic
-        canvas.addEventListener("mousedown", function(e) {
-            game.highlightAndSwap(canvas,e);
+        canvas.addEventListener("mousedown", function (e) {
+            //game.highlightAndSwap(canvas,e);
             game.detectCell(canvas, e);
 
+
+if(game.validClick) {
+            switch (game.clicked.length) {
+                case 1:
+                    grid.highlightCell(game.clicked[0].x + grid.padding + 2.5, game.clicked[0].y + grid.padding + 2.5, ctx);
+                    break;
+                case 2:
+                    if (game.clicked[0] === game.clicked[1]) {
+                        grid.removeHighlight(game.clicked[0].x + grid.padding + 2.5, game.clicked[0].y + grid.padding + 2.5, ctx);
+                        game.clicked = [];
+
+                    } else if ((game.clicked[0].x === game.clicked[1].x &&
+                            Math.abs(game.clicked[0].y - game.clicked[1].y) <= grid.intervalY + 0.5) ||
+                        (game.clicked[0].y === game.clicked[1].y &&
+                            Math.abs(game.clicked[0].x - game.clicked[1].x) <= grid.intervalX + 0.5)) {
+                        grid.highlightCell(game.clicked[1].x + grid.padding + 2.5, game.clicked[1].y + grid.padding + 2.5, ctx);
+                        game.validSwap = true;
+                    } else {
+                        grid.removeHighlight(game.clicked[0].x + grid.padding + 2.5, game.clicked[0].y + grid.padding + 2.5, ctx);
+                        grid.highlightCell(game.clicked[1].x + grid.padding + 2.5, game.clicked[1].y + grid.padding + 2.5, ctx);
+                        game.clicked.shift();
+                    }
+                    break;
+                case 3:
+                    if (game.clicked[1] === game.clicked[2] || game.clicked[0] === game.clicked[2]) {
+                        grid.removeHighlight(game.clicked[2].x + grid.padding + 2.5, game.clicked[2].y + grid.padding + 2.5, ctx);
+                        game.clicked = game.clicked.filter(el => el !== game.clicked[2]);
+
+                    } else {
+                        grid.removeHighlight(game.clicked[0].x + grid.padding + 2.5, game.clicked[0].y + grid.padding + 2.5, ctx);
+                        grid.removeHighlight(game.clicked[1].x + grid.padding + 2.5, game.clicked[1].y + grid.padding + 2.5, ctx);
+                        grid.highlightCell(game.clicked[2].x + grid.padding + 2.5, game.clicked[2].y + grid.padding + 2.5, ctx);
+                        game.clicked.splice(0, 2);
+                    }
+
+
+
+            }
+        }
         });
     }
 }
 
 
 
-let handle = new InputHandler(game);
+let handle = new InputHandler(game, grid);
 
 
 
@@ -343,7 +400,7 @@ function test(game, ctx, tiles) {
     console.log(game.selectedIcons);
     console.log(game.matches);
     //game.matches.forEach(element => {ctx.clearRect(element.x, element.y, tiles.size, tiles.size)
-        
+
     //});
 }
 
