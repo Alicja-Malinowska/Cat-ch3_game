@@ -232,6 +232,20 @@ class Game {
     });
 }
 
+    detectCell(canvas, e) {
+        let mousePosition = mousePos(canvas, e);
+        let self = this;
+
+        function checkPos(position) {
+            return mousePosition.x > position.x &&
+            mousePosition.x < position.xEnd &&
+            mousePosition.y > position.y &&
+            mousePosition.y < position.yEnd
+        }
+
+        console.log (self.cellPosArr.find(checkPos));
+    }
+
     highlightAndSwap(canvas,e) {
         let selectedIconsArr = [].concat(...this.selectedIcons);
         let mousePosition = mousePos(canvas, e);
@@ -313,6 +327,7 @@ class InputHandler {
         // while cell clicked apply highlighting logic
         canvas.addEventListener("mousedown", function(e) {
             game.highlightAndSwap(canvas,e);
+            game.detectCell(canvas, e);
 
         });
     }
