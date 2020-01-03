@@ -21,21 +21,23 @@ class Grid {
     // draw a grid of equal width columns (5) and rows (6)
     draw(ctx) {
         for (let x = 0; x <= this.width; x += this.intervalX) {
-
+            ctx.beginPath();
             ctx.moveTo(x + this.padding + 0.5, this.padding);
             ctx.lineTo(x + this.padding + 0.5, this.height + this.padding);
+            ctx.stroke();
 
         }
 
         for (let y = 0; y <= this.height + this.padding; y += this.intervalY) {
-
+            ctx.beginPath();
             ctx.moveTo(this.padding, y + this.padding + 0.5);
             ctx.lineTo(this.width + this.padding, y + this.padding + 0.5);
+            ctx.stroke();
 
         }
 
 
-        ctx.stroke();
+        
     }
     // creates a two-dimensional array of objects, each containing position where a cell starts and where it ends
     getCellPos() {
@@ -90,11 +92,51 @@ class Icons {
             x: (grid.intervalX + grid.padding) / 2 - this.size / 2,
             y: (grid.intervalY + grid.padding) / 2 - this.size / 2,
         };
+
     };
 
-    //draw random icons into the grid
+    //draw icon
     draw(ctx, currentIcon, posX, posY) {
         ctx.drawImage(currentIcon, posX, posY, this.size, this.size);
+    }
+
+    move(iconObj, direction, destination, ctx, iconsArray) {
+        let speed = 2;
+        console.log(iconObj);
+        let startPoint = direction === "down" ? iconObj.y : iconObj.x
+        /*while(startPoint < destination) {
+            console.log("dupa");
+            setTimeout(function() {ctx.clearRect(iconObj.x, iconObj.y, tiles.size, tiles.size)}, 1000)
+            startPoint += speed;
+            //need to clear the whole game area here and draw the current stated of tiles (modified selectedIcons)
+            //grid.draw(ctx);
+            setTimeout(function() {ctx.drawImage(iconObj.image, direction === "side" ? startPoint : iconObj.x, direction === "down" ? startPoint: iconObj.y, this.size, this.size)}, 2000);
+        }*/
+        let movement = setInterval(function () {
+            ctx.clearRect(iconObj.x, startPoint - speed, tiles.size, tiles.size);
+
+            ctx.clearRect(0, 0, grid.width, grid.height);
+         
+           
+           
+            grid.draw(ctx);
+            iconsArray.forEach(icon => ctx.drawImage(icon.image, icon.x, icon.y, tiles.size, tiles.size));
+                ctx.drawImage(iconObj.image, iconObj.x, startPoint, tiles.size, tiles.size);
+                
+               
+                
+                startPoint += speed;
+        
+                if(startPoint >= destination) {
+                    clearInterval(movement);
+                    ctx.clearRect(iconObj.x, destination, tiles.size, tiles.size)
+                    ctx.drawImage(iconObj.image, direction === "side" ? destination : iconObj.x, direction === "down" ? destination : iconObj.y, tiles.size, tiles.size);}
+                
+                
+        }, 30)
+
+
+
     }
 
     swap(firstPosX, firstPosY, secondPosX, secondPosY) {
@@ -136,6 +178,7 @@ class Game {
         this.matches = [];
         this.validSwap = false;
         this.validClick = false;
+
 
     }
     /**
@@ -225,7 +268,9 @@ class Game {
         }
 
         //all matches with duplicates removed
-        this.matches = new Set([].concat(...matchesCols.concat(matchesRows)));
+        this.matches = Array.from(new Set([].concat(...matchesCols.concat(matchesRows))));
+        //array sorted so that the bottom tiles are first (starting from the biggest y)
+        this.matches.sort((a, b) => b.y - a.y);
         return this.matches;
     }
 
@@ -233,6 +278,31 @@ class Game {
         this.matches.forEach(element => {
             ctx.clearRect(element.x, element.y, tiles.size, tiles.size)
         });
+    }
+
+    fillEmptyCells() {
+        let emptyCells = this.matches;
+
+
+        for (let i = 0; i < emptyCells.length; i++) {
+            if (emptyCells[i].y <= this.tPosition.y) {
+                console.log(i + "nothing above");
+                let randomIcon = this.icons[Math.floor(Math.random() * 5)]
+                tiles.draw(ctx, randomIcon, emptyCells[i].x, emptyCells[i].y);
+                emptyCells.splice(i, 1);
+                i--;
+                console.log(emptyCells);
+            } else if (emptyCells.find(obj => obj.y !== emptyCells[i].y && Math.floor(obj.y) >= Math.floor(emptyCells[i].y - grid.intervalY) && Math.floor(obj.y) < Math.floor(emptyCells[i].y + grid.intervalY) && obj.x === emptyCells[i].x)) {
+                console.log(i + "empty above");
+            } else {
+                console.log(i + "icon above");
+
+
+            }
+
+
+        }
+
     }
 
     detectCell(canvas, e) {
@@ -338,15 +408,23 @@ class Game {
 let game = new Game(grid, tiles);
 game.drawLevel(ctx);
 console.log(game.findMatches());
-game.removeMatches(ctx);
+setTimeout(function () {
+    game.removeMatches(ctx)
+}, 1000);
+setTimeout(function () {
+    game.fillEmptyCells()
+}, 2000);
+/*setTimeout(function () {
+    tiles.move(game.selectedIcons[0][0], "down", game.selectedIcons[5][0].y, ctx, [].concat(...game.selectedIcons))
+}, 3000);*/
 
 class InputHandler {
     constructor(game, grid) {
 
-/**
- * on click detect which cell was clicked and apply hihlighting logic
- */
-        
+        /**
+         * on click detect which cell was clicked and apply hihlighting logic
+         */
+
         canvas.addEventListener("mousedown", function (e) {
             //game.highlightAndSwap(canvas,e);
             game.detectCell(canvas, e);
@@ -358,34 +436,34 @@ class InputHandler {
                     case 1:
                         grid.highlightCell(game.clicked[0].x, game.clicked[0].y, ctx);
                         break;
-                    // if second cell is clicked
+                        // if second cell is clicked
                     case 2:
                         // if it's the same as first, remove highlight
                         if (game.clicked[0] === game.clicked[1]) {
                             grid.removeHighlight(game.clicked[0].x, game.clicked[0].y, ctx);
                             game.clicked = [];
-                        // if it's adjacent to the first, highlight it as well
-                        // also, this is a condition when two cells can be swapped
+                            // if it's adjacent to the first, highlight it as well
+                            // also, this is a condition when two cells can be swapped
                         } else if ((game.clicked[0].x === game.clicked[1].x &&
                                 Math.abs(game.clicked[0].y - game.clicked[1].y) <= grid.intervalY + 0.5) ||
                             (game.clicked[0].y === game.clicked[1].y &&
                                 Math.abs(game.clicked[0].x - game.clicked[1].x) <= grid.intervalX + 0.5)) {
                             grid.highlightCell(game.clicked[1].x, game.clicked[1].y, ctx);
                             game.validSwap = true;
-                        // if not adjacent cell clicked remove highlight from thr first and add to the second
+                            // if not adjacent cell clicked remove highlight from thr first and add to the second
                         } else {
                             grid.removeHighlight(game.clicked[0].x, game.clicked[0].y, ctx);
                             grid.highlightCell(game.clicked[1].x, game.clicked[1].y, ctx);
                             game.clicked.shift();
                         }
                         break;
-                    // if there are two highighted cells
+                        // if there are two highighted cells
                     case 3:
                         //if the third one is same as first or second, remove the highlight from it
                         if (game.clicked[1] === game.clicked[2] || game.clicked[0] === game.clicked[2]) {
                             grid.removeHighlight(game.clicked[2].x, game.clicked[2].y, ctx);
                             game.clicked = game.clicked.filter(el => el !== game.clicked[2]);
-                        //if the third one is different, remove highlight from the first and the second and add to the third
+                            //if the third one is different, remove highlight from the first and the second and add to the third
                         } else {
                             grid.removeHighlight(game.clicked[0].x, game.clicked[0].y, ctx);
                             grid.removeHighlight(game.clicked[1].x, game.clicked[1].y, ctx);
