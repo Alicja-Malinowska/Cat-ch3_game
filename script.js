@@ -171,6 +171,7 @@ class Game {
     constructor(grid, tiles) {
         this.tPosition = tiles.position;
         this.selectedIcons = [];
+        this.selectedIconsArr = [];
         this.icons = tiles.icons;
         this.clicked = [];
         this.clickedIcon = [];
@@ -204,7 +205,9 @@ class Game {
             posY += grid.intervalY;
             this.selectedIcons.push(selectedIconsRow);
         }
+        this.selectedIconsArr = [].concat(...this.selectedIcons);
     }
+    
 
     findMatches() {
         //finds matches in rows
@@ -282,13 +285,14 @@ class Game {
 
     fillEmptyCells() {
         let emptyCells = this.matches;
-
+        
 
         for (let i = 0; i < emptyCells.length; i++) {
             if (emptyCells[i].y <= this.tPosition.y) {
                 console.log(i + "nothing above");
                 let randomIcon = this.icons[Math.floor(Math.random() * 5)]
                 tiles.draw(ctx, randomIcon, emptyCells[i].x, emptyCells[i].y);
+                this.updateLevel(emptyCells[i], randomIcon);
                 emptyCells.splice(i, 1);
                 i--;
                 console.log(emptyCells);
@@ -303,6 +307,12 @@ class Game {
 
         }
 
+    }
+
+    updateLevel(removeObj, addImg) {
+        
+        let index = this.selectedIconsArr.findIndex(obj => obj.x === removeObj.x && obj.y === removeObj.y);
+        this.selectedIconsArr[index].image = addImg;
     }
 
     detectCell(canvas, e) {
