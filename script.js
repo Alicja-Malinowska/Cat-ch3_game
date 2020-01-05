@@ -101,13 +101,15 @@ window.onload = function () {
             ctx.drawImage(currentIcon, posX, posY, this.size, this.size);
         }
 
-        move(moveArray) {
+        move(moveArray, drawArray) {
             
             let movement = setInterval(function() {
             
                 ctx.clearRect(0, 0, grid.width, grid.height);
 
                 grid.draw(ctx);
+
+                drawArray.forEach(icon => ctx.drawImage(icon.image, icon.x, icon.y, tiles.size, tiles.size));
                    
                 moveArray.forEach(function(obj) {
                     let speed = 2;
@@ -123,7 +125,7 @@ window.onload = function () {
                 //obj.y = Math.min(obj.y + speed, obj.destinationY);
 
             });
-
+                drawArray.push(moveArray.map(obj => obj.y >= obj.destinationY));
                 moveArray = moveArray.filter(obj => obj.y < obj.destinationY);
            
                
@@ -521,7 +523,7 @@ window.onload = function () {
     function test(game, ctx, tiles) {
         console.log(game.selectedIcons);
         console.log(game.matches);
-        let testArray = [...game.selectedIcons[0]];
+       /* let testArray = [...game.selectedIcons[0]];
         testArray[0].destinationY = 81;
         testArray[1].destinationY = 147;
         testArray[2].destinationY = 214;
@@ -529,11 +531,11 @@ window.onload = function () {
         testArray[4].destinationY = 347;
         testArray.forEach(obj => obj.destinationX = obj.x);
 
-    console.log(testArray);
+    console.log(testArray);*/
         //game.matches.forEach(element => {ctx.clearRect(element.x, element.y, tiles.size, tiles.size)
 
         //});
-        tiles.move(testArray);
+        //tiles.move(testArray);
     }
 
     test(game, ctx, tiles);
