@@ -102,42 +102,42 @@ window.onload = function () {
         }
 
         move(moveArray, drawArray) {
-            
-            let movement = setInterval(function() {
-            
+
+            let movement = setInterval(function () {
+
                 ctx.clearRect(0, 0, grid.width, grid.height);
 
                 grid.draw(ctx);
 
-                drawArray.forEach(icon => ctx.drawImage(icon.image, icon.x, icon.y, tiles.size, tiles.size));
-                   
-                moveArray.forEach(function(obj) {
+                drawArray.forEach(row => row.filter(icon => !icon.removed).forEach(icon => ctx.drawImage(icon.image, icon.x, icon.y, tiles.size, tiles.size)));
+
+                moveArray.forEach(function (obj) {
                     let speed = 2;
-                
-                //iconsArray.filter(icon => !(emptyArray.includes(icon))).forEach(icon => ctx.drawImage(icon.image, icon.x, icon.y, tiles.size, tiles.size));
+
+                    //iconsArray.filter(icon => !(emptyArray.includes(icon))).forEach(icon => ctx.drawImage(icon.image, icon.x, icon.y, tiles.size, tiles.size));
                     obj.y += speed;
-                    if(obj.y >= obj.destinationY) {
-                        obj.y = obj.destinationY;   
+                    if (obj.y >= obj.destinationY) {
+                        obj.y = obj.destinationY;
                     }
                     ctx.drawImage(obj.image, obj.x, obj.y, tiles.size, tiles.size);
-                
-                
-                //obj.y = Math.min(obj.y + speed, obj.destinationY);
 
-            });
-                drawArray.push(moveArray.map(obj => obj.y >= obj.destinationY));
+
+                    //obj.y = Math.min(obj.y + speed, obj.destinationY);
+
+                });
+                //drawArray.push(moveArray.map(obj => obj.y >= obj.destinationY));
                 moveArray = moveArray.filter(obj => obj.y < obj.destinationY);
-           
-               
+
+
 
                 if (moveArray.length === 0) {
                     clearInterval(movement);
                 }
-                
-        }, 30)
+
+            }, 30)
 
 
-        
+
         }
 
         swap(firstPosX, firstPosY, secondPosX, secondPosY) {
@@ -198,7 +198,8 @@ window.onload = function () {
                     selectedIconsRow[j] = {
                         image: currentIcon,
                         x: posX,
-                        y: posY
+                        y: posY,
+                        removed: false
                     };
                     posX += grid.intervalX;
 
@@ -215,12 +216,12 @@ window.onload = function () {
             let matchesRows = [];
             let matchesCols = [];
             for (let i = 0; i < this.selectedIcons.length; i++) {
-                let current = {};
+                let previous = {};
                 let rowMatch = [];
                 for (let j = 0; j < this.selectedIcons[i].length; j++) {
-                    if (current.image === this.selectedIcons[i][j].image) {
+                    if (previous.image === this.selectedIcons[i][j].image) {
                         if (rowMatch.length === 0) {
-                            rowMatch.push(current);
+                            rowMatch.push(previous);
                         };
 
                         rowMatch.push(this.selectedIcons[i][j]);
@@ -232,7 +233,7 @@ window.onload = function () {
                         } else {
                             rowMatch = [];
                         }
-                        current = this.selectedIcons[i][j];
+                        previous = this.selectedIcons[i][j];
 
 
                     }
@@ -245,12 +246,12 @@ window.onload = function () {
 
             //find matches in columns
             for (let i = 0; i < this.selectedIcons[0].length; i++) {
-                let current = {};
+                let previous = {};
                 let colMatch = [];
                 for (let j = 0; j < this.selectedIcons.length; j++) {
-                    if (current.image === this.selectedIcons[j][i].image) {
+                    if (previous.image === this.selectedIcons[j][i].image) {
                         if (colMatch.length === 0) {
-                            colMatch.push(current);
+                            colMatch.push(previous);
                         };
 
                         colMatch.push(this.selectedIcons[j][i]);
@@ -261,7 +262,7 @@ window.onload = function () {
                         } else {
                             colMatch = [];
                         }
-                        current = this.selectedIcons[j][i];
+                        previous = this.selectedIcons[j][i];
 
 
                     }
@@ -283,13 +284,45 @@ window.onload = function () {
                 ctx.clearRect(element.x, element.y, tiles.size, tiles.size)
             });
 
-            /*this.matches.forEach(function (el) {
-                let index = game.selectedIconsArr.findIndex(obj => obj.x === el.x && obj.y === el.y);
-                el[index] = {};
-            });*/
-
-            
+            for (let i = 0; i < this.selectedIcons.length; i++) {
+                this.selectedIcons[i].forEach(function (obj) {
+                    if (game.matches.includes(obj)) {
+                        obj.removed = true;
+                    }
+                });
+            }
         }
+        /*this.matches.forEach(function (el) {
+            let index = game.selectedIconsArr.findIndex(obj => obj.x === el.x && obj.y === el.y);
+            el[index] = {};
+        });*/
+        findIconsToMove() {
+            let toMoveArray = [];
+            for (let i = this.selectedIcons.length-1; i > 0; i--) {
+                
+                for (let j = 0; j < this.selectedIcons[i].length; j++) {
+                
+                    if (this.selectedIcons[i][j].removed) {
+                    
+                        let removedIcon = this.selectedIcons[i][j];
+    
+                        for (let k = 1; k <= i; k++) {
+                            let current = this.selectedIcons[i - k][j]
+                            if (!(current.removed)) {
+                                current.destinationY = removedIcon.y;
+                                current.removed = true;
+                                toMoveArray.push(current);
+                                break;
+                            }
+                        }
+                    }
+
+                }
+            }
+            return toMoveArray;
+        }
+
+
         fillEmptyCells() {
             let emptyCells = [...this.matches];
 
@@ -311,13 +344,15 @@ window.onload = function () {
                     //this.updateLevel(emptyCells[i], toMove.image);
                     //console.log(this.selectedIconsArr);
                     tiles.move(toMove, "down", emptyCells[i].y, ctx, this.selectedIconsArr, emptyCells, callback);
-                    emptyCells.splice(i,0,toMove);
+                    emptyCells.splice(i, 0, toMove);
+
                     function callback() {
-                        emptyCells.splice(i+1,1);
+                        emptyCells.splice(i + 1, 1);
                         game.updateLevel(emptyCells[i], toMove.image);
-                        
-                    console.log(emptyCells)};
-                   
+
+                        console.log(emptyCells)
+                    };
+
                     console.log(i + "icon above");
 
 
@@ -445,6 +480,7 @@ window.onload = function () {
     console.log(game.findMatches());
     setTimeout(function () {
         game.removeMatches(ctx)
+        game.findIconsToMove()
     }, 1000);
     /*setTimeout(function () {
         game.fillEmptyCells()
@@ -452,6 +488,9 @@ window.onload = function () {
     /*setTimeout(function () {
         tiles.move(game.selectedIcons[0][0], "down", game.selectedIcons[5][0].y, ctx, [].concat(...game.selectedIcons))
     }, 3000);*/
+    /*setTimeout(function() {
+        game.findIconsToMove()
+    }, 1500);*/
 
     class InputHandler {
         constructor(game, grid) {
@@ -523,7 +562,7 @@ window.onload = function () {
     function test(game, ctx, tiles) {
         console.log(game.selectedIcons);
         console.log(game.matches);
-       /* let testArray = [...game.selectedIcons[0]];
+        /* let testArray = [...game.selectedIcons[0]];
         testArray[0].destinationY = 81;
         testArray[1].destinationY = 147;
         testArray[2].destinationY = 214;
@@ -540,5 +579,5 @@ window.onload = function () {
 
     test(game, ctx, tiles);
 
-    
+
 }
