@@ -109,7 +109,7 @@ window.onload = function () {
 
                 grid.draw(ctx);
 
-                drawArray.forEach(row => row.filter(icon => !icon.removed).forEach(icon => ctx.drawImage(icon.image, icon.x, icon.y, tiles.size, tiles.size)));
+                drawArray.forEach(row => row.filter(obj => !obj.removed).forEach(icon => ctx.drawImage(icon.image, icon.x, icon.y, tiles.size, tiles.size)));
 
                 moveArray.forEach(function (obj) {
                     let speed = 2;
@@ -118,6 +118,18 @@ window.onload = function () {
                     obj.y += speed;
                     if (obj.y >= obj.destinationY) {
                         obj.y = obj.destinationY;
+                        let toChange = {};
+                       
+                        drawArray.forEach(function(row) {
+                            
+                            toChange = row.find(icon => icon.x === obj.x && icon.y === obj.y);
+                            if(toChange){
+                            toChange.image = obj.image;
+                            toChange.removed = false;
+                            }
+                        })
+                        
+                        
                     }
                     ctx.drawImage(obj.image, obj.x, obj.y, tiles.size, tiles.size);
 
@@ -311,7 +323,7 @@ window.onload = function () {
                             if (!(current.removed)) {
                                 current.destinationY = removedIcon.y;
                                 current.removed = true;
-                                toMoveArray.push(current);
+                                toMoveArray.push({...current});
                                 break;
                             }
                         }
@@ -479,8 +491,11 @@ window.onload = function () {
     game.drawLevel(ctx);
     console.log(game.findMatches());
     setTimeout(function () {
-        game.removeMatches(ctx)
-        game.findIconsToMove()
+        game.removeMatches(ctx);
+        //game.findIconsToMove();
+        tiles.move(game.findIconsToMove(), game.selectedIcons)
+        
+        
     }, 1000);
     /*setTimeout(function () {
         game.fillEmptyCells()
@@ -489,8 +504,12 @@ window.onload = function () {
         tiles.move(game.selectedIcons[0][0], "down", game.selectedIcons[5][0].y, ctx, [].concat(...game.selectedIcons))
     }, 3000);*/
     /*setTimeout(function() {
-        game.findIconsToMove()
-    }, 1500);*/
+        game.selectedIcons.forEach(row => row.filter(obj => obj.removed).forEach(function(icon){
+            console.log(icon);
+            icon.image = tiles.icons[Math.floor(Math.random() * 5)];
+            icon.removed = false})
+        );
+    }, 4500);*/
 
     class InputHandler {
         constructor(game, grid) {
