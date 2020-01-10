@@ -437,12 +437,11 @@ window.onload = function () {
                 this.removeMatches(ctx);
                 let removeArray = this.findIconsToMove()
                 let yValues = removeArray.map(obj => Math.abs(obj.destinationY - obj.y));
-                let interval = (Math.max(...yValues)/2) * tiles.interval + 50;
+                let interval = (Math.max(...yValues)/2) * tiles.interval + 30;
                 tiles.move(removeArray, this.selectedIcons);
                 await sleep(interval);
                 this.updateRefill();
                 this.findMatches();
-                console.log("dupa");
                 
                     
                     
