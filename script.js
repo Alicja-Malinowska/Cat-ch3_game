@@ -7,6 +7,9 @@ window.onload = function () {
     const GAME_WIDTH = 350;
     const GAME_HEIGHT = 470;
 
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+      }
 
     class Grid {
         constructor() {
@@ -93,7 +96,7 @@ window.onload = function () {
                 x: (grid.intervalX + grid.padding) / 2 - this.size / 2,
                 y: (grid.intervalY + grid.padding) / 2 - this.size / 2,
             };
-
+            this.interval = 30;
         };
 
         //draw icon
@@ -139,14 +142,17 @@ window.onload = function () {
                 });
                 //drawArray.push(moveArray.map(obj => obj.y >= obj.destinationY));
                 moveArray = moveArray.filter(obj => obj.y < obj.destinationY);
-
+                tiles.times++;
+                
 
 
                 if (moveArray.length === 0) {
                     clearInterval(movement);
+                    
+                    
                 }
 
-            }, 30)
+            }, tiles.interval);
 
 
 
@@ -184,7 +190,6 @@ window.onload = function () {
         constructor(grid, tiles) {
             this.tPosition = tiles.position;
             this.selectedIcons = [];
-            this.selectedIconsArr = [];
             this.icons = tiles.icons;
             this.clicked = [];
             this.clickedIcon = [];
@@ -200,8 +205,8 @@ window.onload = function () {
          * @param {Object} ctx 
          */
         drawLevel(ctx) {
-            let posY = this.tPosition.y;
-            for (let i = 0; i < grid.rows; i++) {
+            let posY = this.tPosition.y - grid.intervalY * grid.rows;
+            for (let i = 0; i < grid.rows * 2; i++) {
                 let posX = this.tPosition.x;
                 let selectedIconsRow = [];
                 for (let j = 0; j < grid.columns; j++) {
@@ -219,7 +224,7 @@ window.onload = function () {
                 posY += grid.intervalY;
                 this.selectedIcons.push(selectedIconsRow);
             }
-            this.selectedIconsArr = [].concat(...this.selectedIcons);
+            
         }
 
 
@@ -227,7 +232,7 @@ window.onload = function () {
             //finds matches in rows
             let matchesRows = [];
             let matchesCols = [];
-            for (let i = 0; i < this.selectedIcons.length; i++) {
+            for (let i = this.selectedIcons.length/2; i < this.selectedIcons.length; i++) {
                 let previous = {};
                 let rowMatch = [];
                 for (let j = 0; j < this.selectedIcons[i].length; j++) {
@@ -260,7 +265,7 @@ window.onload = function () {
             for (let i = 0; i < this.selectedIcons[0].length; i++) {
                 let previous = {};
                 let colMatch = [];
-                for (let j = 0; j < this.selectedIcons.length; j++) {
+                for (let j = this.selectedIcons.length/2; j < this.selectedIcons.length; j++) {
                     if (previous.image === this.selectedIcons[j][i].image) {
                         if (colMatch.length === 0) {
                             colMatch.push(previous);
@@ -296,7 +301,7 @@ window.onload = function () {
                 ctx.clearRect(element.x, element.y, tiles.size, tiles.size)
             });
 
-            for (let i = 0; i < this.selectedIcons.length; i++) {
+            for (let i = this.selectedIcons.length/2; i < this.selectedIcons.length; i++) {
                 this.selectedIcons[i].forEach(function (obj) {
                     if (game.matches.includes(obj)) {
                         obj.removed = true;
@@ -310,7 +315,7 @@ window.onload = function () {
         });*/
         findIconsToMove() {
             let toMoveArray = [];
-            for (let i = this.selectedIcons.length-1; i > 0; i--) {
+            for (let i = this.selectedIcons.length-1; i >= this.selectedIcons.length/2; i--) {
                 
                 for (let j = 0; j < this.selectedIcons[i].length; j++) {
                 
@@ -334,8 +339,15 @@ window.onload = function () {
             return toMoveArray;
         }
 
-
-        fillEmptyCells() {
+        updateRefill() {
+            for (let i = 0; i < game.selectedIcons.length/2; i++) {
+                game.selectedIcons[i].forEach(function(obj) {
+                obj.image = game.icons[Math.floor(Math.random() * 5)];
+                obj.removed = false;
+            });
+        }
+    }
+        /*fillEmptyCells() {
             let emptyCells = [...this.matches];
 
             // while(emptyCells.length > 0) {
@@ -373,7 +385,7 @@ window.onload = function () {
 
             }
             //}
-        }
+        }*/
 
 
         /**
@@ -381,11 +393,11 @@ window.onload = function () {
          * @param {Object} removeObj 
          * @param {Object} addImg 
          */
-        updateLevel(removeObj, addImg) {
+        /*updateLevel(removeObj, addImg) {
 
             let index = this.selectedIconsArr.findIndex(obj => obj.x === removeObj.x && obj.y === removeObj.y);
             this.selectedIconsArr[index].image = addImg;
-        }
+        }*/
 
         detectCell(canvas, e) {
             let mousePosition = mousePos(canvas, e);
@@ -416,7 +428,29 @@ window.onload = function () {
 
         }
 
+        async resolve() {
+            
+            this.findMatches();
+            while(this.matches.length !== 0) {
+                
+                await sleep(1000);
+                this.removeMatches(ctx);
+                let removeArray = this.findIconsToMove()
+                let yValues = removeArray.map(obj => Math.abs(obj.destinationY - obj.y));
+                let interval = (Math.max(...yValues)/2) * tiles.interval + 50;
+                tiles.move(removeArray, this.selectedIcons);
+                await sleep(interval);
+                this.updateRefill();
+                this.findMatches();
+                console.log("dupa");
+                
+                    
+                    
+                    
+                
 
+            }
+        }
 
         /*highlightAndSwap(canvas,e) {
             let selectedIconsArr = [].concat(...this.selectedIcons);
@@ -489,14 +523,12 @@ window.onload = function () {
 
     let game = new Game(grid, tiles);
     game.drawLevel(ctx);
-    console.log(game.findMatches());
-    setTimeout(function () {
-        game.removeMatches(ctx);
-        //game.findIconsToMove();
-        tiles.move(game.findIconsToMove(), game.selectedIcons)
+    //console.log(game.findMatches());
+    //setTimeout(function () {
+        game.resolve();
         
         
-    }, 1000);
+    //}, 1000);
     /*setTimeout(function () {
         game.fillEmptyCells()
     }, 2000);*/
