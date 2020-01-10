@@ -9,7 +9,7 @@ window.onload = function () {
 
     function sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
-      }
+    }
 
     class Grid {
         constructor() {
@@ -104,7 +104,7 @@ window.onload = function () {
             ctx.drawImage(currentIcon, posX, posY, this.size, this.size);
         }
 
-        move(moveArray, drawArray) {
+        move(moveArray, drawArray, direction) {
 
             let movement = setInterval(function () {
 
@@ -113,43 +113,79 @@ window.onload = function () {
                 grid.draw(ctx);
 
                 drawArray.forEach(row => row.filter(obj => !obj.removed).forEach(icon => ctx.drawImage(icon.image, icon.x, icon.y, tiles.size, tiles.size)));
-
                 moveArray.forEach(function (obj) {
+                    let objDir = direction === "down" ? obj.y : obj.x;
+                    let objDes = direction === "down" ? obj.destinationY : obj.destinationX;
+
                     let speed = 2;
 
                     //iconsArray.filter(icon => !(emptyArray.includes(icon))).forEach(icon => ctx.drawImage(icon.image, icon.x, icon.y, tiles.size, tiles.size));
-                    obj.y += speed;
-                    if (obj.y >= obj.destinationY) {
-                        obj.y = obj.destinationY;
-                        let toChange = {};
-                       
-                        drawArray.forEach(function(row) {
-                            
-                            toChange = row.find(icon => icon.x === obj.x && icon.y === obj.y);
-                            if(toChange){
-                            toChange.image = obj.image;
-                            toChange.removed = false;
-                            }
-                        })
-                        
-                        
+                    if (objDir > objDes) {
+
+                        objDir -= speed;
+                        if (objDir <= objDes) {
+
+                            objDir = objDes;
+                            direction === "down" ? obj.y = objDir : obj.x = objDir;
+                            let toChange = {};
+
+                            drawArray.forEach(function (row) {
+
+                                toChange = row.find(icon => icon.x === obj.x && icon.y === obj.y);
+                                if (toChange) {
+                                    toChange.image = obj.image;
+                                    toChange.removed = false;
+                                }
+                            })
+
+
+                        }
+
+                    } else {
+                        objDir += speed;
+                        if (objDir >= objDes) {
+
+                            objDir = objDes;
+                            direction === "down" ? obj.y = objDir : obj.x = objDir;
+                            let toChange = {};
+
+                            drawArray.forEach(function (row) {
+
+                                toChange = row.find(icon => icon.x === obj.x && icon.y === obj.y);
+                                if (toChange) {
+                                    toChange.image = obj.image;
+                                    toChange.removed = false;
+                                }
+                            })
+
+
+                        }
+
                     }
-                    ctx.drawImage(obj.image, obj.x, obj.y, tiles.size, tiles.size);
+
+                    direction === "down" ? obj.y = objDir : obj.x = objDir;
+
+                    ctx.drawImage(obj.image, direction === "down" ? obj.x : objDir, direction === "down" ? objDir : obj.y, tiles.size, tiles.size);
 
 
                     //obj.y = Math.min(obj.y + speed, obj.destinationY);
 
                 });
                 //drawArray.push(moveArray.map(obj => obj.y >= obj.destinationY));
-                moveArray = moveArray.filter(obj => obj.y < obj.destinationY);
-                tiles.times++;
-                
+                if (direction === "down") {
+                    moveArray = moveArray.filter(obj => obj.y !== obj.destinationY);
+                } else {
+                    moveArray = moveArray.filter(obj => obj.x !== obj.destinationX);
+                }
+
+
+
 
 
                 if (moveArray.length === 0) {
                     clearInterval(movement);
-                    
-                    
+
+
                 }
 
             }, tiles.interval);
@@ -158,22 +194,15 @@ window.onload = function () {
 
         }
 
-        swap(firstPosX, firstPosY, secondPosX, secondPosY) {
-            [firstPosX, secondPosX] = [secondPosX, firstPosX];
-            [firstPosY, secondPosY] = [secondPosY, firstPosY];
-            return [firstPosX, firstPosY, secondPosX, secondPosY];
-        }
+        
 
-        update(firstPosX, firstPosY, secondPosX, secondPosY, icon1, icon2) {
-            ctx.clearRect(firstPosX, firstPosY, this.size, this.size);
-            ctx.clearRect(secondPosX, secondPosY, this.size, this.size);
-            ctx.drawImage(icon1, firstPosX, firstPosY, this.size, this.size);
-            ctx.drawImage(icon2, secondPosX, secondPosY, this.size, this.size);
-        }
+    
+
+        
     }
 
     let tiles = new Icons(grid);
-    console.log(tiles.swap(1, 2, 3, 4));
+
 
 
     // get a mouse position
@@ -195,7 +224,7 @@ window.onload = function () {
             this.clickedIcon = [];
             this.cellPosArr = [].concat(...grid.getCellPos());
             this.matches = [];
-            this.validSwap = false;
+            this.canSwap = false;
             this.validClick = false;
 
 
@@ -224,7 +253,7 @@ window.onload = function () {
                 posY += grid.intervalY;
                 this.selectedIcons.push(selectedIconsRow);
             }
-            
+
         }
 
 
@@ -232,7 +261,7 @@ window.onload = function () {
             //finds matches in rows
             let matchesRows = [];
             let matchesCols = [];
-            for (let i = this.selectedIcons.length/2; i < this.selectedIcons.length; i++) {
+            for (let i = this.selectedIcons.length / 2; i < this.selectedIcons.length; i++) {
                 let previous = {};
                 let rowMatch = [];
                 for (let j = 0; j < this.selectedIcons[i].length; j++) {
@@ -265,7 +294,7 @@ window.onload = function () {
             for (let i = 0; i < this.selectedIcons[0].length; i++) {
                 let previous = {};
                 let colMatch = [];
-                for (let j = this.selectedIcons.length/2; j < this.selectedIcons.length; j++) {
+                for (let j = this.selectedIcons.length / 2; j < this.selectedIcons.length; j++) {
                     if (previous.image === this.selectedIcons[j][i].image) {
                         if (colMatch.length === 0) {
                             colMatch.push(previous);
@@ -301,7 +330,7 @@ window.onload = function () {
                 ctx.clearRect(element.x, element.y, tiles.size, tiles.size)
             });
 
-            for (let i = this.selectedIcons.length/2; i < this.selectedIcons.length; i++) {
+            for (let i = this.selectedIcons.length / 2; i < this.selectedIcons.length; i++) {
                 this.selectedIcons[i].forEach(function (obj) {
                     if (game.matches.includes(obj)) {
                         obj.removed = true;
@@ -315,20 +344,22 @@ window.onload = function () {
         });*/
         findIconsToMove() {
             let toMoveArray = [];
-            for (let i = this.selectedIcons.length-1; i >= this.selectedIcons.length/2; i--) {
-                
+            for (let i = this.selectedIcons.length - 1; i >= this.selectedIcons.length / 2; i--) {
+
                 for (let j = 0; j < this.selectedIcons[i].length; j++) {
-                
+
                     if (this.selectedIcons[i][j].removed) {
-                    
+
                         let removedIcon = this.selectedIcons[i][j];
-    
+
                         for (let k = 1; k <= i; k++) {
                             let current = this.selectedIcons[i - k][j]
                             if (!(current.removed)) {
                                 current.destinationY = removedIcon.y;
                                 current.removed = true;
-                                toMoveArray.push({...current});
+                                toMoveArray.push({
+                                    ...current
+                                });
                                 break;
                             }
                         }
@@ -339,14 +370,78 @@ window.onload = function () {
             return toMoveArray;
         }
 
-        updateRefill() {
-            for (let i = 0; i < game.selectedIcons.length/2; i++) {
-                game.selectedIcons[i].forEach(function(obj) {
-                obj.image = game.icons[Math.floor(Math.random() * 5)];
-                obj.removed = false;
-            });
+        findIconsToSwap() {
+
+            let cellsArray = grid.getCellPos();
+            let toSwap = [];
+            for (let i = 0; i < this.clicked.length; i++) {
+                let rowIndex;
+                let innerIndex;
+                for (let j = 0; j < cellsArray.length; j++) {
+
+                    innerIndex = cellsArray[j].findIndex(cell => cell.x === this.clicked[i].x && cell.y === this.clicked[i].y);
+                    if (innerIndex !== -1) {
+                        rowIndex = j;
+                        break;
+                    }
+                }
+                let iconToSwap = this.selectedIcons[rowIndex + this.selectedIcons.length / 2][innerIndex];
+                iconToSwap.removed = true;
+                toSwap.push({...iconToSwap});
+            }
+
+            return toSwap;
         }
-    }
+
+        async swap() {
+
+            let toSwap = this.findIconsToSwap()
+            let first = {...toSwap[0]};
+            let second = {...toSwap[0]};
+            let direction = this.clicked[0].x === this.clicked[1].x ? "down" : "side";
+           
+            if (direction === "down") {
+                toSwap[1].destinationY = toSwap[0].y;
+                toSwap[0].destinationY = toSwap[1].y;
+            } else {
+                toSwap[1].destinationX = toSwap[0].x;
+                toSwap[0].destinationX = toSwap[1].x;
+
+            }
+            
+            this.clicked = [];
+            tiles.move(toSwap, this.selectedIcons, direction);
+            await sleep(1500);
+            let matches = this.findMatches();
+            /*if(matches.length === 0) {
+                console.log("gotta swap back!");
+                console.log(toSwap[0]);
+                console.log(first.x);
+                toSwap[0].destinationX = first.x;
+                toSwap[1].destinationX = second.x;
+                toSwap[0].destinationY = first.y;
+                toSwap[1].destinationY = second.y;
+                tiles.move(toSwap, this.selectedIcons, direction);
+            }*/
+            
+        }
+
+        checkSwap() {
+            console.log()
+            /*let matches = this.findMatches();
+            if (matches.length === 0) {
+
+            }*/
+        }
+
+        updateRefill() {
+            for (let i = 0; i < game.selectedIcons.length / 2; i++) {
+                game.selectedIcons[i].forEach(function (obj) {
+                    obj.image = game.icons[Math.floor(Math.random() * 5)];
+                    obj.removed = false;
+                });
+            }
+        }
         /*fillEmptyCells() {
             let emptyCells = [...this.matches];
 
@@ -429,24 +524,24 @@ window.onload = function () {
         }
 
         async resolve() {
-            
+
             this.findMatches();
-            while(this.matches.length !== 0) {
-                
+            while (this.matches.length !== 0) {
+
                 await sleep(1000);
                 this.removeMatches(ctx);
                 let removeArray = this.findIconsToMove()
                 let yValues = removeArray.map(obj => Math.abs(obj.destinationY - obj.y));
-                let interval = (Math.max(...yValues)/2) * tiles.interval + 30;
-                tiles.move(removeArray, this.selectedIcons);
+                let interval = (Math.max(...yValues) / 2) * tiles.interval + 30;
+                tiles.move(removeArray, this.selectedIcons, "down");
                 await sleep(interval);
                 this.updateRefill();
                 this.findMatches();
-                
-                    
-                    
-                    
-                
+
+
+
+
+
 
             }
         }
@@ -524,9 +619,9 @@ window.onload = function () {
     game.drawLevel(ctx);
     //console.log(game.findMatches());
     //setTimeout(function () {
-        game.resolve();
-        
-        
+    game.resolve();
+
+
     //}, 1000);
     /*setTimeout(function () {
         game.fillEmptyCells()
@@ -573,7 +668,7 @@ window.onload = function () {
                                 (game.clicked[0].y === game.clicked[1].y &&
                                     Math.abs(game.clicked[0].x - game.clicked[1].x) <= grid.intervalX + 0.5)) {
                                 grid.highlightCell(game.clicked[1].x, game.clicked[1].y, ctx);
-                                game.validSwap = true;
+                                game.swap();
                                 // if not adjacent cell clicked remove highlight from thr first and add to the second
                             } else {
                                 grid.removeHighlight(game.clicked[0].x, game.clicked[0].y, ctx);
@@ -609,9 +704,10 @@ window.onload = function () {
 
 
 
-    function test(game, ctx, tiles) {
+    function test(game, ctx, tiles, grid) {
         console.log(game.selectedIcons);
         console.log(game.matches);
+
         /* let testArray = [...game.selectedIcons[0]];
         testArray[0].destinationY = 81;
         testArray[1].destinationY = 147;
@@ -627,7 +723,7 @@ window.onload = function () {
         //tiles.move(testArray);
     }
 
-    test(game, ctx, tiles);
+    test(game, ctx, tiles, grid);
 
 
 }
