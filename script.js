@@ -117,7 +117,7 @@ window.onload = function () {
                     let objDir = direction === "down" ? obj.y : obj.x;
                     let objDes = direction === "down" ? obj.destinationY : obj.destinationX;
 
-                    let speed = 2;
+                    let speed = 5;
 
                     //iconsArray.filter(icon => !(emptyArray.includes(icon))).forEach(icon => ctx.drawImage(icon.image, icon.x, icon.y, tiles.size, tiles.size));
                     if (objDir > objDes) {
