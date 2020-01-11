@@ -393,11 +393,9 @@ window.onload = function () {
             return toSwap;
         }
 
-        async swap() {
+        swap() {
 
             let toSwap = this.findIconsToSwap()
-            let first = {...toSwap[0]};
-            let second = {...toSwap[0]};
             let direction = this.clicked[0].x === this.clicked[1].x ? "down" : "side";
            
             if (direction === "down") {
@@ -409,10 +407,9 @@ window.onload = function () {
 
             }
             
-            this.clicked = [];
             tiles.move(toSwap, this.selectedIcons, direction);
-            await sleep(1500);
-            let matches = this.findMatches();
+            /*await sleep(1500);
+            let matches = this.findMatches();*/
             /*if(matches.length === 0) {
                 console.log("gotta swap back!");
                 console.log(toSwap[0]);
@@ -426,12 +423,18 @@ window.onload = function () {
             
         }
 
-        checkSwap() {
-            console.log()
-            /*let matches = this.findMatches();
+        async checkSwap() {
+            await sleep(1500);
+            let matches = this.findMatches();
             if (matches.length === 0) {
-
-            }*/
+                console.log(this.clicked);
+                this.swap();
+                this.clicked=[]; 
+            } else {
+                this.resolve();
+            }
+                
+            
         }
 
         updateRefill() {
@@ -528,13 +531,14 @@ window.onload = function () {
             this.findMatches();
             while (this.matches.length !== 0) {
 
-                await sleep(1000);
+                await sleep(700);
                 this.removeMatches(ctx);
                 let removeArray = this.findIconsToMove()
                 let yValues = removeArray.map(obj => Math.abs(obj.destinationY - obj.y));
                 let interval = (Math.max(...yValues) / 2) * tiles.interval + 30;
                 tiles.move(removeArray, this.selectedIcons, "down");
                 await sleep(interval);
+                this.clicked = [];
                 this.updateRefill();
                 this.findMatches();
 
@@ -669,6 +673,7 @@ window.onload = function () {
                                     Math.abs(game.clicked[0].x - game.clicked[1].x) <= grid.intervalX + 0.5)) {
                                 grid.highlightCell(game.clicked[1].x, game.clicked[1].y, ctx);
                                 game.swap();
+                                game.checkSwap();
                                 // if not adjacent cell clicked remove highlight from thr first and add to the second
                             } else {
                                 grid.removeHighlight(game.clicked[0].x, game.clicked[0].y, ctx);
