@@ -1,4 +1,4 @@
-# CAT-CH3 - A match-3 game full of kitties!
+# [CAT-CH3](https://alicja-malinowska.github.io/Cat-ch3_game/) - A match-3 game full of kitties!
 
 
 This is a match-3 style game written using HTML Canvas and JavaScript. The goal of the game is to match enough tiles to clear the background from yellow to white. The background under each tile is cleared when a tile is matched with at least 2 other tiles of the same kind. The tiles then disappear, background behind them gets cleared, tiles above them fall down and new tiles are added from the top to fill all rows and columns. The match attempt is made by clicking one tile and then another(adjacent) for them to swap places, if in result of that there is at least one match (a row of at least 3 tiles with the same symbol), the matching tiles are destroyed. Each destroyed tile is worth 10 points. There is a limited number of moves in which a player has to clear the board. The game is over when either the board is clear (win) or when a player runs out of moves (lose). 
