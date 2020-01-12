@@ -7,6 +7,12 @@ window.onload = function () {
     const GAME_WIDTH = 350;
     const GAME_HEIGHT = 470;
 
+    const GAMESTATE = {
+        resolving: true,
+        userInput: false
+
+    }
+
     function sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
@@ -194,11 +200,11 @@ window.onload = function () {
 
         }
 
-        
 
-    
 
-        
+
+
+
     }
 
     let tiles = new Icons(grid);
@@ -245,7 +251,9 @@ window.onload = function () {
                         image: currentIcon,
                         x: posX,
                         y: posY,
-                        removed: false
+                        removed: false,
+                        row: i,
+                        column: j
                     };
                     posX += grid.intervalX;
 
@@ -387,7 +395,9 @@ window.onload = function () {
                 }
                 let iconToSwap = this.selectedIcons[rowIndex + this.selectedIcons.length / 2][innerIndex];
                 iconToSwap.removed = true;
-                toSwap.push({...iconToSwap});
+                toSwap.push({
+                    ...iconToSwap
+                });
             }
 
             return toSwap;
@@ -397,7 +407,7 @@ window.onload = function () {
 
             let toSwap = this.findIconsToSwap()
             let direction = this.clicked[0].x === this.clicked[1].x ? "down" : "side";
-           
+
             if (direction === "down") {
                 toSwap[1].destinationY = toSwap[0].y;
                 toSwap[0].destinationY = toSwap[1].y;
@@ -406,7 +416,7 @@ window.onload = function () {
                 toSwap[0].destinationX = toSwap[1].x;
 
             }
-            
+
             tiles.move(toSwap, this.selectedIcons, direction);
             /*await sleep(1500);
             let matches = this.findMatches();*/
@@ -420,7 +430,7 @@ window.onload = function () {
                 toSwap[1].destinationY = second.y;
                 tiles.move(toSwap, this.selectedIcons, direction);
             }*/
-            
+
         }
 
         async checkSwap() {
@@ -429,12 +439,15 @@ window.onload = function () {
             if (matches.length === 0) {
                 console.log(this.clicked);
                 this.swap();
-                this.clicked=[]; 
+                this.clicked = [];
+                await sleep(1500);
+                GAMESTATE.resolve = false;
+                GAMESTATE.userInput = true;
             } else {
                 this.resolve();
             }
-                
-            
+
+
         }
 
         updateRefill() {
@@ -528,7 +541,7 @@ window.onload = function () {
 
         async resolve() {
 
-            this.findMatches();
+           this.findMatches();
             while (this.matches.length !== 0) {
 
                 await sleep(700);
@@ -547,6 +560,132 @@ window.onload = function () {
 
 
 
+            }
+            this.checkMoves();
+            GAMESTATE.resolve = false;
+            GAMESTATE.userInput = true;
+        }
+        /**
+         * checks if there are any valid moves left
+         */
+        checkMoves() {
+            let matchFound = false;
+            for (let i = this.selectedIcons.length / 2; i < this.selectedIcons.length; i++) {
+                for (let j = 0; j < this.selectedIcons[i].length; j++) {
+                    let movePos = [{
+                            dir: "up",
+                            row: i - 1,
+                            column: j
+                        },
+
+                        {
+                            dir: "right",
+                            row: i,
+                            column: j + 1
+                        },
+
+                        {
+                            dir: "down",
+                            row: i + 1,
+                            column: j
+                        },
+
+                        {
+                            dir: "left",
+                            row: i,
+                            column: j - 1
+                        }
+                    ];
+
+                    let exists = function (obj) {
+                        if(obj) {
+                            return obj.row >= game.selectedIcons.length / 2 &&
+                                obj.row < game.selectedIcons.length &&
+                                obj.column >= 0 &&
+                                obj.column < game.selectedIcons[i].length
+                         } else {
+                            return false;
+                         }
+                    }
+                    
+                    //filter for possible moves of an icon (check if within the grid)
+                    let toCheck = movePos.filter(pos => exists(pos));
+
+                    toCheck.forEach(function (pos) {
+                        let up = game.selectedIcons[pos.row - 1]? game.selectedIcons[pos.row - 1][pos.column] : null;
+                        let right = game.selectedIcons[pos.row][pos.column + 1];
+                        let down = game.selectedIcons[pos.row + 1]? game.selectedIcons[pos.row + 1][pos.column]: null;
+                        let left = game.selectedIcons[pos.row][pos.column - 1];
+                        let up2 = game.selectedIcons[pos.row - 2]? game.selectedIcons[pos.row - 2][pos.column] : null;
+                        let right2 = game.selectedIcons[pos.row][pos.column + 2];
+                        let down2 = game.selectedIcons[pos.row + 2]? game.selectedIcons[pos.row + 2][pos.column] : null;
+                        let left2 = game.selectedIcons[pos.row][pos.column - 2];
+                        let currentIcon = game.selectedIcons[i][j];
+
+
+                        if (exists(up) && up.image === currentIcon.image && pos.dir !== "down") {
+                            //if two images above the possible move exist and have the same image, it's a valid move to make
+                            if (exists(up2) && up2.image === currentIcon.image) {
+                                console.log(currentIcon);
+                                console.log("there are two icons above if you move your icon " + pos.dir)
+                                matchFound = true;
+                                return;
+                                //if an image above and and image down are the same as the current one, it's a valid move to make
+                            } else if (exists(down) && down.image === currentIcon.image && pos.dir !== "up") {
+                                console.log(currentIcon);
+                                console.log("there is one icon above and one below if you move your icon " + pos.dir)
+                                matchFound = true;
+                                return;
+                            }
+
+                        } 
+                        
+                        if (exists(down) && down.image === currentIcon.image && pos.dir !== "up") {
+                            // if two images below the possible move exist and have the same image, it's a valid move to make
+                            if (exists(down2) && down2.image === currentIcon.image) {
+                                console.log(currentIcon);
+                                console.log("there are two icons below if you move your icon " + pos.dir)
+                                matchFound = true;
+                                return;
+                            }
+                            //if two images to the right of the possible move exist and have the same image, it's a valid move to make
+                        } 
+                        
+                        if (exists(right) && right.image === currentIcon.image && pos.dir !== "left") {
+                            if (exists(right2) && right2.image === currentIcon.image) {
+                                console.log(currentIcon);
+                                console.log("there are two icons to the right if you move your icon " + pos.dir)
+                                matchFound = true;
+                                return;
+                                //if an image to the right and and image to the left are the same as the current one, it's a valid move to make
+                            } else if (exists(left) && left.image === currentIcon.image && pos.dir !== "right") {
+                                console.log(currentIcon);
+                                console.log("there there is one icon to the right and one to the left if you move your icon " + pos.dir)
+                                matchFound = true;
+                                return;
+                            }
+                        }
+                        //if two images to the left of the possible move exist and have the same image, it's a valid move to make
+                        if (exists(left) && left.image === currentIcon.image && pos.dir !=="right") {
+                            if (exists(left2) && left2.image === currentIcon.image) {
+                                console.log(currentIcon);
+                                console.log("there are two icons to the left if you move your icon " + pos.dir)
+                                matchFound = true;
+                                return;
+                            }
+                            
+                        } 
+                    });
+
+                    
+                        
+                    
+
+                }
+            }
+
+            if(!matchFound) {
+                console.log("no more moves DumDum!")
             }
         }
 
@@ -650,56 +789,61 @@ window.onload = function () {
 
             canvas.addEventListener("mousedown", function (e) {
                 //game.highlightAndSwap(canvas,e);
-                game.detectCell(canvas, e);
+                if (GAMESTATE.userInput) {
+                    game.detectCell(canvas, e);
 
-                //if clicked within the grid
-                if (game.validClick) {
-                    switch (game.clicked.length) {
-                        // if there are no other highigted cells, highlight the clicked one
-                        case 1:
-                            grid.highlightCell(game.clicked[0].x, game.clicked[0].y, ctx);
-                            break;
-                            // if second cell is clicked
-                        case 2:
-                            // if it's the same as first, remove highlight
-                            if (game.clicked[0] === game.clicked[1]) {
-                                grid.removeHighlight(game.clicked[0].x, game.clicked[0].y, ctx);
-                                game.clicked = [];
-                                // if it's adjacent to the first, highlight it as well
-                                // also, this is a condition when two cells can be swapped
-                            } else if ((game.clicked[0].x === game.clicked[1].x &&
-                                    Math.abs(game.clicked[0].y - game.clicked[1].y) <= grid.intervalY + 0.5) ||
-                                (game.clicked[0].y === game.clicked[1].y &&
-                                    Math.abs(game.clicked[0].x - game.clicked[1].x) <= grid.intervalX + 0.5)) {
-                                grid.highlightCell(game.clicked[1].x, game.clicked[1].y, ctx);
-                                game.swap();
-                                game.checkSwap();
-                                // if not adjacent cell clicked remove highlight from thr first and add to the second
-                            } else {
-                                grid.removeHighlight(game.clicked[0].x, game.clicked[0].y, ctx);
-                                grid.highlightCell(game.clicked[1].x, game.clicked[1].y, ctx);
-                                game.clicked.shift();
-                            }
-                            break;
-                            // if there are two highighted cells
-                        case 3:
-                            //if the third one is same as first or second, remove the highlight from it
-                            if (game.clicked[1] === game.clicked[2] || game.clicked[0] === game.clicked[2]) {
-                                grid.removeHighlight(game.clicked[2].x, game.clicked[2].y, ctx);
-                                game.clicked = game.clicked.filter(el => el !== game.clicked[2]);
-                                //if the third one is different, remove highlight from the first and the second and add to the third
-                            } else {
-                                grid.removeHighlight(game.clicked[0].x, game.clicked[0].y, ctx);
-                                grid.removeHighlight(game.clicked[1].x, game.clicked[1].y, ctx);
-                                grid.highlightCell(game.clicked[2].x, game.clicked[2].y, ctx);
-                                game.clicked.splice(0, 2);
-                            }
+                    //if clicked within the grid
+                    if (game.validClick) {
+                        switch (game.clicked.length) {
+                            // if there are no other highigted cells, highlight the clicked one
+                            case 1:
+                                grid.highlightCell(game.clicked[0].x, game.clicked[0].y, ctx);
+                                break;
+                                // if second cell is clicked
+                            case 2:
+                                // if it's the same as first, remove highlight
+                                if (game.clicked[0] === game.clicked[1]) {
+                                    grid.removeHighlight(game.clicked[0].x, game.clicked[0].y, ctx);
+                                    game.clicked = [];
+                                    // if it's adjacent to the first, highlight it as well
+                                    // also, this is a condition when two cells can be swapped
+                                } else if ((game.clicked[0].x === game.clicked[1].x &&
+                                        Math.abs(game.clicked[0].y - game.clicked[1].y) <= grid.intervalY + 0.5) ||
+                                    (game.clicked[0].y === game.clicked[1].y &&
+                                        Math.abs(game.clicked[0].x - game.clicked[1].x) <= grid.intervalX + 0.5)) {
+                                    grid.highlightCell(game.clicked[1].x, game.clicked[1].y, ctx);
+                                    GAMESTATE.userInput = false;
+                                    GAMESTATE.resolve = true;
+                                    game.swap();
+                                    game.checkSwap();
+                                    // if not adjacent cell clicked remove highlight from thr first and add to the second
+                                } else {
+                                    grid.removeHighlight(game.clicked[0].x, game.clicked[0].y, ctx);
+                                    grid.highlightCell(game.clicked[1].x, game.clicked[1].y, ctx);
+                                    game.clicked.shift();
+                                }
+                                break;
+                                // if there are two highighted cells
+                            case 3:
+                                //if the third one is same as first or second, remove the highlight from it
+                                if (game.clicked[1] === game.clicked[2] || game.clicked[0] === game.clicked[2]) {
+                                    grid.removeHighlight(game.clicked[2].x, game.clicked[2].y, ctx);
+                                    game.clicked = game.clicked.filter(el => el !== game.clicked[2]);
+                                    //if the third one is different, remove highlight from the first and the second and add to the third
+                                } else {
+                                    grid.removeHighlight(game.clicked[0].x, game.clicked[0].y, ctx);
+                                    grid.removeHighlight(game.clicked[1].x, game.clicked[1].y, ctx);
+                                    grid.highlightCell(game.clicked[2].x, game.clicked[2].y, ctx);
+                                    game.clicked.splice(0, 2);
+                                }
 
 
 
+                        }
                     }
                 }
             });
+
         }
     }
 
