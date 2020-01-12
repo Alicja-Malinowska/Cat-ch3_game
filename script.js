@@ -541,7 +541,7 @@ window.onload = function () {
 
         async resolve() {
 
-            this.findMatches();
+           this.findMatches();
             while (this.matches.length !== 0) {
 
                 await sleep(700);
@@ -561,6 +561,7 @@ window.onload = function () {
 
 
             }
+            this.checkMoves();
             GAMESTATE.resolve = false;
             GAMESTATE.userInput = true;
         }
@@ -568,8 +569,9 @@ window.onload = function () {
          * checks if there are any valid moves left
          */
         checkMoves() {
-            for (i = this.selectedIcons.length / 2; i < this.selectedIcons.length; i++) {
-                for (j = 0; j < this.selectedIcons[i].length; j++) {
+            let matchFound = false;
+            for (let i = this.selectedIcons.length / 2; i < this.selectedIcons.length; i++) {
+                for (let j = 0; j < this.selectedIcons[i].length; j++) {
                     let movePos = [{
                             dir: "up",
                             row: i - 1,
@@ -596,64 +598,94 @@ window.onload = function () {
                     ];
 
                     let exists = function (obj) {
-                        obj.row >= this.selectedIcons.length / 2 &&
-                            obj.row <= this.selectedIcons.length &&
-                            obj.column >= 0 &&
-                            obj.column <= this.selectedIcons[i].length
+                        if(obj) {
+                            return obj.row >= game.selectedIcons.length / 2 &&
+                                obj.row < game.selectedIcons.length &&
+                                obj.column >= 0 &&
+                                obj.column < game.selectedIcons[i].length
+                         } else {
+                            return false;
+                         }
                     }
+                    
                     //filter for possible moves of an icon (check if within the grid)
                     let toCheck = movePos.filter(pos => exists(pos));
-                    let count = 0;
-                    toCheck.forEach(function (pos) {
-                        let up = this.selectedIcons[pos.row - 1][pos.column];
-                        let right = this.selectedIcons[pos.row][pos.column + 1];
-                        let down = this.selectedIcons[pos.row + 1][pos.column];
-                        let left = this.selectedIcons[pos.row][pos.column - 1];
-                        let up2 = this.selectedIcons[pos.row - 2][pos.column];
-                        let right2 = this.selectedIcons[pos.row][pos.column + 2];
-                        let down2 = this.selectedIcons[pos.row + 2][pos.column];
-                        let left2 = this.selectedIcons[pos.row][pos.column - 2];
-                        let currentIcon = this.selectedIcons[i][j];
-                        
 
-                        if (exists(up) && up.image === currentIcon.image) {
+                    toCheck.forEach(function (pos) {
+                        let up = game.selectedIcons[pos.row - 1]? game.selectedIcons[pos.row - 1][pos.column] : null;
+                        let right = game.selectedIcons[pos.row][pos.column + 1];
+                        let down = game.selectedIcons[pos.row + 1]? game.selectedIcons[pos.row + 1][pos.column]: null;
+                        let left = game.selectedIcons[pos.row][pos.column - 1];
+                        let up2 = game.selectedIcons[pos.row - 2]? game.selectedIcons[pos.row - 2][pos.column] : null;
+                        let right2 = game.selectedIcons[pos.row][pos.column + 2];
+                        let down2 = game.selectedIcons[pos.row + 2]? game.selectedIcons[pos.row + 2][pos.column] : null;
+                        let left2 = game.selectedIcons[pos.row][pos.column - 2];
+                        let currentIcon = game.selectedIcons[i][j];
+
+
+                        if (exists(up) && up.image === currentIcon.image && pos.dir !== "down") {
                             //if two images above the possible move exist and have the same image, it's a valid move to make
                             if (exists(up2) && up2.image === currentIcon.image) {
+                                console.log(currentIcon);
+                                console.log("there are two icons above if you move your icon " + pos.dir)
+                                matchFound = true;
                                 return;
-                            //if an image above and and image down are the same as the current one, it's a valid move to make
-                            } else if (exists(down) && down.image === currentIcon.image) {
+                                //if an image above and and image down are the same as the current one, it's a valid move to make
+                            } else if (exists(down) && down.image === currentIcon.image && pos.dir !== "up") {
+                                console.log(currentIcon);
+                                console.log("there is one icon above and one below if you move your icon " + pos.dir)
+                                matchFound = true;
                                 return;
                             }
-                            
-                        } else if (exists(down) && down.image === currentIcon.image) {
+
+                        } 
+                        
+                        if (exists(down) && down.image === currentIcon.image && pos.dir !== "up") {
                             // if two images below the possible move exist and have the same image, it's a valid move to make
                             if (exists(down2) && down2.image === currentIcon.image) {
+                                console.log(currentIcon);
+                                console.log("there are two icons below if you move your icon " + pos.dir)
+                                matchFound = true;
                                 return;
                             }
                             //if two images to the right of the possible move exist and have the same image, it's a valid move to make
-                        } else if (exists(right) && right.image === currentIcon.image) {
-                            if(exists(right2) && right2.image === currentIcon.image) {
-                                return
-                            //if an image to the right and and image to the left are the same as the current one, it's a valid move to make
-                            } else if (exists(left) && left.image === currentIcon.image) {
+                        } 
+                        
+                        if (exists(right) && right.image === currentIcon.image && pos.dir !== "left") {
+                            if (exists(right2) && right2.image === currentIcon.image) {
+                                console.log(currentIcon);
+                                console.log("there are two icons to the right if you move your icon " + pos.dir)
+                                matchFound = true;
+                                return;
+                                //if an image to the right and and image to the left are the same as the current one, it's a valid move to make
+                            } else if (exists(left) && left.image === currentIcon.image && pos.dir !== "right") {
+                                console.log(currentIcon);
+                                console.log("there there is one icon to the right and one to the left if you move your icon " + pos.dir)
+                                matchFound = true;
                                 return;
                             }
-                             //if two images to the left of the possible move exist and have the same image, it's a valid move to make
-                        } else if (exists(left) && left.image === currentIcon.image) {
-                            if(exists(left2) && left2.image === currentIcon.image) {
-                                return
-                            }
-                            // else there is no valid move for this move position
-                        } else {
-                            count += 1;
                         }
+                        //if two images to the left of the possible move exist and have the same image, it's a valid move to make
+                        if (exists(left) && left.image === currentIcon.image && pos.dir !=="right") {
+                            if (exists(left2) && left2.image === currentIcon.image) {
+                                console.log(currentIcon);
+                                console.log("there are two icons to the left if you move your icon " + pos.dir)
+                                matchFound = true;
+                                return;
+                            }
+                            
+                        } 
                     });
 
-                    if(count === toCheck.length) {
-                        console.log("no more moves DumDum!")
-                    }
+                    
+                        
+                    
 
                 }
+            }
+
+            if(!matchFound) {
+                console.log("no more moves DumDum!")
             }
         }
 
