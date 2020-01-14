@@ -12,7 +12,10 @@ window.onload = function () {
         userInput: false
 
     }
-
+    /**
+     * sleep function to delay execution of code
+     * @param {Number} ms 
+     */
     function sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
@@ -28,7 +31,7 @@ window.onload = function () {
             this.padding = 2;
             this.higlightPadding = this.padding + 2.5;
         }
-        // draw a grid of equal width columns (5) and rows (6)
+        
         draw(ctx) {
             for (let x = 0; x <= this.width; x += this.intervalX) {
                 ctx.beginPath();
@@ -46,10 +49,11 @@ window.onload = function () {
 
             }
 
-
-
         }
-        // creates a two-dimensional array of objects, each containing position where a cell starts and where it ends
+
+        /**
+         * creates a two-dimensional array of objects, each containing position where a cell starts and where it ends
+         */
         getCellPos() {
             let cellPos = [];
             let posY = this.padding;
@@ -96,7 +100,6 @@ window.onload = function () {
     class Icons {
         constructor(grid) {
             this.icons = [...document.querySelectorAll(".icon")];
-            //this.selectedIcons = [];
             this.size = 40;
             this.position = {
                 x: (grid.intervalX + grid.padding) / 2 - this.size / 2,
@@ -105,106 +108,75 @@ window.onload = function () {
             this.interval = 30;
         };
 
-        //draw icon
         draw(ctx, currentIcon, posX, posY) {
             ctx.drawImage(currentIcon, posX, posY, this.size, this.size);
         }
 
+        /**
+         * makes tiles move depending on their destination property
+         * @param {Array} moveArray 
+         * @param {Array} drawArray 
+         * @param {String} direction 
+         */
         move(moveArray, drawArray, direction) {
 
             let movement = setInterval(function () {
-
                 ctx.clearRect(0, 0, grid.width, grid.height);
-
                 grid.draw(ctx);
-
+                //redraw the all icons except for those moving
                 drawArray.forEach(row => row.filter(obj => !obj.removed).forEach(icon => ctx.drawImage(icon.image, icon.x, icon.y, tiles.size, tiles.size)));
+                //redraw icons to move in the new position until they achieve their destination
                 moveArray.forEach(function (obj) {
                     let objDir = direction === "down" ? obj.y : obj.x;
                     let objDes = direction === "down" ? obj.destinationY : obj.destinationX;
-
                     let speed = 5;
 
-                    //iconsArray.filter(icon => !(emptyArray.includes(icon))).forEach(icon => ctx.drawImage(icon.image, icon.x, icon.y, tiles.size, tiles.size));
-                    if (objDir > objDes) {
+                    function stop() {
+                        objDir = objDes;
+                        direction === "down" ? obj.y = objDir : obj.x = objDir;
+                        let toChange = {};
 
-                        objDir -= speed;
-                        if (objDir <= objDes) {
-
-                            objDir = objDes;
-                            direction === "down" ? obj.y = objDir : obj.x = objDir;
-                            let toChange = {};
-
-                            drawArray.forEach(function (row) {
-
-                                toChange = row.find(icon => icon.x === obj.x && icon.y === obj.y);
-                                if (toChange) {
-                                    toChange.image = obj.image;
-                                    toChange.removed = false;
+                        //find the new position in the array of all drawn icons and replace the image 
+                        drawArray.forEach(function (row) {
+                            toChange = row.find(icon => icon.x === obj.x && icon.y === obj.y);
+                            if (toChange) {
+                                toChange.image = obj.image;
+                                toChange.removed = false;
                                 }
-                            })
-
-
+                            });
+                    }
+                    //if moving backwards
+                    if (objDir > objDes) {
+                        objDir -= speed;
+                        //if an icon reached or exceeded the destination
+                        if (objDir <= objDes) {
+                            stop();
                         }
-
+                    //if moving forward
                     } else {
                         objDir += speed;
                         if (objDir >= objDes) {
-
-                            objDir = objDes;
-                            direction === "down" ? obj.y = objDir : obj.x = objDir;
-                            let toChange = {};
-
-                            drawArray.forEach(function (row) {
-
-                                toChange = row.find(icon => icon.x === obj.x && icon.y === obj.y);
-                                if (toChange) {
-                                    toChange.image = obj.image;
-                                    toChange.removed = false;
-                                }
-                            })
-
-
+                            stop();
                         }
-
                     }
-
+                    
                     direction === "down" ? obj.y = objDir : obj.x = objDir;
 
-                    ctx.drawImage(obj.image, direction === "down" ? obj.x : objDir, direction === "down" ? objDir : obj.y, tiles.size, tiles.size);
-
-
-                    //obj.y = Math.min(obj.y + speed, obj.destinationY);
-
+                    ctx.drawImage(obj.image, obj.x, obj.y, tiles.size, tiles.size);
                 });
-                //drawArray.push(moveArray.map(obj => obj.y >= obj.destinationY));
+                //remove icons that finished moving from tha array
                 if (direction === "down") {
                     moveArray = moveArray.filter(obj => obj.y !== obj.destinationY);
                 } else {
                     moveArray = moveArray.filter(obj => obj.x !== obj.destinationX);
                 }
 
-
-
-
-
                 if (moveArray.length === 0) {
                     clearInterval(movement);
-
-
                 }
 
             }, tiles.interval);
-
-
-
         }
-
-
-
-
-
-
     }
 
     let tiles = new Icons(grid);
