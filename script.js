@@ -79,15 +79,25 @@ window.onload = function () {
             return cellPos;
         }
 
-        drawBackground(ctx) {
-            let cells = this.getCellPos();
-            let self = this;
-            
-            cells.forEach(row => row.forEach(function(cell) {
+        /**
+         * fills a cell with colour
+         * @param {*} ctx 
+         * @param {*} cell 
+         */
+        drawBackground(ctx, cell) {
                 console.log(cell);
                 ctx.fillStyle = "#ED9A9A";
-                ctx.fillRect(cell.x + self.padding, cell.y + self.padding, self.intervalX - self.padding, self.intervalY - self.padding);
-            }));
+                ctx.fillRect(cell.x + this.padding, cell.y + this.padding, this.intervalX - this.padding, this.intervalY - this.padding);
+           
+        }
+        /**
+         * fills every cell's background with colour
+         * @param {*} ctx 
+        
+         */
+        fillBackground(ctx) {
+            let cells = this.getCellPos();
+            cells.forEach(row => row.forEach(cell => this.drawBackground(ctx, cell)));
         }
 
 
@@ -135,6 +145,7 @@ window.onload = function () {
             let movement = setInterval(function () {
                 ctx.clearRect(0, 0, grid.width, grid.height);
                 grid.draw(ctx);
+                //grid.drawBackground(ctx);
                 //redraw the all icons except for those moving
                 drawArray.forEach(row => row.filter(obj => !obj.removed).forEach(icon => ctx.drawImage(icon.image, icon.x, icon.y, tiles.size, tiles.size)));
                 //redraw icons to move in the new position until they achieve their destination
@@ -318,7 +329,11 @@ window.onload = function () {
          */
         removeMatches(ctx) {
             this.matches.forEach(element => {
-                ctx.clearRect(element.x, element.y, tiles.size, tiles.size)
+                let cells = grid.getCellPos();
+                console.log(cells);
+                console.log(element);
+                ctx.clearRect(element.x, element.y, tiles.size, tiles.size);
+                grid.drawBackground(ctx, cells[element.row - this.selectedIcons.length/2][element.column]);
             });
 
             for (let i = this.selectedIcons.length / 2; i < this.selectedIcons.length; i++) {
@@ -672,7 +687,7 @@ window.onload = function () {
     //function init() {
         let grid = new Grid();
         grid.draw(ctx);
-        grid.drawBackground(ctx);
+        grid.fillBackground(ctx);
         let tiles = new Icons(grid);
         let game = new Game(grid, tiles);
         game.drawLevel(ctx);
