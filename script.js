@@ -79,6 +79,17 @@ window.onload = function () {
             return cellPos;
         }
 
+        drawBackground(ctx) {
+            let cells = this.getCellPos();
+            let self = this;
+            
+            cells.forEach(row => row.forEach(function(cell) {
+                console.log(cell);
+                ctx.fillStyle = "#ED9A9A";
+                ctx.fillRect(cell.x + self.padding, cell.y + self.padding, self.intervalX - self.padding, self.intervalY - self.padding);
+            }));
+        }
+
 
         highlightCell(cellX, cellY, ctx) {
             ctx.strokeStyle = "#000000";
@@ -661,6 +672,7 @@ window.onload = function () {
     //function init() {
         let grid = new Grid();
         grid.draw(ctx);
+        grid.drawBackground(ctx);
         let tiles = new Icons(grid);
         let game = new Game(grid, tiles);
         game.drawLevel(ctx);
