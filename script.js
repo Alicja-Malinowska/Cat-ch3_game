@@ -85,7 +85,6 @@ window.onload = function () {
          * @param {*} cell 
          */
         drawBackground(ctx, cell) {
-                console.log(cell);
                 ctx.fillStyle = "#ED9A9A";
                 ctx.fillRect(cell.x + this.padding, cell.y + this.padding, this.intervalX - this.padding, this.intervalY - this.padding);
            
@@ -93,7 +92,6 @@ window.onload = function () {
         /**
          * fills every cell's background with colour
          * @param {*} ctx 
-        
          */
         fillBackground(ctx) {
             let cells = this.getCellPos();
@@ -225,6 +223,7 @@ window.onload = function () {
             this.icons = tiles.icons;
             this.clicked = [];
             this.cellPosArr = [].concat(...grid.getCellPos());
+            this.matchesArr = [];
             this.matches = [];
             this.validClick = false;
 
@@ -248,6 +247,7 @@ window.onload = function () {
                         x: posX,
                         y: posY,
                         removed: false,
+                        background: true,
                         row: i,
                         column: j
                     };
@@ -318,7 +318,7 @@ window.onload = function () {
                     matchesCols.push(colMatch);
                 }
             }
-
+            this.matchesArr = matchesCols.concat(matchesRows);
             //all matches with duplicates removed
             this.matches = Array.from(new Set([].concat(...matchesCols.concat(matchesRows))));
             return this.matches;
@@ -330,8 +330,6 @@ window.onload = function () {
         removeMatches(ctx) {
             this.matches.forEach(element => {
                 let cells = grid.getCellPos();
-                console.log(cells);
-                console.log(element);
                 ctx.clearRect(element.x, element.y, tiles.size, tiles.size);
                 grid.drawBackground(ctx, cells[element.row - this.selectedIcons.length/2][element.column]);
             });
