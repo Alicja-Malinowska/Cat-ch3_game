@@ -65,7 +65,9 @@ window.onload = function () {
                         x: posX,
                         y: posY,
                         xEnd: posX + this.intervalX,
-                        yEnd: posY + this.intervalY
+                        yEnd: posY + this.intervalY,
+                        row: i,
+                        column: j
                     }
                     posX += this.intervalX;
 
