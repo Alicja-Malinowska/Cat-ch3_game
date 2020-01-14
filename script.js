@@ -656,7 +656,7 @@ window.onload = function () {
         }
     }
 
-    function init() {
+    //function init() {
         let grid = new Grid();
         grid.draw(ctx);
         let tiles = new Icons(grid);
@@ -664,7 +664,7 @@ window.onload = function () {
         game.drawLevel(ctx);
         game.resolve();
         let handle = new InputHandler(game, grid);
-    }
+    //}
 
-    init();
+    //init();
 }
