@@ -119,10 +119,39 @@ window.onload = function () {
     }
 
     
+    class Dashboard {
+        constructor(grid) {
+            this.points = 0;
+            this.moves = 20;
+            this.gridWidth = grid.width;
+            this.gridHeight = grid.height;
+            this.padding = grid.padding;
+            this.button = {
+                width: 100,
+                height: 30,
+                x: GAME_WIDTH/2 - 100/2,
+                y: GAME_HEIGHT - 35
+            }
+           
+        }
 
+        draw(ctx) {
+            ctx.font = "12px Arial";
+            ctx.fillStyle = "black";
+            ctx.textAlign = "center";  
+            ctx.fillText("Moves Left: " + this.moves, this.gridWidth/4, this.gridHeight + 20); 
+            ctx.fillText("Points: " + this.points, this.gridWidth/4 * 3, this.gridHeight + 20); 
+            //button
+            ctx.strokeRect(this.button.x, this.button.y, this.button.width, this.button.height);
+            ctx.fillStyle = "#FFD9B3"
+            ctx.fillRect(this.button.x + 2, this.button.y + 2, this.button.width - 4, this.button.height - 4);
+            ctx.fillStyle = "black";
+            ctx.fillText("NEW GAME", GAME_WIDTH/2, this.button.y + this.button.height/2 + 2.5);
+        }
+    }
 
     class Icons {
-        constructor(grid) {
+        constructor(grid, dashboard) {
             this.icons = [...document.querySelectorAll(".icon")];
             this.size = 40;
             this.position = {
@@ -201,6 +230,9 @@ window.onload = function () {
                     clearInterval(movement);
                 }
 
+                ctx.clearRect(0, grid.height + 10, grid.width - 2 * grid.padding, 65);
+                dashboard.draw(ctx);
+
             }, tiles.interval);
         }
     }
@@ -231,7 +263,7 @@ window.onload = function () {
             this.matchesArr = [];
             this.matches = [];
             this.validClick = false;
-
+            
 
         }
         /**
@@ -389,6 +421,12 @@ window.onload = function () {
                 mousePosition.y > grid.padding &&
                 mousePosition.y < grid.height + grid.padding) {
                 self.validClick = true;
+            } else if (mousePosition.x >= dashboard.button.x &&
+                       mousePosition.x <= dashboard.button.x + dashboard.button.width &&
+                       mousePosition.y >= dashboard.button.y &&
+                       mousePosition.y <= dashboard.button.y + dashboard.button.height) {
+                       console.log("new game should be initiated");
+                       return;
             } else {
                 return;
             }
@@ -454,6 +492,8 @@ window.onload = function () {
             } else {
                 this.resolve();
                 this.updateColour();
+                this.addPoints();
+                dashboard.moves -= 1;
             }
         }
         /**
@@ -471,8 +511,18 @@ window.onload = function () {
             });
             let userRemovedflat = [].concat(...userRemoved);
             let cells = grid.cells;
-            userRemovedflat.forEach(icon => cells[icon.row-this.selectedIcons.length / 2][icon.column].colour = false);
+            //removing duplicates
+            let userRemovedflatU = new Set(userRemovedflat);
+            userRemovedflatU.forEach(icon => cells[icon.row-this.selectedIcons.length / 2][icon.column].colour = false);
+            return userRemovedflat;
         }
+
+        addPoints() {
+            //not removing duplicates means that the user will get bonus points for creating more than one match with one move
+            let matches = this.updateColour();
+            dashboard.points += matches.length * 10;
+        }
+
 
         /**
          * changes icons to random in the first 6 rows (those not visible) so that there are no empty spaces and icons are different in refill
@@ -641,9 +691,10 @@ window.onload = function () {
              * on click detect which cell was clicked and apply hihlighting logic
              */
             canvas.addEventListener("mousedown", function (e) {
-                if (GAMESTATE.userInput) {
+                
                     game.detectCell(canvas, e);
 
+                    if (GAMESTATE.userInput) {
                     //if clicked within the grid
                     if (game.validClick) {
                         switch (game.clicked.length) {
@@ -699,6 +750,8 @@ window.onload = function () {
         let grid = new Grid();
         grid.draw(ctx);
         grid.fillBackground(ctx);
+        let dashboard = new Dashboard(grid);
+        dashboard.draw(ctx);
         let tiles = new Icons(grid);
         let game = new Game(grid, tiles);
         game.drawLevel(ctx);
