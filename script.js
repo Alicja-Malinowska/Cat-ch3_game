@@ -30,7 +30,7 @@ window.onload = function () {
             this.intervalY = this.height / this.rows;
             this.padding = 2;
             this.higlightPadding = this.padding + 2.5;
-            this.cells = [];
+            this.cells = this.getCellPos();
             
         }
         
@@ -151,90 +151,23 @@ window.onload = function () {
     }
 
     class Icons {
-        constructor(grid, dashboard) {
+        constructor(grid) {
+            this.gridWidth = grid.width;
+            this.gridHeight = grid.height; 
+            this.padding = grid.padding;
             this.icons = [...document.querySelectorAll(".icon")];
             this.size = 40;
             this.position = {
-                x: (grid.intervalX + grid.padding) / 2 - this.size / 2,
-                y: (grid.intervalY + grid.padding) / 2 - this.size / 2,
+                x: (grid.intervalX + this.padding) / 2 - this.size / 2,
+                y: (grid.intervalY + this.padding) / 2 - this.size / 2,
             };
-            this.interval = 30;
         };
 
         draw(ctx, currentIcon, posX, posY) {
             ctx.drawImage(currentIcon, posX, posY, this.size, this.size);
         }
 
-        /**
-         * makes tiles move depending on their destination property
-         * @param {Array} moveArray 
-         * @param {Array} drawArray 
-         * @param {String} direction 
-         */
-        move(moveArray, drawArray, direction) {
-
-            let movement = setInterval(function () {
-                ctx.clearRect(0, 0, grid.width + grid.padding, grid.height + grid.padding);
-                grid.draw(ctx);
-                //redraw the colour background if it wasn't removed
-                grid.cells.forEach(row => row.filter(cell => cell.colour).forEach(cell => grid.drawBackground(ctx, cell)));
-                //redraw the all icons except for those moving
-                drawArray.forEach(row => row.filter(obj => !obj.removed).forEach(icon => ctx.drawImage(icon.image, icon.x, icon.y, tiles.size, tiles.size)));
-                //redraw icons to move in the new position until they achieve their destination
-                moveArray.forEach(function (obj) {
-                    let objDir = direction === "down" ? obj.y : obj.x;
-                    let objDes = direction === "down" ? obj.destinationY : obj.destinationX;
-                    let speed = 5;
-
-                    function stop() {
-                        objDir = objDes;
-                        direction === "down" ? obj.y = objDir : obj.x = objDir;
-                        let toChange = {};
-
-                        //find the new position in the array of all drawn icons and replace the image 
-                        drawArray.forEach(function (row) {
-                            toChange = row.find(icon => icon.x === obj.x && icon.y === obj.y);
-                            if (toChange) {
-                                toChange.image = obj.image;
-                                toChange.removed = false;
-                                }
-                            });
-                    }
-                    //if moving backwards
-                    if (objDir > objDes) {
-                        objDir -= speed;
-                        //if an icon reached or exceeded the destination
-                        if (objDir <= objDes) {
-                            stop();
-                        }
-                    //if moving forward
-                    } else {
-                        objDir += speed;
-                        if (objDir >= objDes) {
-                            stop();
-                        }
-                    }
-                    
-                    direction === "down" ? obj.y = objDir : obj.x = objDir;
-
-                    ctx.drawImage(obj.image, obj.x, obj.y, tiles.size, tiles.size);
-                });
-                //remove icons that finished moving from tha array
-                if (direction === "down") {
-                    moveArray = moveArray.filter(obj => obj.y !== obj.destinationY);
-                } else {
-                    moveArray = moveArray.filter(obj => obj.x !== obj.destinationX);
-                }
-
-                if (moveArray.length === 0) {
-                    clearInterval(movement);
-                }
-
-                ctx.clearRect(0, grid.height + 10, grid.width - 2 * grid.padding, 65);
-                dashboard.draw(ctx);
-
-            }, tiles.interval);
-        }
+       
     }
 
 
@@ -254,17 +187,35 @@ window.onload = function () {
     }
 
     class Game {
-        constructor(grid, tiles) {
-            this.tPosition = tiles.position;
+        constructor() {
+            this.grid = new Grid();
+            this.gridWidth = this.grid.width;
+            this.gridHeight = this.grid.height;
+            this.padding = this.grid.padding;
+            this.cells = this.grid.cells;
+            this.dashboard = new Dashboard(this.grid);
+            this.tiles = new Icons(this.grid);
+            this.tSize = this.tiles.size;
+            this.tPosition = this.tiles.position;
             this.selectedIcons = [];
-            this.icons = tiles.icons;
+            this.icons = this.tiles.icons;
             this.clicked = [];
-            this.cellPosArr = [].concat(...grid.getCellPos());
+            this.cellPosArr = [].concat(...this.grid.getCellPos());
             this.matchesArr = [];
             this.matches = [];
             this.validClick = false;
+            this.interval = 30;
+            new InputHandler(this, this.grid)
             
 
+        }
+
+        init(){
+            this.grid.draw(ctx);
+            this.grid.fillBackground(ctx);
+            this.dashboard.draw(ctx);
+            this.drawLevel(ctx);
+            this.resolve();
         }
         /**
          * draws random icons into the canvas, including additional hidden icons above as a refill
@@ -272,13 +223,13 @@ window.onload = function () {
          */
         drawLevel(ctx) {
             //start position is beyond the canvas so that refill icons can be drawn
-            let posY = this.tPosition.y - grid.intervalY * grid.rows;
-            for (let i = 0; i < grid.rows * 2; i++) {
+            let posY = this.tPosition.y - this.grid.intervalY * this.grid.rows;
+            for (let i = 0; i < this.grid.rows * 2; i++) {
                 let posX = this.tPosition.x;
                 let selectedIconsRow = [];
-                for (let j = 0; j < grid.columns; j++) {
+                for (let j = 0; j < this.grid.columns; j++) {
                     let currentIcon = this.icons[Math.floor(Math.random() * 5)];
-                    tiles.draw(ctx, currentIcon, posX, posY);
+                    this.tiles.draw(ctx, currentIcon, posX, posY);
                     selectedIconsRow[j] = {
                         image: currentIcon,
                         x: posX,
@@ -287,10 +238,10 @@ window.onload = function () {
                         row: i,
                         column: j
                     };
-                    posX += grid.intervalX;
+                    posX += this.grid.intervalX;
 
                 }
-                posY += grid.intervalY;
+                posY += this.grid.intervalY;
                 this.selectedIcons.push(selectedIconsRow);
             }
 
@@ -406,6 +357,79 @@ window.onload = function () {
             }
             return toMoveArray;
         }
+
+         /**
+         * makes tiles move depending on their destination property
+         * @param {Array} moveArray 
+         * @param {Array} drawArray 
+         * @param {String} direction 
+         */
+        move(moveArray, drawArray, direction) {
+            let self = this;
+           
+            let movement = setInterval(function () {
+                ctx.clearRect(0, 0, self.gridWidth + self.padding, self.gridHeight + self.padding);
+                self.grid.draw(ctx);
+                //redraw the colour background if it wasn't removed
+                self.cells.forEach(row => row.filter(cell => cell.colour).forEach(cell => self.grid.drawBackground(ctx, cell)));
+                //redraw the all icons except for those moving
+                drawArray.forEach(row => row.filter(obj => !obj.removed).forEach(icon => ctx.drawImage(icon.image, icon.x, icon.y, self.tSize, self.tSize)));
+                //redraw icons to move in the new position until they achieve their destination
+                moveArray.forEach(function (obj) {
+                    let objDir = direction === "down" ? obj.y : obj.x;
+                    let objDes = direction === "down" ? obj.destinationY : obj.destinationX;
+                    let speed = 5;
+
+                    function stop() {
+                        objDir = objDes;
+                        direction === "down" ? obj.y = objDir : obj.x = objDir;
+                        let toChange = {};
+
+                        //find the new position in the array of all drawn icons and replace the image 
+                        drawArray.forEach(function (row) {
+                            toChange = row.find(icon => icon.x === obj.x && icon.y === obj.y);
+                            if (toChange) {
+                                toChange.image = obj.image;
+                                toChange.removed = false;
+                                }
+                            });
+                    }
+
+                    //if moving backwards
+                    if (objDir > objDes) {
+                        objDir -= speed;
+                        //if an icon reached or exceeded the destination
+                        if (objDir <= objDes) {
+                            stop();
+                        }
+                    //if moving forward
+                    } else {
+                        objDir += speed;
+                        if (objDir >= objDes) {
+                            stop();
+                        }
+                    }
+                    
+                    direction === "down" ? obj.y = objDir : obj.x = objDir;
+
+                    ctx.drawImage(obj.image, obj.x, obj.y, self.tSize, self.tSize);
+                });
+                //remove icons that finished moving from tha array
+                if (direction === "down") {
+                    moveArray = moveArray.filter(obj => obj.y !== obj.destinationY);
+                } else {
+                    moveArray = moveArray.filter(obj => obj.x !== obj.destinationX);
+                }
+
+                if (moveArray.length === 0) {
+                    clearInterval(movement);
+                }
+
+                ctx.clearRect(0, self.gridHeight + 10, self.gridWidth - 2 * self.padding, 65);
+                self.dashboard.draw(ctx);
+
+            }, self.interval);
+        }
         /**
          * finds which cell was clicked and adds it to the clicked array
          * @param {*} canvas 
@@ -416,15 +440,15 @@ window.onload = function () {
             let self = this;
             self.validClick = false;
             //check if click was within the grid
-            if (mousePosition.x > grid.padding &&
-                mousePosition.x < grid.width + grid.padding &&
-                mousePosition.y > grid.padding &&
-                mousePosition.y < grid.height + grid.padding) {
+            if (mousePosition.x > this.grid.padding &&
+                mousePosition.x < this.grid.width + this.grid.padding &&
+                mousePosition.y > this.grid.padding &&
+                mousePosition.y < this.grid.height + this.grid.padding) {
                 self.validClick = true;
-            } else if (mousePosition.x >= dashboard.button.x &&
-                       mousePosition.x <= dashboard.button.x + dashboard.button.width &&
-                       mousePosition.y >= dashboard.button.y &&
-                       mousePosition.y <= dashboard.button.y + dashboard.button.height) {
+            } else if (mousePosition.x >= this.dashboard.button.x &&
+                       mousePosition.x <= this.dashboard.button.x + this.dashboard.button.width &&
+                       mousePosition.y >= this.dashboard.button.y &&
+                       mousePosition.y <= this.dashboard.button.y + this.dashboard.button.height) {
                        console.log("new game should be initiated");
                        return;
             } else {
@@ -474,7 +498,7 @@ window.onload = function () {
                 toSwap[0].destinationX = toSwap[1].x;
             }
 
-            tiles.move(toSwap, this.selectedIcons, direction);
+            this.move(toSwap, this.selectedIcons, direction);
         }
 
         /**
@@ -493,7 +517,7 @@ window.onload = function () {
                 this.resolve();
                 this.updateColour();
                 this.addPoints();
-                dashboard.moves -= 1;
+                this.dashboard.moves -= 1;
             }
         }
         /**
@@ -510,7 +534,7 @@ window.onload = function () {
                 }
             });
             let userRemovedflat = [].concat(...userRemoved);
-            let cells = grid.cells;
+            let cells = this.cells;
             //removing duplicates
             let userRemovedflatU = new Set(userRemovedflat);
             userRemovedflatU.forEach(icon => cells[icon.row-this.selectedIcons.length / 2][icon.column].colour = false);
@@ -520,7 +544,7 @@ window.onload = function () {
         addPoints() {
             //not removing duplicates means that the user will get bonus points for creating more than one match with one move
             let matches = this.updateColour();
-            dashboard.points += matches.length * 10;
+            this.dashboard.points += matches.length * 10;
         }
 
 
@@ -665,12 +689,13 @@ window.onload = function () {
                 await sleep(700);
                 this.removeMatches(ctx);
                 let removeArray = this.findIconsToMove()
+                console.log(removeArray);
 
                 //calculate how much time is needed for everything to be moved
                 let yValues = removeArray.map(obj => Math.abs(obj.destinationY - obj.y));
-                let interval = (Math.max(...yValues) / 2) * tiles.interval + 30;
+                let interval = (Math.max(...yValues) / 2) * this.interval + 30;
 
-                tiles.move(removeArray, this.selectedIcons, "down");
+                this.move(removeArray, this.selectedIcons, "down");
                 await sleep(interval);
                 this.clicked = [];
                 this.updateRefill();
@@ -691,10 +716,9 @@ window.onload = function () {
              * on click detect which cell was clicked and apply hihlighting logic
              */
             canvas.addEventListener("mousedown", function (e) {
-                
+                if (GAMESTATE.userInput) {
                     game.detectCell(canvas, e);
 
-                    if (GAMESTATE.userInput) {
                     //if clicked within the grid
                     if (game.validClick) {
                         switch (game.clicked.length) {
@@ -746,18 +770,16 @@ window.onload = function () {
         }
     }
 
-    //function init() {
-        let grid = new Grid();
-        grid.draw(ctx);
-        grid.fillBackground(ctx);
-        let dashboard = new Dashboard(grid);
-        dashboard.draw(ctx);
-        let tiles = new Icons(grid);
-        let game = new Game(grid, tiles);
-        game.drawLevel(ctx);
-        game.resolve();
-        let handle = new InputHandler(game, grid);
-    //}
-
-    //init();
+    
+       // let grid = new Grid();
+        //grid.draw(ctx);
+        //grid.fillBackground(ctx);
+        //let dashboard = new Dashboard(grid);
+        //dashboard.draw(ctx);
+        //let tiles = new Icons(grid);
+        let game = new Game();
+        //game.drawLevel(ctx);
+        //game.resolve();
+        //let handle = new InputHandler(game, grid);
+        game.init();
 }
