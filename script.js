@@ -471,7 +471,6 @@ window.onload = function () {
             });
             let userRemovedflat = [].concat(...userRemoved);
             let cells = grid.cells;
-            console.log(cells);
             userRemovedflat.forEach(icon => cells[icon.row-this.selectedIcons.length / 2][icon.column].colour = false);
         }
 
