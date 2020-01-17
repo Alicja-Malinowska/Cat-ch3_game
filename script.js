@@ -30,6 +30,8 @@ window.onload = function () {
             this.intervalY = this.height / this.rows;
             this.padding = 2;
             this.higlightPadding = this.padding + 2.5;
+            this.cells = [];
+            
         }
         
         draw(ctx) {
@@ -66,6 +68,7 @@ window.onload = function () {
                         y: posY,
                         xEnd: posX + this.intervalX,
                         yEnd: posY + this.intervalY,
+                        colour: true,
                         row: i,
                         column: j
                     }
@@ -76,7 +79,27 @@ window.onload = function () {
                 cellPos.push(cellPosRow);
 
             }
+            this.cells = cellPos;
             return cellPos;
+        }
+
+        /**
+         * fills a cell with colour
+         * @param {*} ctx 
+         * @param {*} cell 
+         */
+        drawBackground(ctx, cell) {
+                ctx.fillStyle = "#ED9A9A";
+                ctx.fillRect(cell.x + this.padding, cell.y + this.padding, this.intervalX - this.padding, this.intervalY - this.padding);
+           
+        }
+        /**
+         * fills every cell's background with colour
+         * @param {*} ctx 
+         */
+        fillBackground(ctx) {
+            let cells = this.getCellPos();
+            cells.forEach(row => row.forEach(cell => this.drawBackground(ctx, cell)));
         }
 
 
@@ -122,8 +145,10 @@ window.onload = function () {
         move(moveArray, drawArray, direction) {
 
             let movement = setInterval(function () {
-                ctx.clearRect(0, 0, grid.width, grid.height);
+                ctx.clearRect(0, 0, grid.width + grid.padding, grid.height + grid.padding);
                 grid.draw(ctx);
+                //redraw the colour background if it wasn't removed
+                grid.cells.forEach(row => row.filter(cell => cell.colour).forEach(cell => grid.drawBackground(ctx, cell)));
                 //redraw the all icons except for those moving
                 drawArray.forEach(row => row.filter(obj => !obj.removed).forEach(icon => ctx.drawImage(icon.image, icon.x, icon.y, tiles.size, tiles.size)));
                 //redraw icons to move in the new position until they achieve their destination
@@ -203,6 +228,7 @@ window.onload = function () {
             this.icons = tiles.icons;
             this.clicked = [];
             this.cellPosArr = [].concat(...grid.getCellPos());
+            this.matchesArr = [];
             this.matches = [];
             this.validClick = false;
 
@@ -296,7 +322,7 @@ window.onload = function () {
                     matchesCols.push(colMatch);
                 }
             }
-
+            this.matchesArr = matchesCols.concat(matchesRows);
             //all matches with duplicates removed
             this.matches = Array.from(new Set([].concat(...matchesCols.concat(matchesRows))));
             return this.matches;
@@ -306,9 +332,11 @@ window.onload = function () {
          * @param {Object} ctx 
          */
         removeMatches(ctx) {
-            this.matches.forEach(element => {
-                ctx.clearRect(element.x, element.y, tiles.size, tiles.size)
-            });
+            /*this.matches.forEach(element => {
+                let cells = grid.getCellPos();
+                ctx.clearRect(element.x, element.y, tiles.size, tiles.size);
+                grid.drawBackground(ctx, cells[element.row - this.selectedIcons.length/2][element.column]);
+            });*/
 
             for (let i = this.selectedIcons.length / 2; i < this.selectedIcons.length; i++) {
                 this.selectedIcons[i].forEach(function (obj) {
@@ -381,21 +409,11 @@ window.onload = function () {
          */
         findIconsToSwap() {
 
-            let cellsArray = grid.getCellPos();
             let toSwap = [];
             //find index of the clicked cells
             for (let i = 0; i < this.clicked.length; i++) {
-                let rowIndex;
-                let innerIndex;
-                for (let j = 0; j < cellsArray.length; j++) {
-                    innerIndex = cellsArray[j].findIndex(cell => cell.x === this.clicked[i].x && cell.y === this.clicked[i].y);
-                    if (innerIndex !== -1) {
-                        rowIndex = j;
-                        break;
-                    }
-                }
                 //the index of the icon will be the same as the index of the cell
-                let iconToSwap = this.selectedIcons[rowIndex + this.selectedIcons.length / 2][innerIndex];
+                let iconToSwap = this.selectedIcons[this.clicked[i].row + this.selectedIcons.length / 2][this.clicked[i].column];
                 iconToSwap.removed = true;
                 toSwap.push({
                     ...iconToSwap
@@ -435,8 +453,27 @@ window.onload = function () {
                 GAMESTATE.userInput = true;
             } else {
                 this.resolve();
+                this.updateColour();
             }
         }
+        /**
+         * finds cells in which icons were matched and removed by user action, and sets colour to false for those
+         */
+        updateColour() {
+            let userRemoved = [];
+            this.clicked.forEach(clicked => {
+                for(let i=0; i<this.matchesArr.length; i++) {
+                    let index = this.matchesArr[i].findIndex(icon => icon.row === clicked.row + this.selectedIcons.length / 2 && icon.column === clicked.column);
+                    if(index !== -1) {
+                        userRemoved.push(this.matchesArr[i]);
+                    }
+                }
+            });
+            let userRemovedflat = [].concat(...userRemoved);
+            let cells = grid.cells;
+            userRemovedflat.forEach(icon => cells[icon.row-this.selectedIcons.length / 2][icon.column].colour = false);
+        }
+
         /**
          * changes icons to random in the first 6 rows (those not visible) so that there are no empty spaces and icons are different in refill
          */
@@ -511,14 +548,14 @@ window.onload = function () {
                         if (exists(up) && up.image === currentIcon.image && pos.dir !== "down") {
                             //if two images above the possible move exist and have the same image, it's a valid move to make
                             if (exists(up2) && up2.image === currentIcon.image) {
-                                console.log(currentIcon);
-                                console.log("there are two icons above if you move your icon " + pos.dir)
+                                //console.log(currentIcon);
+                                //console.log("there are two icons above if you move your icon " + pos.dir)
                                 matchFound = true;
                                 return;
                             //if an image above and and image down are the same as the current one, it's a valid move to make
                             } else if (exists(down) && down.image === currentIcon.image && pos.dir !== "up") {
-                                console.log(currentIcon);
-                                console.log("there is one icon above and one below if you move your icon " + pos.dir)
+                                //console.log(currentIcon);
+                                //console.log("there is one icon above and one below if you move your icon " + pos.dir)
                                 matchFound = true;
                                 return;
                             }
@@ -527,8 +564,8 @@ window.onload = function () {
                         // if two images below the possible move exist and have the same image, it's a valid move to make
                         if (exists(down) && down.image === currentIcon.image && pos.dir !== "up") {
                             if (exists(down2) && down2.image === currentIcon.image) {
-                                console.log(currentIcon);
-                                console.log("there are two icons below if you move your icon " + pos.dir)
+                                //console.log(currentIcon);
+                                //console.log("there are two icons below if you move your icon " + pos.dir)
                                 matchFound = true;
                                 return;
                             }
@@ -537,14 +574,14 @@ window.onload = function () {
                         //if two images to the right of the possible move exist and have the same image, it's a valid move to make
                         if (exists(right) && right.image === currentIcon.image && pos.dir !== "left") {
                             if (exists(right2) && right2.image === currentIcon.image) {
-                                console.log(currentIcon);
-                                console.log("there are two icons to the right if you move your icon " + pos.dir)
+                                //console.log(currentIcon);
+                                //console.log("there are two icons to the right if you move your icon " + pos.dir)
                                 matchFound = true;
                                 return;
                             //if an image to the right and and image to the left are the same as the current one, it's a valid move to make
                             } else if (exists(left) && left.image === currentIcon.image && pos.dir !== "right") {
-                                console.log(currentIcon);
-                                console.log("there there is one icon to the right and one to the left if you move your icon " + pos.dir)
+                                //console.log(currentIcon);
+                                //console.log("there there is one icon to the right and one to the left if you move your icon " + pos.dir)
                                 matchFound = true;
                                 return;
                             }
@@ -552,8 +589,8 @@ window.onload = function () {
                         //if two images to the left of the possible move exist and have the same image, it's a valid move to make
                         if (exists(left) && left.image === currentIcon.image && pos.dir !=="right") {
                             if (exists(left2) && left2.image === currentIcon.image) {
-                                console.log(currentIcon);
-                                console.log("there are two icons to the left if you move your icon " + pos.dir)
+                                //console.log(currentIcon);
+                                //console.log("there are two icons to the left if you move your icon " + pos.dir)
                                 matchFound = true;
                                 return;
                             }
@@ -661,6 +698,7 @@ window.onload = function () {
     //function init() {
         let grid = new Grid();
         grid.draw(ctx);
+        grid.fillBackground(ctx);
         let tiles = new Icons(grid);
         let game = new Game(grid, tiles);
         game.drawLevel(ctx);
