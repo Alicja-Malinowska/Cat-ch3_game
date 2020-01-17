@@ -147,8 +147,8 @@ window.onload = function () {
             let movement = setInterval(function () {
                 ctx.clearRect(0, 0, grid.width + grid.padding, grid.height + grid.padding);
                 grid.draw(ctx);
+                //redraw the colour background if it wasn't removed
                 grid.cells.forEach(row => row.filter(cell => cell.colour).forEach(cell => grid.drawBackground(ctx, cell)));
-                //grid.drawBackground(ctx);
                 //redraw the all icons except for those moving
                 drawArray.forEach(row => row.filter(obj => !obj.removed).forEach(icon => ctx.drawImage(icon.image, icon.x, icon.y, tiles.size, tiles.size)));
                 //redraw icons to move in the new position until they achieve their destination
@@ -456,13 +456,13 @@ window.onload = function () {
                 this.updateColour();
             }
         }
-
+        /**
+         * finds cells in which icons were matched and removed by user action, and sets colour to false for those
+         */
         updateColour() {
             let userRemoved = [];
             this.clicked.forEach(clicked => {
-            
                 for(let i=0; i<this.matchesArr.length; i++) {
-                   
                     let index = this.matchesArr[i].findIndex(icon => icon.row === clicked.row + this.selectedIcons.length / 2 && icon.column === clicked.column);
                     if(index !== -1) {
                         userRemoved.push(this.matchesArr[i]);
