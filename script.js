@@ -119,7 +119,23 @@ window.onload = function () {
     }
 
     
+    class Dashboard {
+        constructor(grid) {
+            this.points = 0;
+            this.moves = 20;
+            this.gridWidth = grid.width;
+            this.gridHeight = grid.height;
+            this.padding = grid.padding;
+        }
 
+        draw(ctx) {
+            ctx.font = "12px Arial";
+            ctx.fillStyle = "black";
+            ctx.textAlign = "center";  
+            ctx.fillText("Moves Left: " + this.moves, this.gridWidth/4, this.gridHeight + 20); 
+            ctx.fillText("Points: " + this.points, this.gridWidth/4 * 3, this.gridHeight + 20); 
+        }
+    }
 
     class Icons {
         constructor(grid) {
@@ -223,6 +239,7 @@ window.onload = function () {
 
     class Game {
         constructor(grid, tiles) {
+            this.dashboard = new Dashboard(grid);
             this.tPosition = tiles.position;
             this.selectedIcons = [];
             this.icons = tiles.icons;
@@ -231,7 +248,7 @@ window.onload = function () {
             this.matchesArr = [];
             this.matches = [];
             this.validClick = false;
-
+            
 
         }
         /**
@@ -454,6 +471,7 @@ window.onload = function () {
             } else {
                 this.resolve();
                 this.updateColour();
+                this.addPoints();
             }
         }
         /**
@@ -471,7 +489,17 @@ window.onload = function () {
             });
             let userRemovedflat = [].concat(...userRemoved);
             let cells = grid.cells;
-            userRemovedflat.forEach(icon => cells[icon.row-this.selectedIcons.length / 2][icon.column].colour = false);
+            //removing duplicates
+            let userRemovedflatU = new Set(userRemovedflat);
+            userRemovedflatU.forEach(icon => cells[icon.row-this.selectedIcons.length / 2][icon.column].colour = false);
+            return userRemovedflat;
+        }
+
+        addPoints() {
+            //not removing duplicates means that the user will get bonus points for creating more than one match with one move
+            let matches = this.updateColour();
+            this.dashboard.points += matches.length * 10;
+            console.log(this.dashboard.points);
         }
 
         /**
@@ -699,6 +727,8 @@ window.onload = function () {
         let grid = new Grid();
         grid.draw(ctx);
         grid.fillBackground(ctx);
+        let dashboard = new Dashboard(grid);
+        dashboard.draw(ctx);
         let tiles = new Icons(grid);
         let game = new Game(grid, tiles);
         game.drawLevel(ctx);
