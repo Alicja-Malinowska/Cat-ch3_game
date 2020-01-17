@@ -138,7 +138,7 @@ window.onload = function () {
     }
 
     class Icons {
-        constructor(grid) {
+        constructor(grid, dashboard) {
             this.icons = [...document.querySelectorAll(".icon")];
             this.size = 40;
             this.position = {
@@ -217,6 +217,9 @@ window.onload = function () {
                     clearInterval(movement);
                 }
 
+                ctx.clearRect(0, grid.height + 10, grid.width - 2 * grid.padding, 30);
+                dashboard.draw(ctx);
+
             }, tiles.interval);
         }
     }
@@ -239,7 +242,6 @@ window.onload = function () {
 
     class Game {
         constructor(grid, tiles) {
-            this.dashboard = new Dashboard(grid);
             this.tPosition = tiles.position;
             this.selectedIcons = [];
             this.icons = tiles.icons;
@@ -472,6 +474,7 @@ window.onload = function () {
                 this.resolve();
                 this.updateColour();
                 this.addPoints();
+                dashboard.moves -= 1;
             }
         }
         /**
@@ -498,9 +501,9 @@ window.onload = function () {
         addPoints() {
             //not removing duplicates means that the user will get bonus points for creating more than one match with one move
             let matches = this.updateColour();
-            this.dashboard.points += matches.length * 10;
-            console.log(this.dashboard.points);
+            dashboard.points += matches.length * 10;
         }
+
 
         /**
          * changes icons to random in the first 6 rows (those not visible) so that there are no empty spaces and icons are different in refill
