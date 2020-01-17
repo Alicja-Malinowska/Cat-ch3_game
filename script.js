@@ -126,6 +126,13 @@ window.onload = function () {
             this.gridWidth = grid.width;
             this.gridHeight = grid.height;
             this.padding = grid.padding;
+            this.button = {
+                width: 100,
+                height: 30,
+                x: GAME_WIDTH/2 - 100/2,
+                y: GAME_HEIGHT - 35
+            }
+           
         }
 
         draw(ctx) {
@@ -134,6 +141,12 @@ window.onload = function () {
             ctx.textAlign = "center";  
             ctx.fillText("Moves Left: " + this.moves, this.gridWidth/4, this.gridHeight + 20); 
             ctx.fillText("Points: " + this.points, this.gridWidth/4 * 3, this.gridHeight + 20); 
+            //button
+            ctx.strokeRect(this.button.x, this.button.y, this.button.width, this.button.height);
+            ctx.fillStyle = "#FFD9B3"
+            ctx.fillRect(this.button.x + 2, this.button.y + 2, this.button.width - 4, this.button.height - 4);
+            ctx.fillStyle = "black";
+            ctx.fillText("NEW GAME", GAME_WIDTH/2, this.button.y + this.button.height/2 + 2.5);
         }
     }
 
@@ -217,7 +230,7 @@ window.onload = function () {
                     clearInterval(movement);
                 }
 
-                ctx.clearRect(0, grid.height + 10, grid.width - 2 * grid.padding, 30);
+                ctx.clearRect(0, grid.height + 10, grid.width - 2 * grid.padding, 65);
                 dashboard.draw(ctx);
 
             }, tiles.interval);
@@ -408,6 +421,12 @@ window.onload = function () {
                 mousePosition.y > grid.padding &&
                 mousePosition.y < grid.height + grid.padding) {
                 self.validClick = true;
+            } else if (mousePosition.x >= dashboard.button.x &&
+                       mousePosition.x <= dashboard.button.x + dashboard.button.width &&
+                       mousePosition.y >= dashboard.button.y &&
+                       mousePosition.y <= dashboard.button.y + dashboard.button.height) {
+                       console.log("new game should be initiated");
+                       return;
             } else {
                 return;
             }
@@ -672,9 +691,10 @@ window.onload = function () {
              * on click detect which cell was clicked and apply hihlighting logic
              */
             canvas.addEventListener("mousedown", function (e) {
-                if (GAMESTATE.userInput) {
+                
                     game.detectCell(canvas, e);
 
+                    if (GAMESTATE.userInput) {
                     //if clicked within the grid
                     if (game.validClick) {
                         switch (game.clicked.length) {
