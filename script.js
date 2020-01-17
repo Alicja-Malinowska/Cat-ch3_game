@@ -319,6 +319,7 @@ window.onload = function () {
                 }
             }
             this.matchesArr = matchesCols.concat(matchesRows);
+            console.log(this.matchesArr);
             //all matches with duplicates removed
             this.matches = Array.from(new Set([].concat(...matchesCols.concat(matchesRows))));
             return this.matches;
@@ -405,11 +406,11 @@ window.onload = function () {
          */
         findIconsToSwap() {
 
-            let cellsArray = grid.getCellPos();
+            //let cellsArray = grid.getCellPos();
             let toSwap = [];
             //find index of the clicked cells
             for (let i = 0; i < this.clicked.length; i++) {
-                let rowIndex;
+                /*let rowIndex;
                 let innerIndex;
                 for (let j = 0; j < cellsArray.length; j++) {
                     innerIndex = cellsArray[j].findIndex(cell => cell.x === this.clicked[i].x && cell.y === this.clicked[i].y);
@@ -417,9 +418,9 @@ window.onload = function () {
                         rowIndex = j;
                         break;
                     }
-                }
+                }*/
                 //the index of the icon will be the same as the index of the cell
-                let iconToSwap = this.selectedIcons[rowIndex + this.selectedIcons.length / 2][innerIndex];
+                let iconToSwap = this.selectedIcons[this.clicked[i].row + this.selectedIcons.length / 2][this.clicked[i].column];
                 iconToSwap.removed = true;
                 toSwap.push({
                     ...iconToSwap
@@ -461,6 +462,13 @@ window.onload = function () {
                 this.resolve();
             }
         }
+
+        updateColour() {
+            this.clicked.forEach(clicked => {
+
+            })
+        }
+
         /**
          * changes icons to random in the first 6 rows (those not visible) so that there are no empty spaces and icons are different in refill
          */
