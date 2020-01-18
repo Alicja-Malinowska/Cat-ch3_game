@@ -366,7 +366,7 @@ window.onload = function () {
          * @param {Array} drawArray 
          * @param {String} direction 
          */
-        move(moveArray, drawArray, direction) {
+        move(moveArray, direction) {
             let self = this;
            
             let movement = setInterval(function () {
@@ -383,7 +383,7 @@ window.onload = function () {
                         let toChange = {};
 
                         //find the new position in the array of all drawn icons and replace the image 
-                        drawArray.forEach(function (row) {
+                        self.selectedIcons.forEach(function (row) {
                             toChange = row.find(icon => icon.x === obj.x && icon.y === obj.y);
                             if (toChange) {
                                 toChange.image = obj.image;
@@ -493,7 +493,7 @@ window.onload = function () {
                 toSwap[0].destinationX = toSwap[1].x;
             }
 
-            this.move(toSwap, this.selectedIcons, direction);
+            this.move(toSwap, direction);
         }
 
         /**
@@ -689,7 +689,7 @@ window.onload = function () {
                 let yValues = removeArray.map(obj => Math.abs(obj.destinationY - obj.y));
                 let interval = (Math.max(...yValues) / 2) * this.interval + 30;
 
-                this.move(removeArray, this.selectedIcons, "down");
+                this.move(removeArray, "down");
                 await sleep(interval);
                 this.clicked = [];
                 this.updateRefill();
