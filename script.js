@@ -248,6 +248,15 @@ window.onload = function () {
 
         }
 
+        drawAll(){
+            this.grid.draw(ctx);
+            //redraw the colour background if it wasn't removed
+            this.cells.forEach(row => row.filter(cell => cell.colour).forEach(cell => this.grid.drawBackground(ctx, cell)));
+            //redraw the all icons except for those moving
+            this.selectedIcons.forEach(row => row.filter(obj => !obj.removed).forEach(icon => ctx.drawImage(icon.image, icon.x, icon.y, this.tSize, this.tSize))); 
+            this.dashboard.draw(ctx);                      
+        }
+
         /**
          * creates an array of unique matches
          */
@@ -731,7 +740,9 @@ window.onload = function () {
                             case 2:
                                 // if it's the same as first, remove highlight
                                 if (game.clicked[0] === game.clicked[1]) {
-                                    grid.removeHighlight(game.clicked[0].x, game.clicked[0].y, ctx);
+                                    //grid.removeHighlight(game.clicked[0].x, game.clicked[0].y, ctx);
+                                    ctx.clearRect(0,0, GAME_WIDTH, GAME_HEIGHT);
+                                    game.drawAll();
                                     game.clicked = [];
                                 // if it's adjacent to the first, highlight it as well
                                 // also, this is a condition when two cells can be swapped
@@ -745,23 +756,10 @@ window.onload = function () {
                                     game.checkSwap();
                                 // if not adjacent cell clicked remove highlight from the first and add to the second
                                 } else {
-                                    grid.removeHighlight(game.clicked[0].x, game.clicked[0].y, ctx);
+                                    ctx.clearRect(0,0, GAME_WIDTH, GAME_HEIGHT);
+                                    game.drawAll();
                                     grid.highlightCell(game.clicked[1].x, game.clicked[1].y, ctx);
                                     game.clicked.shift();
-                                }
-                                break;
-                            // if there are two highighted cells
-                            case 3:
-                                //if the third one is same as first or second, remove the highlight from it
-                                if (game.clicked[1] === game.clicked[2] || game.clicked[0] === game.clicked[2]) {
-                                    grid.removeHighlight(game.clicked[2].x, game.clicked[2].y, ctx);
-                                    game.clicked = game.clicked.filter(el => el !== game.clicked[2]);
-                                //if the third one is different, remove highlight from the first and the second and add to the third
-                                } else {
-                                    grid.removeHighlight(game.clicked[0].x, game.clicked[0].y, ctx);
-                                    grid.removeHighlight(game.clicked[1].x, game.clicked[1].y, ctx);
-                                    grid.highlightCell(game.clicked[2].x, game.clicked[2].y, ctx);
-                                    game.clicked.splice(0, 2);
                                 }
                         }
                     }
