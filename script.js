@@ -443,7 +443,7 @@ window.onload = function () {
                 mousePosition.x < this.grid.width + this.grid.padding &&
                 mousePosition.y > this.grid.padding &&
                 mousePosition.y < this.grid.height + this.grid.padding) {
-                self.validClick = true;
+                this.validClick = true;
             } else {
                 return;
             }
@@ -458,7 +458,7 @@ window.onload = function () {
             this.clicked.push(this.cellPosArr.find(checkPos));
         }
 
-        checkButton(){
+        checkButton(canvas, e){
             let mousePosition = mousePos(canvas, e);
             if (mousePosition.x >= this.dashboard.button.x &&
                 mousePosition.x <= this.dashboard.button.x + this.dashboard.button.width &&
@@ -717,6 +717,7 @@ window.onload = function () {
              * on click detect which cell was clicked and apply hihlighting logic
              */
             canvas.addEventListener("mousedown", function (e) {
+                game.checkButton(canvas, e);
                 if (GAMESTATE.userInput) {
                     game.detectCell(canvas, e);
 
