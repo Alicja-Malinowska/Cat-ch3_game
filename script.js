@@ -8,8 +8,8 @@ window.onload = function () {
     const GAME_HEIGHT = 470;
 
     const GAMESTATE = {
-        resolving: true,
-        userInput: false
+        resolving: 1,
+        userInput: 2
 
     }
     /**
@@ -188,6 +188,7 @@ window.onload = function () {
 
     class Game {
         constructor() {
+            this.gamestate = GAMESTATE.resolving;
             this.grid = new Grid();
             this.gridWidth = this.grid.width;
             this.gridHeight = this.grid.height;
@@ -512,8 +513,7 @@ window.onload = function () {
                 this.swap();
                 this.clicked = [];
                 await sleep(1000);
-                GAMESTATE.resolve = false;
-                GAMESTATE.userInput = true;
+                this.gamestate = GAMESTATE.userInput
             } else {
                 this.resolve();
                 this.updateColour();
@@ -703,8 +703,7 @@ window.onload = function () {
                 this.findMatches();
             }
             this.checkMoves();
-            GAMESTATE.resolve = false;
-            GAMESTATE.userInput = true;
+            this.gamestate = GAMESTATE.userInput
         }
 
     }
@@ -718,7 +717,7 @@ window.onload = function () {
              */
             canvas.addEventListener("mousedown", function (e) {
                 game.checkButton(canvas, e);
-                if (GAMESTATE.userInput) {
+                if (game.gamestate === GAMESTATE.userInput) {
                     game.detectCell(canvas, e);
 
                     //if clicked within the grid
@@ -741,8 +740,7 @@ window.onload = function () {
                                     (game.clicked[0].y === game.clicked[1].y &&
                                         Math.abs(game.clicked[0].x - game.clicked[1].x) <= grid.intervalX + 0.5)) {
                                     grid.highlightCell(game.clicked[1].x, game.clicked[1].y, ctx);
-                                    GAMESTATE.userInput = false;
-                                    GAMESTATE.resolve = true;
+                                    game.gamestate = GAMESTATE.resolve
                                     game.swap();
                                     game.checkSwap();
                                 // if not adjacent cell clicked remove highlight from the first and add to the second
