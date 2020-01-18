@@ -108,14 +108,6 @@ window.onload = function () {
             ctx.strokeRect(cellX + this.higlightPadding, cellY + this.higlightPadding, this.intervalX - 8, this.intervalY - 8);
         }
 
-        removeHighlight(cellX, cellY, ctx) {
-            ctx.clearRect(cellX - 1 + this.higlightPadding, cellY - 1 + this.higlightPadding, this.intervalX - 6, 8);
-            ctx.clearRect(cellX - 1 + this.higlightPadding, cellY - 1 + this.higlightPadding, 8, this.intervalY - 6);
-            ctx.clearRect(cellX - 1 + this.higlightPadding, cellY + this.higlightPadding + this.intervalY - 14, this.intervalX - 6, 8);
-            ctx.clearRect(cellX - 1 + this.higlightPadding + this.intervalX - 14, cellY - 1 + this.higlightPadding, 8, this.intervalY - 6);
-
-        }
-
     }
 
     
@@ -378,13 +370,8 @@ window.onload = function () {
             let self = this;
            
             let movement = setInterval(function () {
-                ctx.clearRect(0, 0, self.gridWidth + self.padding, self.gridHeight + self.padding);
-                self.grid.draw(ctx);
-                //redraw the colour background if it wasn't removed
-                self.cells.forEach(row => row.filter(cell => cell.colour).forEach(cell => self.grid.drawBackground(ctx, cell)));
-                //redraw the all icons except for those moving
-                drawArray.forEach(row => row.filter(obj => !obj.removed).forEach(icon => ctx.drawImage(icon.image, icon.x, icon.y, self.tSize, self.tSize)));
-                //redraw icons to move in the new position until they achieve their destination
+                ctx.clearRect(0,0, GAME_WIDTH, GAME_HEIGHT);
+                self.drawAll()
                 moveArray.forEach(function (obj) {
                     let objDir = direction === "down" ? obj.y : obj.x;
                     let objDes = direction === "down" ? obj.destinationY : obj.destinationX;
@@ -434,9 +421,6 @@ window.onload = function () {
                 if (moveArray.length === 0) {
                     clearInterval(movement);
                 }
-
-                ctx.clearRect(0, self.gridHeight + 10, self.gridWidth - 2 * self.padding, 65);
-                self.dashboard.draw(ctx);
 
             }, self.interval);
         }
