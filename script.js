@@ -437,20 +437,13 @@ window.onload = function () {
          */
         detectCell(canvas, e) {
             let mousePosition = mousePos(canvas, e);
-            let self = this;
-            self.validClick = false;
+            this.validClick = false;
             //check if click was within the grid
             if (mousePosition.x > this.grid.padding &&
                 mousePosition.x < this.grid.width + this.grid.padding &&
                 mousePosition.y > this.grid.padding &&
                 mousePosition.y < this.grid.height + this.grid.padding) {
                 self.validClick = true;
-            } else if (mousePosition.x >= this.dashboard.button.x &&
-                       mousePosition.x <= this.dashboard.button.x + this.dashboard.button.width &&
-                       mousePosition.y >= this.dashboard.button.y &&
-                       mousePosition.y <= this.dashboard.button.y + this.dashboard.button.height) {
-                       console.log("new game should be initiated");
-                       return;
             } else {
                 return;
             }
@@ -462,9 +455,17 @@ window.onload = function () {
                     mousePosition.y > position.y &&
                     mousePosition.y < position.yEnd
             }
+            this.clicked.push(this.cellPosArr.find(checkPos));
+        }
 
-            self.clicked.push(self.cellPosArr.find(checkPos));
-            console.log(self.clicked);
+        checkButton(){
+            let mousePosition = mousePos(canvas, e);
+            if (mousePosition.x >= this.dashboard.button.x &&
+                mousePosition.x <= this.dashboard.button.x + this.dashboard.button.width &&
+                mousePosition.y >= this.dashboard.button.y &&
+                mousePosition.y <= this.dashboard.button.y + this.dashboard.button.height) {
+                console.log("new game should be initiated");
+                }
         }
         /**
          * finds icons to swap based on which cells were clicked
