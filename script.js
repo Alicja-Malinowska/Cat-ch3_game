@@ -8,8 +8,12 @@ window.onload = function () {
     const GAME_HEIGHT = 470;
 
     const GAMESTATE = {
-        resolving: 1,
-        userInput: 2
+        MENU: 0,
+        RESOLVING: 1,
+        USER_INPUT: 2,
+        RESET: 3,
+        WIN: 4,
+        LOSE: 5
 
     }
     /**
@@ -31,9 +35,9 @@ window.onload = function () {
             this.padding = 2;
             this.higlightPadding = this.padding + 2.5;
             this.cells = this.getCellPos();
-            
+
         }
-        
+
         draw(ctx) {
             for (let x = 0; x <= this.width; x += this.intervalX) {
                 ctx.beginPath();
@@ -89,9 +93,9 @@ window.onload = function () {
          * @param {*} cell 
          */
         drawBackground(ctx, cell) {
-                ctx.fillStyle = "#ED9A9A";
-                ctx.fillRect(cell.x + this.padding, cell.y + this.padding, this.intervalX - this.padding, this.intervalY - this.padding);
-           
+            ctx.fillStyle = "#ED9A9A";
+            ctx.fillRect(cell.x + this.padding, cell.y + this.padding, this.intervalX - this.padding, this.intervalY - this.padding);
+
         }
         /**
          * fills every cell's background with colour
@@ -110,7 +114,7 @@ window.onload = function () {
 
     }
 
-    
+
     class Dashboard {
         constructor(grid) {
             this.points = 0;
@@ -121,31 +125,49 @@ window.onload = function () {
             this.button = {
                 width: 100,
                 height: 30,
-                x: GAME_WIDTH/2 - 100/2,
+                x: GAME_WIDTH / 2 - 100 / 2,
                 y: GAME_HEIGHT - 35
             }
-           
+
         }
 
         draw(ctx) {
-            ctx.font = "12px Arial";
-            ctx.fillStyle = "black";
-            ctx.textAlign = "center";  
-            ctx.fillText("Moves Left: " + this.moves, this.gridWidth/4, this.gridHeight + 20); 
-            ctx.fillText("Points: " + this.points, this.gridWidth/4 * 3, this.gridHeight + 20); 
+            let text = "PLAY"
+            if (game.gamestate === GAMESTATE.WIN || game.gamestate === GAMESTATE.LOSE) {
+                text += " AGAIN"
+            } else if (game.gamestate !== GAMESTATE.MENU) {
+                text = "New Game"
+                ctx.font = "12px Arial";
+                ctx.fillStyle = "black";
+                ctx.textAlign = "center";
+                ctx.fillText("Moves Left: " + this.moves, this.gridWidth / 4, this.gridHeight + 20);
+                ctx.fillText("Points: " + this.points, this.gridWidth / 4 * 3, this.gridHeight + 20);
+            }
             //button
             ctx.strokeRect(this.button.x, this.button.y, this.button.width, this.button.height);
             ctx.fillStyle = "#FFD9B3"
             ctx.fillRect(this.button.x + 2, this.button.y + 2, this.button.width - 4, this.button.height - 4);
             ctx.fillStyle = "black";
-            ctx.fillText("NEW GAME", GAME_WIDTH/2, this.button.y + this.button.height/2 + 2.5);
+            ctx.textAlign = "center";
+            ctx.fillText(text, GAME_WIDTH / 2, this.button.y + this.button.height / 2 + 2.5);
+        }
+
+        checkButton(canvas, e) {
+            let mousePosition = mousePos(canvas, e);
+            if (mousePosition.x >= this.button.x &&
+                mousePosition.x <= this.button.x + this.button.width &&
+                mousePosition.y >= this.button.y &&
+                mousePosition.y <= this.button.y + this.button.height) {
+                game.init();
+
+            }
         }
     }
 
     class Icons {
         constructor(grid) {
             this.gridWidth = grid.width;
-            this.gridHeight = grid.height; 
+            this.gridHeight = grid.height;
             this.padding = grid.padding;
             this.icons = [...document.querySelectorAll(".icon")];
             this.size = 40;
@@ -159,7 +181,7 @@ window.onload = function () {
             ctx.drawImage(currentIcon, posX, posY, this.size, this.size);
         }
 
-       
+
     }
 
 
@@ -180,7 +202,7 @@ window.onload = function () {
 
     class Game {
         constructor() {
-            this.gamestate = GAMESTATE.resolving;
+            this.gamestate = GAMESTATE.MENU;
             this.grid = new Grid();
             this.gridWidth = this.grid.width;
             this.gridHeight = this.grid.height;
@@ -198,23 +220,35 @@ window.onload = function () {
             this.matches = [];
             this.validClick = false;
             this.interval = 30;
-            new InputHandler(this, this.grid)
-            
+            new InputHandler(this, this.grid, this.dashboard);
+
 
         }
 
-        init(){
-            this.grid.draw(ctx);
-            this.grid.fillBackground(ctx);
-            this.dashboard.draw(ctx);
-            this.drawLevel(ctx);
-            this.resolve();
+        init() {
+            ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+            //this.grid = new Grid();
+            game.buildLevel();
+            game.drawAll();
+            game.resolve();
         }
+
+        /*reset() {
+            this.gamestate = GAMESTATE.RESET;
+            ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+            this.cells = this.grid.getCellPos();
+            this.clicked = [];
+            this.matches = [];
+            this.selectedIcons = [];
+            //this.init();
+
+        }*/
         /**
          * draws random icons into the canvas, including additional hidden icons above as a refill
          * @param {Object} ctx 
          */
-        drawLevel(ctx) {
+        buildLevel() {
+            this.selectedIcons = [];
             //start position is beyond the canvas so that refill icons can be drawn
             let posY = this.tPosition.y - this.grid.intervalY * this.grid.rows;
             for (let i = 0; i < this.grid.rows * 2; i++) {
@@ -222,7 +256,7 @@ window.onload = function () {
                 let selectedIconsRow = [];
                 for (let j = 0; j < this.grid.columns; j++) {
                     let currentIcon = this.icons[Math.floor(Math.random() * 5)];
-                    this.tiles.draw(ctx, currentIcon, posX, posY);
+                    //this.tiles.draw(ctx, currentIcon, posX, posY);
                     selectedIconsRow[j] = {
                         image: currentIcon,
                         x: posX,
@@ -240,13 +274,19 @@ window.onload = function () {
 
         }
 
-        drawAll(){
+        drawMenu(ctx) {
+            let startImage = document.getElementById('imgStart');
+            ctx.drawImage(startImage, 0, 0, GAME_WIDTH, this.grid.height);
+            this.dashboard.draw(ctx);
+        }
+
+        drawAll() {
             this.grid.draw(ctx);
             //redraw the colour background if it wasn't removed
             this.cells.forEach(row => row.filter(cell => cell.colour).forEach(cell => this.grid.drawBackground(ctx, cell)));
             //redraw the all icons except for those moving
-            this.selectedIcons.forEach(row => row.filter(obj => !obj.removed).forEach(icon => ctx.drawImage(icon.image, icon.x, icon.y, this.tSize, this.tSize))); 
-            this.dashboard.draw(ctx);                      
+            this.selectedIcons.forEach(row => row.filter(obj => !obj.removed).forEach(icon => ctx.drawImage(icon.image, icon.x, icon.y, this.tSize, this.tSize)));
+            this.dashboard.draw(ctx);
         }
 
         /**
@@ -360,7 +400,7 @@ window.onload = function () {
             return toMoveArray;
         }
 
-         /**
+        /**
          * makes tiles move depending on their destination property
          * @param {Array} moveArray 
          * @param {Array} drawArray 
@@ -368,61 +408,63 @@ window.onload = function () {
          */
         move(moveArray, direction) {
             let self = this;
-           
-            let movement = setInterval(function () {
-                ctx.clearRect(0,0, GAME_WIDTH, GAME_HEIGHT);
-                self.drawAll()
-                moveArray.forEach(function (obj) {
-                    let objDir = direction === "down" ? obj.y : obj.x;
-                    let objDes = direction === "down" ? obj.destinationY : obj.destinationX;
-                    let speed = 5;
+            return new Promise(resolve => {
+                let movement = setInterval(function () {
+                    console.log(self.gamestate);
+                    if (moveArray.length === 0) {
+                        resolve('proceed');
+                        clearInterval(movement);
+                    }
+                    ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+                    self.drawAll()
+                    moveArray.forEach(function (obj) {
+                        let objDir = direction === "down" ? obj.y : obj.x;
+                        let objDes = direction === "down" ? obj.destinationY : obj.destinationX;
+                        let speed = 5;
 
-                    function stop() {
-                        objDir = objDes;
-                        direction === "down" ? obj.y = objDir : obj.x = objDir;
-                        let toChange = {};
+                        function stop() {
+                            objDir = objDes;
+                            direction === "down" ? obj.y = objDir : obj.x = objDir;
+                            let toChange = {};
 
-                        //find the new position in the array of all drawn icons and replace the image 
-                        self.selectedIcons.forEach(function (row) {
-                            toChange = row.find(icon => icon.x === obj.x && icon.y === obj.y);
-                            if (toChange) {
-                                toChange.image = obj.image;
-                                toChange.removed = false;
+                            //find the new position in the array of all drawn icons and replace the image 
+                            self.selectedIcons.forEach(function (row) {
+                                toChange = row.find(icon => icon.x === obj.x && icon.y === obj.y);
+                                if (toChange) {
+                                    toChange.image = obj.image;
+                                    toChange.removed = false;
                                 }
                             });
-                    }
-
-                    //if moving backwards
-                    if (objDir > objDes) {
-                        objDir -= speed;
-                        //if an icon reached or exceeded the destination
-                        if (objDir <= objDes) {
-                            stop();
                         }
-                    //if moving forward
+
+                        //if moving backwards
+                        if (objDir > objDes) {
+                            objDir -= speed;
+                            //if an icon reached or exceeded the destination
+                            if (objDir <= objDes) {
+                                stop();
+                            }
+                            //if moving forward
+                        } else {
+                            objDir += speed;
+                            if (objDir >= objDes) {
+                                stop();
+                            }
+                        }
+
+                        direction === "down" ? obj.y = objDir : obj.x = objDir;
+
+                        ctx.drawImage(obj.image, obj.x, obj.y, self.tSize, self.tSize);
+                    });
+                    //remove icons that finished moving from tha array
+                    if (direction === "down") {
+                        moveArray = moveArray.filter(obj => obj.y !== obj.destinationY);
                     } else {
-                        objDir += speed;
-                        if (objDir >= objDes) {
-                            stop();
-                        }
+                        moveArray = moveArray.filter(obj => obj.x !== obj.destinationX);
                     }
-                    
-                    direction === "down" ? obj.y = objDir : obj.x = objDir;
 
-                    ctx.drawImage(obj.image, obj.x, obj.y, self.tSize, self.tSize);
-                });
-                //remove icons that finished moving from tha array
-                if (direction === "down") {
-                    moveArray = moveArray.filter(obj => obj.y !== obj.destinationY);
-                } else {
-                    moveArray = moveArray.filter(obj => obj.x !== obj.destinationX);
-                }
-
-                if (moveArray.length === 0) {
-                    clearInterval(movement);
-                }
-
-            }, self.interval);
+                }, self.interval);
+            });
         }
         /**
          * finds which cell was clicked and adds it to the clicked array
@@ -452,15 +494,7 @@ window.onload = function () {
             this.clicked.push(this.cellPosArr.find(checkPos));
         }
 
-        checkButton(canvas, e){
-            let mousePosition = mousePos(canvas, e);
-            if (mousePosition.x >= this.dashboard.button.x &&
-                mousePosition.x <= this.dashboard.button.x + this.dashboard.button.width &&
-                mousePosition.y >= this.dashboard.button.y &&
-                mousePosition.y <= this.dashboard.button.y + this.dashboard.button.height) {
-                console.log("new game should be initiated");
-                }
-        }
+
         /**
          * finds icons to swap based on which cells were clicked
          */
@@ -481,7 +515,6 @@ window.onload = function () {
         }
 
         swap() {
-
             let toSwap = this.findIconsToSwap()
             let direction = this.clicked[0].x === this.clicked[1].x ? "down" : "side";
 
@@ -506,7 +539,7 @@ window.onload = function () {
                 this.swap();
                 this.clicked = [];
                 await sleep(1000);
-                this.gamestate = GAMESTATE.userInput
+                this.gamestate = GAMESTATE.USER_INPUT
             } else {
                 this.resolve();
                 this.updateColour();
@@ -520,9 +553,9 @@ window.onload = function () {
         updateColour() {
             let userRemoved = [];
             this.clicked.forEach(clicked => {
-                for(let i=0; i<this.matchesArr.length; i++) {
+                for (let i = 0; i < this.matchesArr.length; i++) {
                     let index = this.matchesArr[i].findIndex(icon => icon.row === clicked.row + this.selectedIcons.length / 2 && icon.column === clicked.column);
-                    if(index !== -1) {
+                    if (index !== -1) {
                         userRemoved.push(this.matchesArr[i]);
                     }
                 }
@@ -531,7 +564,7 @@ window.onload = function () {
             let cells = this.cells;
             //removing duplicates
             let userRemovedflatU = new Set(userRemovedflat);
-            userRemovedflatU.forEach(icon => cells[icon.row-this.selectedIcons.length / 2][icon.column].colour = false);
+            userRemovedflatU.forEach(icon => cells[icon.row - this.selectedIcons.length / 2][icon.column].colour = false);
             return userRemovedflat;
         }
 
@@ -588,27 +621,27 @@ window.onload = function () {
                     ];
                     //checks if the object exists within the grid
                     let exists = function (obj) {
-                        if(obj) {
+                        if (obj) {
                             return obj.row >= game.selectedIcons.length / 2 &&
                                 obj.row < game.selectedIcons.length &&
                                 obj.column >= 0 &&
                                 obj.column < game.selectedIcons[i].length
-                         } else {
+                        } else {
                             return false;
-                         }
+                        }
                     }
-                    
+
                     //filter for possible moves of an icon (check if within the grid)
                     let toCheck = movePos.filter(pos => exists(pos));
 
                     toCheck.forEach(function (pos) {
-                        let up = game.selectedIcons[pos.row - 1]? game.selectedIcons[pos.row - 1][pos.column] : null;
+                        let up = game.selectedIcons[pos.row - 1] ? game.selectedIcons[pos.row - 1][pos.column] : null;
                         let right = game.selectedIcons[pos.row][pos.column + 1];
-                        let down = game.selectedIcons[pos.row + 1]? game.selectedIcons[pos.row + 1][pos.column]: null;
+                        let down = game.selectedIcons[pos.row + 1] ? game.selectedIcons[pos.row + 1][pos.column] : null;
                         let left = game.selectedIcons[pos.row][pos.column - 1];
-                        let up2 = game.selectedIcons[pos.row - 2]? game.selectedIcons[pos.row - 2][pos.column] : null;
+                        let up2 = game.selectedIcons[pos.row - 2] ? game.selectedIcons[pos.row - 2][pos.column] : null;
                         let right2 = game.selectedIcons[pos.row][pos.column + 2];
-                        let down2 = game.selectedIcons[pos.row + 2]? game.selectedIcons[pos.row + 2][pos.column] : null;
+                        let down2 = game.selectedIcons[pos.row + 2] ? game.selectedIcons[pos.row + 2][pos.column] : null;
                         let left2 = game.selectedIcons[pos.row][pos.column - 2];
                         let currentIcon = game.selectedIcons[i][j];
 
@@ -620,14 +653,14 @@ window.onload = function () {
                                 //console.log("there are two icons above if you move your icon " + pos.dir)
                                 matchFound = true;
                                 return;
-                            //if an image above and and image down are the same as the current one, it's a valid move to make
+                                //if an image above and and image down are the same as the current one, it's a valid move to make
                             } else if (exists(down) && down.image === currentIcon.image && pos.dir !== "up") {
                                 //console.log(currentIcon);
                                 //console.log("there is one icon above and one below if you move your icon " + pos.dir)
                                 matchFound = true;
                                 return;
                             }
-                        } 
+                        }
 
                         // if two images below the possible move exist and have the same image, it's a valid move to make
                         if (exists(down) && down.image === currentIcon.image && pos.dir !== "up") {
@@ -637,7 +670,7 @@ window.onload = function () {
                                 matchFound = true;
                                 return;
                             }
-                        } 
+                        }
 
                         //if two images to the right of the possible move exist and have the same image, it's a valid move to make
                         if (exists(right) && right.image === currentIcon.image && pos.dir !== "left") {
@@ -646,7 +679,7 @@ window.onload = function () {
                                 //console.log("there are two icons to the right if you move your icon " + pos.dir)
                                 matchFound = true;
                                 return;
-                            //if an image to the right and and image to the left are the same as the current one, it's a valid move to make
+                                //if an image to the right and and image to the left are the same as the current one, it's a valid move to make
                             } else if (exists(left) && left.image === currentIcon.image && pos.dir !== "right") {
                                 //console.log(currentIcon);
                                 //console.log("there there is one icon to the right and one to the left if you move your icon " + pos.dir)
@@ -655,19 +688,19 @@ window.onload = function () {
                             }
                         }
                         //if two images to the left of the possible move exist and have the same image, it's a valid move to make
-                        if (exists(left) && left.image === currentIcon.image && pos.dir !=="right") {
+                        if (exists(left) && left.image === currentIcon.image && pos.dir !== "right") {
                             if (exists(left2) && left2.image === currentIcon.image) {
                                 //console.log(currentIcon);
                                 //console.log("there are two icons to the left if you move your icon " + pos.dir)
                                 matchFound = true;
                                 return;
                             }
-                        } 
+                        }
                     });
                 }
             }
 
-            if(!matchFound) {
+            if (!matchFound) {
                 console.log("no more moves DumDum!")
             }
         }
@@ -676,41 +709,45 @@ window.onload = function () {
          * removes all the matches until there is nothing left
          */
         async resolve() {
-
-           this.findMatches();
+            this.findMatches();
             while (this.matches.length !== 0) {
-
+                /* if(this.gamestate === GAMESTATE.RESET) {
+                     this.gamestate === GAMESTATE.RESOLVING;
+                     break;
+                 }*/
                 await sleep(700);
                 this.removeMatches(ctx);
                 let removeArray = this.findIconsToMove()
                 console.log(removeArray);
 
                 //calculate how much time is needed for everything to be moved
-                let yValues = removeArray.map(obj => Math.abs(obj.destinationY - obj.y));
-                let interval = (Math.max(...yValues) / 2) * this.interval + 30;
+                //let yValues = removeArray.map(obj => Math.abs(obj.destinationY - obj.y));
+                //let interval = (Math.max(...yValues) / 2) * this.interval + 30;
 
-                this.move(removeArray, "down");
-                await sleep(interval);
+                //this.move(removeArray, "down");
+                await this.move(removeArray, "down");
                 this.clicked = [];
                 this.updateRefill();
                 this.findMatches();
+
             }
             this.checkMoves();
-            this.gamestate = GAMESTATE.userInput
+            this.gamestate = GAMESTATE.USER_INPUT;
+            console.log("done");
         }
 
     }
 
 
     class InputHandler {
-        constructor(game, grid) {
+        constructor(game, grid, dashboard) {
 
             /**
              * on click detect which cell was clicked and apply hihlighting logic
              */
             canvas.addEventListener("mousedown", function (e) {
-                game.checkButton(canvas, e);
-                if (game.gamestate === GAMESTATE.userInput) {
+                dashboard.checkButton(canvas, e);
+                if (game.gamestate === GAMESTATE.USER_INPUT) {
                     game.detectCell(canvas, e);
 
                     //if clicked within the grid
@@ -720,27 +757,27 @@ window.onload = function () {
                             case 1:
                                 grid.highlightCell(game.clicked[0].x, game.clicked[0].y, ctx);
                                 break;
-                            // if second cell is clicked
+                                // if second cell is clicked
                             case 2:
                                 // if it's the same as first, remove highlight
                                 if (game.clicked[0] === game.clicked[1]) {
                                     //grid.removeHighlight(game.clicked[0].x, game.clicked[0].y, ctx);
-                                    ctx.clearRect(0,0, GAME_WIDTH, GAME_HEIGHT);
+                                    ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
                                     game.drawAll();
                                     game.clicked = [];
-                                // if it's adjacent to the first, highlight it as well
-                                // also, this is a condition when two cells can be swapped
+                                    // if it's adjacent to the first, highlight it as well
+                                    // also, this is a condition when two cells can be swapped
                                 } else if ((game.clicked[0].x === game.clicked[1].x &&
                                         Math.abs(game.clicked[0].y - game.clicked[1].y) <= grid.intervalY + 0.5) ||
                                     (game.clicked[0].y === game.clicked[1].y &&
                                         Math.abs(game.clicked[0].x - game.clicked[1].x) <= grid.intervalX + 0.5)) {
                                     grid.highlightCell(game.clicked[1].x, game.clicked[1].y, ctx);
-                                    game.gamestate = GAMESTATE.resolve
+                                    game.gamestate = GAMESTATE.RESOLVING;
                                     game.swap();
                                     game.checkSwap();
-                                // if not adjacent cell clicked remove highlight from the first and add to the second
+                                    // if not adjacent cell clicked remove highlight from the first and add to the second
                                 } else {
-                                    ctx.clearRect(0,0, GAME_WIDTH, GAME_HEIGHT);
+                                    ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
                                     game.drawAll();
                                     grid.highlightCell(game.clicked[1].x, game.clicked[1].y, ctx);
                                     game.clicked.shift();
@@ -752,16 +789,11 @@ window.onload = function () {
         }
     }
 
-    
-       // let grid = new Grid();
-        //grid.draw(ctx);
-        //grid.fillBackground(ctx);
-        //let dashboard = new Dashboard(grid);
-        //dashboard.draw(ctx);
-        //let tiles = new Icons(grid);
-        let game = new Game();
-        //game.drawLevel(ctx);
-        //game.resolve();
-        //let handle = new InputHandler(game, grid);
-        game.init();
+
+
+    let game = new Game();
+    game.init();
+    //game.drawMenu(ctx);
+
+
 }
