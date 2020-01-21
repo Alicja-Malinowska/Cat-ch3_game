@@ -161,6 +161,8 @@ window.onload = function () {
                 game.gamestate = GAMESTATE.RESET;
                 console.log('new game!')
                 await sleep(30);
+                this.points = 0;
+                this.moves = 20;
                 game.init();
 
             }
@@ -209,10 +211,7 @@ window.onload = function () {
             this.grid = new Grid();
             this.dashboard = new Dashboard(this.grid);
             this.tiles = new Icons(this.grid);
-            this.tSize = this.tiles.size;
-            this.tPosition = this.tiles.position;
             this.selectedIcons = [];
-            this.icons = this.tiles.icons;
             this.clicked = [];
             this.cellPosArr = [].concat(...this.grid.getCellPos());
             this.matchesArr = [];
@@ -240,12 +239,12 @@ window.onload = function () {
         buildLevel() {
             this.selectedIcons = [];
             //start position is beyond the canvas so that refill icons can be drawn
-            let posY = this.tPosition.y - this.grid.intervalY * this.grid.rows;
+            let posY = this.tiles.position.y - this.grid.intervalY * this.grid.rows;
             for (let i = 0; i < this.grid.rows * 2; i++) {
-                let posX = this.tPosition.x;
+                let posX = this.tiles.position.x;
                 let selectedIconsRow = [];
                 for (let j = 0; j < this.grid.columns; j++) {
-                    let currentIcon = this.icons[Math.floor(Math.random() * 5)];
+                    let currentIcon = this.tiles.icons[Math.floor(Math.random() * 5)];
                     //this.tiles.draw(ctx, currentIcon, posX, posY);
                     selectedIconsRow[j] = {
                         image: currentIcon,
@@ -275,7 +274,7 @@ window.onload = function () {
             //redraw the colour background if it wasn't removed
             this.grid.cells.forEach(row => row.filter(cell => cell.colour).forEach(cell => this.grid.drawBackground(ctx, cell)));
             //redraw the all icons except for those moving
-            this.selectedIcons.forEach(row => row.filter(obj => !obj.removed).forEach(icon => ctx.drawImage(icon.image, icon.x, icon.y, this.tSize, this.tSize)));
+            this.selectedIcons.forEach(row => row.filter(obj => !obj.removed).forEach(icon => ctx.drawImage(icon.image, icon.x, icon.y, this.tiles.size, this.tiles.size)));
             this.dashboard.draw(ctx);
         }
 
@@ -444,7 +443,7 @@ window.onload = function () {
 
                         direction === "down" ? obj.y = objDir : obj.x = objDir;
 
-                        ctx.drawImage(obj.image, obj.x, obj.y, self.tSize, self.tSize);
+                        ctx.drawImage(obj.image, obj.x, obj.y, self.tiles.size, self.tiles.size);
                     });
                     //remove icons that finished moving from tha array
                     if (direction === "down") {
@@ -570,8 +569,8 @@ window.onload = function () {
          */
         updateRefill() {
             for (let i = 0; i < game.selectedIcons.length / 2; i++) {
-                game.selectedIcons[i].forEach(function (obj) {
-                    obj.image = game.icons[Math.floor(Math.random() * 5)];
+                this.selectedIcons[i].forEach(obj => {
+                    obj.image = this.tiles.icons[Math.floor(Math.random() * 5)];
                     obj.removed = false;
                 });
             }
@@ -782,8 +781,8 @@ window.onload = function () {
 
 
     let game = new Game();
-    game.init();
-    //game.drawMenu(ctx);
+    //game.init();
+    game.drawMenu(ctx);
 
 
 }
