@@ -152,12 +152,15 @@ window.onload = function () {
             ctx.fillText(text, GAME_WIDTH / 2, this.button.y + this.button.height / 2 + 2.5);
         }
 
-        checkButton(canvas, e) {
+        async checkButton(canvas, e) {
             let mousePosition = mousePos(canvas, e);
             if (mousePosition.x >= this.button.x &&
                 mousePosition.x <= this.button.x + this.button.width &&
                 mousePosition.y >= this.button.y &&
                 mousePosition.y <= this.button.y + this.button.height) {
+                game.gamestate = GAMESTATE.RESET;
+                console.log('new game!')
+                await sleep(30);
                 game.init();
 
             }
@@ -204,10 +207,6 @@ window.onload = function () {
         constructor() {
             this.gamestate = GAMESTATE.MENU;
             this.grid = new Grid();
-            this.gridWidth = this.grid.width;
-            this.gridHeight = this.grid.height;
-            this.padding = this.grid.padding;
-            this.cells = this.grid.cells;
             this.dashboard = new Dashboard(this.grid);
             this.tiles = new Icons(this.grid);
             this.tSize = this.tiles.size;
@@ -226,23 +225,14 @@ window.onload = function () {
         }
 
         init() {
+            this.gamestate = GAMESTATE.RESOLVING;
             ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-            //this.grid = new Grid();
+            this.grid = new Grid();
             game.buildLevel();
             game.drawAll();
             game.resolve();
         }
 
-        /*reset() {
-            this.gamestate = GAMESTATE.RESET;
-            ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-            this.cells = this.grid.getCellPos();
-            this.clicked = [];
-            this.matches = [];
-            this.selectedIcons = [];
-            //this.init();
-
-        }*/
         /**
          * draws random icons into the canvas, including additional hidden icons above as a refill
          * @param {Object} ctx 
@@ -283,7 +273,7 @@ window.onload = function () {
         drawAll() {
             this.grid.draw(ctx);
             //redraw the colour background if it wasn't removed
-            this.cells.forEach(row => row.filter(cell => cell.colour).forEach(cell => this.grid.drawBackground(ctx, cell)));
+            this.grid.cells.forEach(row => row.filter(cell => cell.colour).forEach(cell => this.grid.drawBackground(ctx, cell)));
             //redraw the all icons except for those moving
             this.selectedIcons.forEach(row => row.filter(obj => !obj.removed).forEach(icon => ctx.drawImage(icon.image, icon.x, icon.y, this.tSize, this.tSize)));
             this.dashboard.draw(ctx);
@@ -411,7 +401,7 @@ window.onload = function () {
             return new Promise(resolve => {
                 let movement = setInterval(function () {
                     console.log(self.gamestate);
-                    if (moveArray.length === 0) {
+                    if (moveArray.length === 0 || self.gamestate === GAMESTATE.RESET) {
                         resolve('proceed');
                         clearInterval(movement);
                     }
@@ -561,7 +551,7 @@ window.onload = function () {
                 }
             });
             let userRemovedflat = [].concat(...userRemoved);
-            let cells = this.cells;
+            let cells = this.grid.cells;
             //removing duplicates
             let userRemovedflatU = new Set(userRemovedflat);
             userRemovedflatU.forEach(icon => cells[icon.row - this.selectedIcons.length / 2][icon.column].colour = false);
@@ -711,10 +701,10 @@ window.onload = function () {
         async resolve() {
             this.findMatches();
             while (this.matches.length !== 0) {
-                /* if(this.gamestate === GAMESTATE.RESET) {
+                if(this.gamestate === GAMESTATE.RESET) {
                      this.gamestate === GAMESTATE.RESOLVING;
                      break;
-                 }*/
+                }
                 await sleep(700);
                 this.removeMatches(ctx);
                 let removeArray = this.findIconsToMove()
@@ -725,7 +715,7 @@ window.onload = function () {
                 //let interval = (Math.max(...yValues) / 2) * this.interval + 30;
 
                 //this.move(removeArray, "down");
-                await this.move(removeArray, "down");
+                console.log(await this.move(removeArray, "down"));
                 this.clicked = [];
                 this.updateRefill();
                 this.findMatches();
