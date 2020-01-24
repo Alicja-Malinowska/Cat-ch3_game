@@ -126,7 +126,8 @@ window.onload = function () {
                 width: 100,
                 height: 30,
                 x: GAME_WIDTH / 2 - 100 / 2,
-                y: GAME_HEIGHT - 35
+                y: GAME_HEIGHT - 35,
+                clicked: false
             }
 
         }
@@ -153,19 +154,29 @@ window.onload = function () {
         }
 
         async checkButton(canvas, e) {
+            //console.log("button clicked: " + game.gamestate);
+            console.log(this.button.clicked);
+            if(this.button.clicked) {
+                await sleep(1000);
+                console.log("changing to false")
+                this.button.clicked = false;
+                return;
+            }
             let mousePosition = mousePos(canvas, e);
             if (mousePosition.x >= this.button.x &&
                 mousePosition.x <= this.button.x + this.button.width &&
                 mousePosition.y >= this.button.y &&
                 mousePosition.y <= this.button.y + this.button.height) {
+                    console.log("changing to true")
+                this.button.clicked = true;
                 game.gamestate = GAMESTATE.RESET;
-                console.log('new game!')
-                await sleep(30);
+                await sleep(300);
                 this.points = 0;
                 this.moves = 20;
                 game.init();
 
             }
+
         }
     }
 
@@ -219,14 +230,23 @@ window.onload = function () {
             this.validClick = false;
             this.interval = 30;
             new InputHandler(this, this.grid, this.dashboard);
+            this.time = new Date().getTime() % 10000;
 
 
         }
 
         init() {
+            this.time = new Date().getTime() % 10000;
+            let dupa = this.time;
+            //console.log("init: " + dupa);
+            this.selectedIcons = [];
+            this.clicked = [];
+            this.matchesArr = [];
+            this.matches = [];
             this.gamestate = GAMESTATE.RESOLVING;
             ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
             this.grid = new Grid();
+            this.cellPosArr = [].concat(...this.grid.getCellPos());
             game.buildLevel();
             game.drawAll();
             game.resolve();
@@ -398,9 +418,16 @@ window.onload = function () {
         move(moveArray, direction) {
             let self = this;
             return new Promise(resolve => {
+                let david = self.time;
                 let movement = setInterval(function () {
-                    console.log(self.gamestate);
-                    if (moveArray.length === 0 || self.gamestate === GAMESTATE.RESET) {
+                    //console.log("dupa" + david + " " + self.gamestate);
+                    if (moveArray.length === 0) {
+                        resolve('proceed');
+                        clearInterval(movement);
+                    }
+
+                    if (self.gamestate === GAMESTATE.RESET) {
+                        console.log("chuj" + david);
                         resolve('proceed');
                         clearInterval(movement);
                     }
@@ -522,13 +549,13 @@ window.onload = function () {
          * checks if the swap was valid, if yes it removes the matches and resolves everything, if not swaps the icons back
          */
         async checkSwap() {
-            await sleep(1000);
+            await sleep(500);
             let matches = this.findMatches();
             if (matches.length === 0) {
                 this.swap();
                 this.clicked = [];
-                await sleep(1000);
-                this.gamestate = GAMESTATE.USER_INPUT
+                await sleep(500);
+                this.gamestate = GAMESTATE.USER_INPUT;
             } else {
                 this.resolve();
                 this.updateColour();
@@ -698,31 +725,32 @@ window.onload = function () {
          * removes all the matches until there is nothing left
          */
         async resolve() {
+            //let chuj = this.time;
             this.findMatches();
             while (this.matches.length !== 0) {
-                if(this.gamestate === GAMESTATE.RESET) {
-                     this.gamestate === GAMESTATE.RESOLVING;
-                     break;
-                }
-                await sleep(700);
+                
+                await sleep(300);
                 this.removeMatches(ctx);
                 let removeArray = this.findIconsToMove()
-                console.log(removeArray);
 
                 //calculate how much time is needed for everything to be moved
                 //let yValues = removeArray.map(obj => Math.abs(obj.destinationY - obj.y));
                 //let interval = (Math.max(...yValues) / 2) * this.interval + 30;
 
                 //this.move(removeArray, "down");
-                console.log(await this.move(removeArray, "down"));
+                await this.move(removeArray, "down");
                 this.clicked = [];
                 this.updateRefill();
                 this.findMatches();
+                if (this.gamestate === GAMESTATE.RESET) {
+                    return;
+                }
 
             }
+            //console.log("i love you " + chuj);
             this.checkMoves();
             this.gamestate = GAMESTATE.USER_INPUT;
-            console.log("done");
+
         }
 
     }
@@ -732,7 +760,7 @@ window.onload = function () {
         constructor(game, grid, dashboard) {
 
             /**
-             * on click detect which cell was clicked and apply hihlighting logic
+             * on click detect which cell was clicked and apply highlighting logic
              */
             canvas.addEventListener("mousedown", function (e) {
                 dashboard.checkButton(canvas, e);
@@ -742,7 +770,7 @@ window.onload = function () {
                     //if clicked within the grid
                     if (game.validClick) {
                         switch (game.clicked.length) {
-                            // if there are no other highigted cells, highlight the clicked one
+                            // if there are no other highlighted cells, highlight the clicked one 
                             case 1:
                                 grid.highlightCell(game.clicked[0].x, game.clicked[0].y, ctx);
                                 break;
