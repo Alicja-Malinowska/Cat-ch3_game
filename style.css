@@ -10,6 +10,6 @@ h2 {
     font-size: 1rem;
 }
 
-.icon {
+.icon, .start {
     display: none;
 }
