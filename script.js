@@ -13,7 +13,8 @@ window.onload = function () {
         USER_INPUT: 2,
         RESET: 3,
         WIN: 4,
-        LOSE: 5
+        LOSE: 5,
+        NO_MOVES: 6
 
     }
     /**
@@ -112,13 +113,22 @@ window.onload = function () {
             ctx.strokeRect(cellX + this.higlightPadding, cellY + this.higlightPadding, this.intervalX - 8, this.intervalY - 8);
         }
 
+        checkWin(){
+            let flatCells = [].concat(...this.cells);
+            let index = flatCells.findIndex(cell => cell.colour === true);
+            if(index === -1) {
+                game.gamestate = GAMESTATE.WIN;
+            }
+            
+        }
+
     }
 
 
     class Dashboard {
         constructor(grid) {
             this.points = 0;
-            this.moves = 20;
+            this.moves = 1;
             this.gridWidth = grid.width;
             this.gridHeight = grid.height;
             this.padding = grid.padding;
@@ -134,7 +144,7 @@ window.onload = function () {
 
         draw(ctx) {
             let text = "PLAY"
-            if (game.gamestate === GAMESTATE.WIN || game.gamestate === GAMESTATE.LOSE) {
+            if (game.gamestate === GAMESTATE.WIN || game.gamestate === GAMESTATE.LOSE || this.gamestate === GAMESTATE.NO_MOVES) {
                 text += " AGAIN"
             } else if (game.gamestate !== GAMESTATE.MENU) {
                 text = "New Game"
@@ -156,7 +166,7 @@ window.onload = function () {
         async checkButton(canvas, e) {
             //console.log("button clicked: " + game.gamestate);
             console.log(this.button.clicked);
-            if(this.button.clicked) {
+            if (this.button.clicked) {
                 await sleep(1000);
                 console.log("changing to false")
                 this.button.clicked = false;
@@ -167,13 +177,18 @@ window.onload = function () {
                 mousePosition.x <= this.button.x + this.button.width &&
                 mousePosition.y >= this.button.y &&
                 mousePosition.y <= this.button.y + this.button.height) {
-                    console.log("changing to true")
-                this.button.clicked = true;
-                game.gamestate = GAMESTATE.RESET;
-                await sleep(300);
-                this.points = 0;
-                this.moves = 20;
-                game.init();
+                    if(game.gamestate === GAMESTATE.WIN || game.gamestate === GAMESTATE.LOSE || game.gamestate === GAMESTATE.NO_MOVES) {
+                        location.reload();
+                    } else {
+                        console.log("changing to true")
+                        this.button.clicked = true;
+                        game.gamestate = GAMESTATE.RESET;
+                        await sleep(300);
+                        this.points = 0;
+                        this.moves = 1;
+                        game.init();
+                    }
+                
 
             }
 
@@ -237,7 +252,7 @@ window.onload = function () {
 
         init() {
             this.time = new Date().getTime() % 10000;
-            let dupa = this.time;
+            //let dupa = this.time;
             //console.log("init: " + dupa);
             this.selectedIcons = [];
             this.clicked = [];
@@ -561,6 +576,10 @@ window.onload = function () {
                 this.updateColour();
                 this.addPoints();
                 this.dashboard.moves -= 1;
+                if(this.dashboard.moves === 0) {
+                    this.gamestate = GAMESTATE.LOSE;
+                }
+                
             }
         }
         /**
@@ -717,8 +736,34 @@ window.onload = function () {
             }
 
             if (!matchFound) {
+                this.gamestate = GAMESTATE.NO_MOVES;
                 console.log("no more moves DumDum!")
             }
+        }
+
+        endGame(){
+
+            
+            let category = "/fail";
+            let text = "/YOU%20LOST!%0D%0AWANNA%20PLAY%20AGAIN%3F"
+            if(this.gamestate === GAMESTATE.WIN) {
+                category = "/cute";
+                text = "/YOU%20WIN!%0D%0AWANNA%20PLAY%20AGAIN%3F"
+            } else if (this.gamestate === GAMESTATE.NO_MOVES) {
+                text = "/NO%20MORE%20VALID%20MOVES%0D%0AWANNA%20PLAY%20AGAIN%3F"
+            }
+            let url = "https://cataas.com/cat" + category + "/says" + text + "?width=" + GAME_WIDTH.toString() + "&height=" + this.grid.height.toString();
+
+            var myImg = new Image();
+            myImg.onload = function() {
+            ctx.drawImage(myImg, 0, 2);
+            };
+            myImg.src = url;
+
+            gifler(url).frames(canvas);
+           
+            //an.animateInCanvas(canvas, false);
+            this.dashboard.draw(ctx);
         }
 
         /**
@@ -728,7 +773,7 @@ window.onload = function () {
             //let chuj = this.time;
             this.findMatches();
             while (this.matches.length !== 0) {
-                
+
                 await sleep(300);
                 this.removeMatches(ctx);
                 let removeArray = this.findIconsToMove()
@@ -749,7 +794,13 @@ window.onload = function () {
             }
             //console.log("i love you " + chuj);
             this.checkMoves();
-            this.gamestate = GAMESTATE.USER_INPUT;
+            this.grid.checkWin();
+            if(this.gamestate === GAMESTATE.WIN || this.gamestate === GAMESTATE.LOSE || this.gamestate === GAMESTATE.NO_MOVES) {
+                this.endGame();    
+            } else {
+                this.gamestate = GAMESTATE.USER_INPUT;
+            }
+            
 
         }
 
@@ -811,6 +862,7 @@ window.onload = function () {
     let game = new Game();
     //game.init();
     game.drawMenu(ctx);
+  
 
 
 }
