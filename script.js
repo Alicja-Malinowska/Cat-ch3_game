@@ -128,7 +128,7 @@ window.onload = function () {
     class Dashboard {
         constructor(grid) {
             this.points = 0;
-            this.moves = 1;
+            this.moves = 2;
             this.gridWidth = grid.width;
             this.gridHeight = grid.height;
             this.padding = grid.padding;
@@ -166,26 +166,29 @@ window.onload = function () {
         async checkButton(canvas, e) {
             //console.log("button clicked: " + game.gamestate);
             console.log(this.button.clicked);
-            if (this.button.clicked) {
-                await sleep(1000);
-                console.log("changing to false")
-                this.button.clicked = false;
-                return;
-            }
+            
             let mousePosition = mousePos(canvas, e);
             if (mousePosition.x >= this.button.x &&
                 mousePosition.x <= this.button.x + this.button.width &&
                 mousePosition.y >= this.button.y &&
                 mousePosition.y <= this.button.y + this.button.height) {
+                    /*if (this.button.clicked) {
+                        await sleep(1000);
+                        console.log("changing to false")
+                        this.button.clicked = false;
+                        return;
+                    }*/
                     if(game.gamestate === GAMESTATE.WIN || game.gamestate === GAMESTATE.LOSE || game.gamestate === GAMESTATE.NO_MOVES) {
+                        console.log("dupa");
                         location.reload();
+                        
                     } else {
                         console.log("changing to true")
-                        this.button.clicked = true;
+                        //this.button.clicked = true;
                         game.gamestate = GAMESTATE.RESET;
                         await sleep(300);
                         this.points = 0;
-                        this.moves = 1;
+                        this.moves = 2;
                         game.init();
                     }
                 
@@ -742,16 +745,27 @@ window.onload = function () {
         }
 
         endGame(){
-
-            
+            let message = "OH NO!"
             let category = "/fail";
             let text = "/YOU%20LOST!%0D%0AWANNA%20PLAY%20AGAIN%3F"
             if(this.gamestate === GAMESTATE.WIN) {
+                message = "YAY!"
                 category = "/cute";
                 text = "/YOU%20WIN!%0D%0AWANNA%20PLAY%20AGAIN%3F"
             } else if (this.gamestate === GAMESTATE.NO_MOVES) {
+                message = "UPS..."
                 text = "/NO%20MORE%20VALID%20MOVES%0D%0AWANNA%20PLAY%20AGAIN%3F"
             }
+
+            ctx.fillStyle = "rgba(255,255,255,0.8)";
+            ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+            ctx.fill();
+            ctx.fillStyle = "rgba(0,0,0,1)";
+            ctx.fillText(message, GAME_WIDTH / 2, GAME_HEIGHT / 4);
+            ctx.fillText("WAIT FOR IT...", GAME_WIDTH / 2, GAME_HEIGHT / 2);
+
+            
             let url = "https://cataas.com/cat" + category + "/says" + text + "?width=" + GAME_WIDTH.toString() + "&height=" + this.grid.height.toString();
 
             var myImg = new Image();
@@ -814,7 +828,10 @@ window.onload = function () {
              * on click detect which cell was clicked and apply highlighting logic
              */
             canvas.addEventListener("mousedown", function (e) {
-                dashboard.checkButton(canvas, e);
+                if(game.gamestate !== GAMESTATE.RESET) {
+                    dashboard.checkButton(canvas, e);
+                }
+                
                 if (game.gamestate === GAMESTATE.USER_INPUT) {
                     game.detectCell(canvas, e);
 
