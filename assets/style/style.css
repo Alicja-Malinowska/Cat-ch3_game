@@ -1,0 +1,32 @@
+body {
+    background-image: url(../images/cat-wallpaper-background-pink.jpg);
+    background-size: contain;
+    height: 96vh;
+}
+
+#gameArea{
+    border: 1px solid black;
+}
+
+h1 {
+    font-size: 1.5rem;
+}
+
+h2 {
+    font-size: 1rem;
+}
+
+.icon, .start {
+    display: none;
+}
+
+
+.container {
+    background-color: rgba(255,255,255,0.8);
+    height: 96vh;
+    margin-top: 2vh;
+    text-align: center;
+}
+#game {
+    padding: 0;
+}
