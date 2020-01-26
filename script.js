@@ -137,7 +137,6 @@ window.onload = function () {
                 height: 30,
                 x: GAME_WIDTH / 2 - 100 / 2,
                 y: GAME_HEIGHT - 35,
-                clicked: false
             }
 
         }
@@ -164,7 +163,6 @@ window.onload = function () {
         }
 
         async checkButton(canvas, e) {
-            //console.log("button clicked: " + game.gamestate);
             console.log(this.button.clicked);
             
             let mousePosition = mousePos(canvas, e);
@@ -172,19 +170,10 @@ window.onload = function () {
                 mousePosition.x <= this.button.x + this.button.width &&
                 mousePosition.y >= this.button.y &&
                 mousePosition.y <= this.button.y + this.button.height) {
-                    /*if (this.button.clicked) {
-                        await sleep(1000);
-                        console.log("changing to false")
-                        this.button.clicked = false;
-                        return;
-                    }*/
                     if(game.gamestate === GAMESTATE.WIN || game.gamestate === GAMESTATE.LOSE || game.gamestate === GAMESTATE.NO_MOVES) {
-                        console.log("dupa");
                         location.reload();
                         
                     } else {
-                        console.log("changing to true")
-                        //this.button.clicked = true;
                         game.gamestate = GAMESTATE.RESET;
                         await sleep(300);
                         this.points = 0;
@@ -743,7 +732,9 @@ window.onload = function () {
                 console.log("no more moves DumDum!")
             }
         }
-
+        /**
+         * sets the screen when the game is finished, depending on the result
+         */
         endGame(){
             let message = "OH NO!"
             let category = "/fail";
@@ -756,32 +747,32 @@ window.onload = function () {
                 message = "UPS..."
                 text = "/NO%20MORE%20VALID%20MOVES%0D%0AWANNA%20PLAY%20AGAIN%3F"
             }
-
+            // draws semi-transparent white background and a message for user to wait
+            // this is needed because sometimes it takes some time for the gif to load
+            // so the user should know immediately that the game is over and should be told to wait for something else to happen
             ctx.fillStyle = "rgba(255,255,255,0.8)";
             ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-
             ctx.fill();
             ctx.fillStyle = "rgba(0,0,0,1)";
             ctx.fillText(message, GAME_WIDTH / 2, GAME_HEIGHT / 4);
             ctx.fillText("WAIT FOR IT...", GAME_WIDTH / 2, GAME_HEIGHT / 2);
 
-            
+            //creating the url to get a proper foto from the API
             let url = "https://cataas.com/cat" + category + "/says" + text + "?width=" + GAME_WIDTH.toString() + "&height=" + this.grid.height.toString();
-
+            
             var myImg = new Image();
             myImg.onload = function() {
             ctx.drawImage(myImg, 0, 2);
             };
             myImg.src = url;
-
+            //use gifler library to make gifs work on canvas
             gifler(url).frames(canvas);
            
-            //an.animateInCanvas(canvas, false);
             this.dashboard.draw(ctx);
         }
 
         /**
-         * removes all the matches until there is nothing left
+         * removes all the matches until there is nothing left then checks if the game should end
          */
         async resolve() {
             //let chuj = this.time;
@@ -792,11 +783,6 @@ window.onload = function () {
                 this.removeMatches(ctx);
                 let removeArray = this.findIconsToMove()
 
-                //calculate how much time is needed for everything to be moved
-                //let yValues = removeArray.map(obj => Math.abs(obj.destinationY - obj.y));
-                //let interval = (Math.max(...yValues) / 2) * this.interval + 30;
-
-                //this.move(removeArray, "down");
                 await this.move(removeArray, "down");
                 this.clicked = [];
                 this.updateRefill();
@@ -806,7 +792,6 @@ window.onload = function () {
                 }
 
             }
-            //console.log("i love you " + chuj);
             this.checkMoves();
             this.grid.checkWin();
             if(this.gamestate === GAMESTATE.WIN || this.gamestate === GAMESTATE.LOSE || this.gamestate === GAMESTATE.NO_MOVES) {
@@ -825,7 +810,7 @@ window.onload = function () {
         constructor(game, grid, dashboard) {
 
             /**
-             * on click detect which cell was clicked and apply highlighting logic
+             * on click detect which cell was clicked and apply logic depending on the kind of input
              */
             canvas.addEventListener("mousedown", function (e) {
                 if(game.gamestate !== GAMESTATE.RESET) {
