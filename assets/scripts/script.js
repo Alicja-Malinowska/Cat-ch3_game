@@ -128,7 +128,7 @@ window.onload = function () {
     class Dashboard {
         constructor(grid) {
             this.points = 0;
-            this.moves = 2;
+            this.moves = 20;
             this.gridWidth = grid.width;
             this.gridHeight = grid.height;
             this.padding = grid.padding;
@@ -177,7 +177,7 @@ window.onload = function () {
                         game.gamestate = GAMESTATE.RESET;
                         await sleep(300);
                         this.points = 0;
-                        this.moves = 2;
+                        this.moves = 20;
                         game.init();
                     }
                 
