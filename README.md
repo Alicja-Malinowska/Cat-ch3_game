@@ -106,8 +106,8 @@ The site owner's goal is to play an enjoyable game, share it with others and spr
 
 ### Media
 * [Cat icons](https://www.iconfinder.com/) 
-* [images used to create the start screen](https://pixabay.com/)
-* 
+* [Images used to create the start screen](https://pixabay.com/)
+* [Font](https://www.fontsc.com/)
 
 ### Acknowledgements
 
