@@ -91,3 +91,24 @@ missed by user and the game area should keep the same height---*/
     }
 
 }
+/*----styles for wide and tall devices, like iPadPro---*/
+@media (min-height: 1025px) {
+    #instructions {
+        order: 13;
+        
+    }
+
+    #game {
+        padding-bottom: 6vh;
+    }
+
+    #game, #instructions {
+        flex: 0 0 100%;
+        max-width: 100%
+    }
+
+    li {
+        padding-bottom: 1.5vh;
+        font-size: 1.2rem;
+    }
+}
