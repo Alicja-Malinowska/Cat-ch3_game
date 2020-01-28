@@ -112,7 +112,9 @@ window.onload = function () {
             ctx.strokeStyle = "#000000";
             ctx.strokeRect(cellX + this.higlightPadding, cellY + this.higlightPadding, this.intervalX - 8, this.intervalY - 8);
         }
-
+        /**
+         * go through the flat array of all the cells and check if there are any cells where colour is still true
+         */
         checkWin(){
             let flatCells = [].concat(...this.cells);
             let index = flatCells.findIndex(cell => cell.colour === true);
@@ -272,7 +274,6 @@ window.onload = function () {
                 let selectedIconsRow = [];
                 for (let j = 0; j < this.grid.columns; j++) {
                     let currentIcon = this.tiles.icons[Math.floor(Math.random() * 5)];
-                    //this.tiles.draw(ctx, currentIcon, posX, posY);
                     selectedIconsRow[j] = {
                         image: currentIcon,
                         x: posX,
