@@ -1,7 +1,7 @@
 @font-face {
     font-family: catFont;
     src: url(../fonts/101_marie_luvz_catz/101!\ Marie\ LuvZ\ CatZ.ttf);
-  }
+}
 
 body {
     background-image: url(../images/cat-wallpaper-background-pink.jpg);
@@ -9,7 +9,7 @@ body {
     height: 96vh;
 }
 
-#gameArea{
+#gameArea {
     border: 1px solid black;
 }
 
@@ -23,19 +23,21 @@ h2 {
     font-size: 1rem;
 }
 
-.icon, .start {
+.icon,
+.start {
     display: none;
 }
 
 
 .container {
-    background-color: rgba(255,255,255,0.8);
+    background-color: rgba(255, 255, 255, 0.8);
     height: 96vh;
     margin-top: 2vh;
     text-align: center;
 }
 
-.btn, #ok {
+.btn,
+#ok {
     display: block;
     margin: 2vh auto;
 }
@@ -48,3 +50,44 @@ h2 {
     text-align: left;
 }
 
+/*----styles only for large screens----*/
+@media (min-width: 992px) {
+    li {
+        padding-bottom: 1vh;
+        font-size: 1.1rem;
+    }
+
+}
+
+/*----styles only for desktops----*/
+@media (min-width: 1200px) {
+    h1 {
+        font-size: 2.5rem;
+    }
+
+
+}
+
+/*----styles for shorter devices - with the above style the 'how to play' 
+button is only visible when scrolled down and might be 
+missed by user and the game area should keep the same height---*/
+
+@media (max-height: 639px) {
+    #instrButton {
+        position: absolute;
+        top: -4rem;
+        right: calc((100% - 350px) /2 + 15px);
+        font-size: 1rem;
+        padding: 4px 4px;
+    }
+
+    #title {
+        position: absolute;
+        left: calc((100% - 350px) /2);
+    }
+
+    #content {
+        padding-top: 72px;
+    }
+
+}

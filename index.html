@@ -22,26 +22,20 @@
     <img class="icon" id="imgCatPaper" src="assets/images/cat_paper.png" alt="Cat With Toilet Paper Icon">
 
     <div class="container">
-        <h1>Cat-ch3</h1>
-        <h2>A match-3 game full of kitties!</h2>
-        <div class="row">
+        <div id="title">
+            <h1>Cat-ch3</h1>
+            <h2>A match-3 game full of kitties!</h2>
+        </div>
+        <div class="row" id="content">
             <div class="col-12 col-lg-5 d-none d-lg-block" id="instructions">
                 <ol>
                     <li>Click 'PLAY' to start the game.</li>
-                    <li>The goal of the game is to destroy the pink background on the game board by matching cat
-                        icons on top of it.
-                        You have 20 moves to do that.
-                    </li>
-                    <li>You need to match at least 3 same cat icons by swapping two icons on the board.</li>
-                    <li>To swap, click an icon, and next click an icon adjacent to it (top, bottom, left or right).
-                        If the swapped icons
-                        create a match, the matched icons will disappear (together with the pink background under
-                        them) and the board will be
-                        refilled with new icons.
-                    </li>
+                    <li>Match at least 3 kitties by swapping them and destroy the pink background behind them.</li>
+                    <li>Simply click the icons you want to swap.</li>
                     <li>You will get 10 points for each icon in the match. If an icon belongs to two matches, the
                         points will be counted double.</li>
-                    <li>If you do not manage to destroy the entrire pink background in 20 moves or if there are no
+                    <li>If you do not manage to destroy the entire pink background in 20 moves (or less) or if there are
+                        no
                         more valid moves to make, you lose!</li>
                     <li>The background will be destroyed only behind the matches directly created by you, not the ones
                         that might follow.
@@ -55,7 +49,7 @@
             </div>
             <div class="col-12 col-lg-7 pt-lg-5" id="game">
                 <canvas id="gameArea" width="350" height="470"></canvas>
-                <button type="button" class="btn btn-success btn-lg d-lg-none" data-toggle="modal"
+                <button type="button" id="instrButton" class="btn btn-success btn-lg d-lg-none" data-toggle="modal"
                     data-target="#formModal">How to play</button>
             </div>
         </div>
