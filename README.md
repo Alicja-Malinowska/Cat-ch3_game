@@ -41,23 +41,45 @@ This is a single page application with a simple design, so that the game window 
 
 These are the mockups for the started game:
 
-![mobile game](https://github.com/Alicja-Malinowska/Cat-ch3_game/blob/master/mockups/mobile_game.png) | ![tablet game](https://github.com/Alicja-Malinowska/Cat-ch3_game/blob/master/mockups/tablet_game.png)
+![mobile game](https://github.com/Alicja-Malinowska/Cat-ch3_game/blob/master/mockups/mobile_game.png) ![tablet game](https://github.com/Alicja-Malinowska/Cat-ch3_game/blob/master/mockups/tablet_game.png)
 
 ![desktop game](https://github.com/Alicja-Malinowska/Cat-ch3_game/blob/master/mockups/desktop_game.png)
 
 All the wireframes can be found in the [mockups folder](https://github.com/Alicja-Malinowska/Cat-ch3_game/tree/master/mockups).
 
 
-#### Differences between wireframes and the website
-
-
-
 ## Features
 
+All the features were added to make the navigation simple and intuitive, and the experience - engaging and enjoyable. 
 
  
 ### Existing Features
 
+#### Layout
+
+* Layout - the layout is designed in the way that the game screen is always the most important and eye-catching element. On mobiles it takes the vast majority of the screen space. A button that opens modal with instructions is either at the bottom of the screen (for taller mobiles) or on the top right (for shorter mobiles) - this assures that the button is visible straight away for the user and there is no need to scroll down (which could mean that the user misses it altogether). On tablets that are not wider than 767px the screen is vertically centered and the button is available to click and show the instructions. On tablets of 768px or wider the game screen is in the top half on the screen and the instructions - in the bottom. This alignment is set for all the taller devices with the height of at least 1025px. On desktops (more generally, devices that are wide and not as tall) the instructions are on the left half of the screen and the game screen is on the right. 
+* Instructions - they are available to the user during the whole time they visit the webpage. In the mobile view they can be viewed by clicking "How to play" button and on desktop they are visible to the user to the left of the game screen, regardless the state of the game.
+* "How to play" button - this is available on the small and medium screens. Once the button is clicked a modal with instructions appear. This allows a user to read instructions on every stage. The instructions are easily available and they are unlikely to be missed. 
+* Modal with the instructions - this allows a user to access the instructions whenever they want to and it does not require the user to leave the game or have to look for the instructions by scrolling down etc. The modal can be closed using the 'x' on the right top corner or the 'OK' button at the bottom. This lets the user close the modal as soon as it is opens, and at the same time does not require the user to go back up after reading all the instructions.
+
+#### Game
+
+* "Play" button - this button appears together with the starting screen and when clicked, it triggers a start of the game. When the game is started, the button changes to "New game" which resets the game without going back to the start screen. This button can be clicked at any time to discard the previous game and start a new one. When the game is finished, the button changes to 'PLAY AGAIN' and when clicked, brings the player to the starting screen. 
+* Animation - whenerver there is a match (either initially when the game is first created, or later as a result of user's action), the matched icons disappear (after a short delay, so the user can see the actual match) and the icons above fall down. This animation was implemented to gove the user most natural experience and so that the user can easily understand what happens on the board (as opposed to e.g. 'magically' disappearing and appearing icons). The animation is also implemented when the icons are swapped.
+* Cell highlight - when an icon (or the area around it) is clicked, the cell containing it is highlighted (a sqaure a bit smaller than the cell is drawn). This allows the user to see which icon they selected by clicking on it. When the selected icon is clicked again, the higlight disappears to inform the user than this is no longer selected. If one cell is highlighted and the user clicks another one which is not adjacent, the higlight is removed from the first one and added to the second one. This informs the user that two icons that are not adjacent cannot be selected. When the user clicks two adjacent icons, the animation is triggered and the highlight is removed from both of the cells to indicate that the action has been completed and the new selection needs to be made.
+* Resloving - when the matches are made, they are removed from the board and the empty spaces are filled with the new icons. For this short time, the user is not able to swap the icon, which is indicated by the lack of highlights when clicking.
+* Swapping - when the user click two adjacent icons, they are swapped. If there is a match created by this action, the matched icons disappear and the resolving starts. Otherwise, the icons swap back to inform the user that this was not a valid swap to make.
+* Pink background - when the game starts the backgrund of the game board is pink. When the match is made by the user, the background disappears under the icons that were included in the match. The background does not disappear under the matched that were not directly created by the user, which makes the game more challenging and a little less dependent on luck. When all the background is eliminated the game is won.
+* Moves - user has 20 moves to win the game, otherwise they lose. Only valid moves count in this case, so the ones that create at least one match. If the user swaps icons and they swap back, this is not counted as move and it does not decrease the number of moves. The number of moves is visible to the user as soon as the game is started (this is located below the game board, to the left).
+* Points - user gets 10 points for each icon in a match that was created as a direct result of the user action. If other matches follow, the points are not counted for these. If an icon makes more than one match, the points are counted for each time it makes a match, which is a bonus for creating a 'clever' match. The points are visible to the user as soon as the game is started (this is located below the game board, to the right).
+* Potential valid moves - the game checks if there are any possible valid moves to make (moves that would result in a match). If this is not the case, the game is over. 
+* Win - if the user managed to remove the whole pink background in 20 moves or less, it is a win and the game is over.
+* Lose - if the user did not manage to remove the whole pink background and ran out of move, it is a lose, and the game is over.
+* Game over - regardless the reason the game is over, when it is, initially the game board will fade and a short message will appear together with "Wait fo it..." message. After that, a gif or an image will be loaded with a message about the game result and "Wanna play again?" message. The interim screen is needed to tell the user that something is going to happen and they should wait, otherwise they might miss it. The delay is caused by fetching the resource from an API and drawing it using an external library, so not much can be done to accelerate the process. 
+* Game over messages - the messages inform the user of the outcome of the game:
+    - win - interim screen: "YAY!"; final screen: "You win!"
+    - lose - interim screen: "OH NO!"; final screen: "You lost!"
+    - no more valid moves - interim screen: "UPS..."; final screen: "No more possible valid moves"
 
 
 ### Features Left to Implement
