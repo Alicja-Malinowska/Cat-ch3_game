@@ -34,6 +34,7 @@ h2 {
     height: 96vh;
     margin-top: 2vh;
     text-align: center;
+    overflow: hidden;
 }
 
 .btn,
@@ -48,6 +49,10 @@ h2 {
 
 #instructions {
     text-align: left;
+}
+
+#content {
+    height: 90%;
 }
 
 /*----styles only for large screens----*/
