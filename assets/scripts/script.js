@@ -165,7 +165,6 @@ window.onload = function () {
         }
 
         async checkButton(canvas, e) {
-            console.log(this.button.clicked);
             
             let mousePosition = mousePos(canvas, e);
             if (mousePosition.x >= this.button.x &&
@@ -239,15 +238,12 @@ window.onload = function () {
             this.validClick = false;
             this.interval = 30;
             new InputHandler(this, this.grid, this.dashboard);
-            this.time = new Date().getTime() % 10000;
 
 
         }
 
         init() {
-            this.time = new Date().getTime() % 10000;
-            //let dupa = this.time;
-            //console.log("init: " + dupa);
+            
             this.selectedIcons = [];
             this.clicked = [];
             this.matchesArr = [];
@@ -370,15 +366,9 @@ window.onload = function () {
             return this.matches;
         }
         /**
-         * remove matches from the canvas and marked as removed in the array
-         * @param {Object} ctx 
+         * remove matches from the canvas and mark as removed in the array
          */
-        removeMatches(ctx) {
-            /*this.matches.forEach(element => {
-                let cells = grid.getCellPos();
-                ctx.clearRect(element.x, element.y, tiles.size, tiles.size);
-                grid.drawBackground(ctx, cells[element.row - this.selectedIcons.length/2][element.column]);
-            });*/
+        removeMatches() {
 
             for (let i = this.selectedIcons.length / 2; i < this.selectedIcons.length; i++) {
                 this.selectedIcons[i].forEach(function (obj) {
@@ -426,16 +416,13 @@ window.onload = function () {
         move(moveArray, direction) {
             let self = this;
             return new Promise(resolve => {
-                let david = self.time;
                 let movement = setInterval(function () {
-                    //console.log("dupa" + david + " " + self.gamestate);
                     if (moveArray.length === 0) {
                         resolve('proceed');
                         clearInterval(movement);
                     }
 
                     if (self.gamestate === GAMESTATE.RESET) {
-                        console.log("chuj" + david);
                         resolve('proceed');
                         clearInterval(movement);
                     }
@@ -530,6 +517,7 @@ window.onload = function () {
                 //the index of the icon will be the same as the index of the cell
                 let iconToSwap = this.selectedIcons[this.clicked[i].row + this.selectedIcons.length / 2][this.clicked[i].column];
                 iconToSwap.removed = true;
+                // copying the object so the changes don't affect the original object
                 toSwap.push({
                     ...iconToSwap
                 });
@@ -677,14 +665,12 @@ window.onload = function () {
                         if (exists(up) && up.image === currentIcon.image && pos.dir !== "down") {
                             //if two images above the possible move exist and have the same image, it's a valid move to make
                             if (exists(up2) && up2.image === currentIcon.image) {
-                                //console.log(currentIcon);
-                                //console.log("there are two icons above if you move your icon " + pos.dir)
+                                //there are two icons above if you move your icon to the pos.dir)
                                 matchFound = true;
                                 return;
                                 //if an image above and and image down are the same as the current one, it's a valid move to make
                             } else if (exists(down) && down.image === currentIcon.image && pos.dir !== "up") {
-                                //console.log(currentIcon);
-                                //console.log("there is one icon above and one below if you move your icon " + pos.dir)
+                                //there is one icon above and one below if you move your icon to the pos.dir
                                 matchFound = true;
                                 return;
                             }
@@ -693,8 +679,7 @@ window.onload = function () {
                         // if two images below the possible move exist and have the same image, it's a valid move to make
                         if (exists(down) && down.image === currentIcon.image && pos.dir !== "up") {
                             if (exists(down2) && down2.image === currentIcon.image) {
-                                //console.log(currentIcon);
-                                //console.log("there are two icons below if you move your icon " + pos.dir)
+                                //there are two icons below if you move your icon to the pos.dir
                                 matchFound = true;
                                 return;
                             }
@@ -703,14 +688,12 @@ window.onload = function () {
                         //if two images to the right of the possible move exist and have the same image, it's a valid move to make
                         if (exists(right) && right.image === currentIcon.image && pos.dir !== "left") {
                             if (exists(right2) && right2.image === currentIcon.image) {
-                                //console.log(currentIcon);
-                                //console.log("there are two icons to the right if you move your icon " + pos.dir)
+                                //there are two icons to the right if you move your icon to the pos.dir)
                                 matchFound = true;
                                 return;
                                 //if an image to the right and and image to the left are the same as the current one, it's a valid move to make
                             } else if (exists(left) && left.image === currentIcon.image && pos.dir !== "right") {
-                                //console.log(currentIcon);
-                                //console.log("there there is one icon to the right and one to the left if you move your icon " + pos.dir)
+                                //there there is one icon to the right and one to the left if you move your icon to the pos.dir
                                 matchFound = true;
                                 return;
                             }
@@ -718,8 +701,7 @@ window.onload = function () {
                         //if two images to the left of the possible move exist and have the same image, it's a valid move to make
                         if (exists(left) && left.image === currentIcon.image && pos.dir !== "right") {
                             if (exists(left2) && left2.image === currentIcon.image) {
-                                //console.log(currentIcon);
-                                //console.log("there are two icons to the left if you move your icon " + pos.dir)
+                                //there are two icons to the left if you move your icon to the pos.dir
                                 matchFound = true;
                                 return;
                             }
@@ -730,7 +712,6 @@ window.onload = function () {
 
             if (!matchFound) {
                 this.gamestate = GAMESTATE.NO_MOVES;
-                console.log("no more moves DumDum!")
             }
         }
         /**
@@ -776,12 +757,11 @@ window.onload = function () {
          * removes all the matches until there is nothing left then checks if the game should end
          */
         async resolve() {
-            //let chuj = this.time;
             this.findMatches();
             while (this.matches.length !== 0) {
 
                 await sleep(300);
-                this.removeMatches(ctx);
+                this.removeMatches();
                 let removeArray = this.findIconsToMove()
 
                 await this.move(removeArray, "down");
@@ -863,7 +843,7 @@ window.onload = function () {
 
 
     let game = new Game();
-    //game.init();
+    
     game.drawMenu(ctx);
   
 
