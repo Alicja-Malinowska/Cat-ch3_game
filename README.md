@@ -84,6 +84,12 @@ All the features were added to make the navigation simple and intuitive, and the
 
 ### Features Left to Implement
 
+* Levels - create more levels to keep the player engaged
+* Options :
+    - difficulty levels - implement different difficulty levels with less moves, more types of tiles, different grid etc.
+    - different modes - e.g. instead of number of moves, there is time frame in which the game has to be finished, or a certain amount of points should be achieved
+* Extras - implement extra bonuses as a reward for more than 3 icons matched, e.g. getting a move back or being able to detstroy a chosen icon
+* Point ranking to be able to compare results either to the past results or to the results of friends
 
 
 ## Technologies Used
