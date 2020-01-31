@@ -115,13 +115,13 @@ window.onload = function () {
         /**
          * go through the flat array of all the cells and check if there are any cells where colour is still true
          */
-        checkWin(){
+        checkWin() {
             let flatCells = [].concat(...this.cells);
             let index = flatCells.findIndex(cell => cell.colour === true);
-            if(index === -1) {
+            if (index === -1) {
                 game.gamestate = GAMESTATE.WIN;
             }
-            
+
         }
 
     }
@@ -165,23 +165,23 @@ window.onload = function () {
         }
 
         async checkButton(canvas, e) {
-            
+
             let mousePosition = mousePos(canvas, e);
             if (mousePosition.x >= this.button.x &&
                 mousePosition.x <= this.button.x + this.button.width &&
                 mousePosition.y >= this.button.y &&
                 mousePosition.y <= this.button.y + this.button.height) {
-                    if(game.gamestate === GAMESTATE.WIN || game.gamestate === GAMESTATE.LOSE || game.gamestate === GAMESTATE.NO_MOVES) {
-                        location.reload();
-                        
-                    } else {
-                        game.gamestate = GAMESTATE.RESET;
-                        await sleep(300);
-                        this.points = 0;
-                        this.moves = 20;
-                        game.init();
-                    }
-                
+                if (game.gamestate === GAMESTATE.WIN || game.gamestate === GAMESTATE.LOSE || game.gamestate === GAMESTATE.NO_MOVES) {
+                    location.reload();
+
+                } else {
+                    game.gamestate = GAMESTATE.RESET;
+                    await sleep(300);
+                    this.points = 0;
+                    this.moves = 20;
+                    game.init();
+                }
+
 
             }
 
@@ -243,7 +243,7 @@ window.onload = function () {
         }
 
         init() {
-            
+
             this.selectedIcons = [];
             this.clicked = [];
             this.matchesArr = [];
@@ -395,9 +395,9 @@ window.onload = function () {
                             if (!(current.removed)) {
                                 current.destinationY = removedIcon.y;
                                 current.removed = true;
-                                toMoveArray.push({
-                                    ...current
-                                });
+                                toMoveArray.push(
+                                    Object.assign({}, current)
+                                );
                                 break;
                             }
                         }
@@ -518,9 +518,7 @@ window.onload = function () {
                 let iconToSwap = this.selectedIcons[this.clicked[i].row + this.selectedIcons.length / 2][this.clicked[i].column];
                 iconToSwap.removed = true;
                 // copying the object so the changes don't affect the original object
-                toSwap.push({
-                    ...iconToSwap
-                });
+                toSwap.push(Object.assign({}, iconToSwap));
             }
 
             return toSwap;
@@ -557,10 +555,10 @@ window.onload = function () {
                 this.updateColour();
                 this.addPoints();
                 this.dashboard.moves -= 1;
-                if(this.dashboard.moves === 0) {
+                if (this.dashboard.moves === 0) {
                     this.gamestate = GAMESTATE.LOSE;
                 }
-                
+
             }
         }
         /**
@@ -717,11 +715,11 @@ window.onload = function () {
         /**
          * sets the screen when the game is finished, depending on the result
          */
-        endGame(){
+        endGame() {
             let message = "OH NO!"
             let category = "/fail";
             let text = "/YOU%20LOST!%0D%0AWANNA%20PLAY%20AGAIN%3F"
-            if(this.gamestate === GAMESTATE.WIN) {
+            if (this.gamestate === GAMESTATE.WIN) {
                 message = "YAY!"
                 category = "/cute";
                 text = "/YOU%20WIN!%0D%0AWANNA%20PLAY%20AGAIN%3F"
@@ -741,15 +739,15 @@ window.onload = function () {
 
             //creating the url to get a proper foto from the API
             let url = "https://cataas.com/cat" + category + "/says" + text + "?width=" + GAME_WIDTH.toString() + "&height=" + this.grid.height.toString();
-            
+
             var myImg = new Image();
-            myImg.onload = function() {
-            ctx.drawImage(myImg, 0, 2);
+            myImg.onload = function () {
+                ctx.drawImage(myImg, 0, 2);
             };
             myImg.src = url;
             //use gifler library to make gifs work on canvas
             gifler(url).frames(canvas);
-           
+
             this.dashboard.draw(ctx);
         }
 
@@ -775,12 +773,12 @@ window.onload = function () {
             }
             this.checkMoves();
             this.grid.checkWin();
-            if(this.gamestate === GAMESTATE.WIN || this.gamestate === GAMESTATE.LOSE || this.gamestate === GAMESTATE.NO_MOVES) {
-                this.endGame();    
+            if (this.gamestate === GAMESTATE.WIN || this.gamestate === GAMESTATE.LOSE || this.gamestate === GAMESTATE.NO_MOVES) {
+                this.endGame();
             } else {
                 this.gamestate = GAMESTATE.USER_INPUT;
             }
-            
+
 
         }
 
@@ -794,10 +792,10 @@ window.onload = function () {
              * on click detect which cell was clicked and apply logic depending on the kind of input
              */
             canvas.addEventListener("mousedown", function (e) {
-                if(game.gamestate !== GAMESTATE.RESET) {
+                if (game.gamestate !== GAMESTATE.RESET) {
                     dashboard.checkButton(canvas, e);
                 }
-                
+
                 if (game.gamestate === GAMESTATE.USER_INPUT) {
                     game.detectCell(canvas, e);
 
@@ -843,9 +841,9 @@ window.onload = function () {
 
 
     let game = new Game();
-    
+
     game.drawMenu(ctx);
-  
+
 
 
 }
