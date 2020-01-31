@@ -41,9 +41,9 @@ This is a single page application with a simple design, so that the game window 
 
 These are the mockups for the started game:
 
-![mobile game](https://github.com/Alicja-Malinowska/Cat-ch3_game/blob/master/mockups/mobile_game.png)
-![tablet game](https://github.com/Alicja-Malinowska/Cat-ch3_game/blob/master/mockups/tablet_game.png)
-![desktop game](hhttps://github.com/Alicja-Malinowska/Cat-ch3_game/blob/master/mockups/desktop_game.png)
+![mobile game](https://github.com/Alicja-Malinowska/Cat-ch3_game/blob/master/mockups/mobile_game.png) | ![tablet game](https://github.com/Alicja-Malinowska/Cat-ch3_game/blob/master/mockups/tablet_game.png)
+
+![desktop game](https://github.com/Alicja-Malinowska/Cat-ch3_game/blob/master/mockups/desktop_game.png)
 
 All the wireframes can be found in the [mockups folder](https://github.com/Alicja-Malinowska/Cat-ch3_game/tree/master/mockups).
 
