@@ -142,6 +142,7 @@ All the features were added to make the navigation simple and intuitive, and the
 * When the whole background is cleared, the game ends, the interim screen with the correct message ("YAY!") is displayed, after that a gif/image (cute) is loaded with message informing that the player won
 * If the background clearance coincides with the move counter reaching zero, the win option is triggered
 * When the game ends, the 'PLAY AGAIN' button appears. When clicked, it brings the player to the start screen when they can choose when to start another game. 
+* When the application is opened in IE, instead of the game and he instructions, an image of a crying cat and the message is displayed.
 
 ##### Known bugs
 
@@ -152,13 +153,30 @@ All the features were added to make the navigation simple and intuitive, and the
 
 #### Browser support
 
+* The application was tested and works properly on: Chrome v77, Chrome v77 on Android, Opera v63, Microsoft Edge v44, Firefox v69
+* On IE the game does not work, an empty canvas was shown. Since this browser is no longer recommended for web browsing, even by Microsoft, and it does not support modern JS syntax, I decided not to change my code or look for ways it could work on IE. Instead, I wrote some additional HTML and CSS that will only be displayed on IE (v10 and higher). This includes a cat image and an information for the user that the game doesn't work on IE but it does on any other browser. 
 
 
 #### Responsive design
+* The application was tested using Google Chrome Developer Tools to check how it looks like in case of different width and height by choosing 'Responsive' option and resizing the window. Using Chrom Dev Tools, it was also tested how the website looks on: Galaxy S5, Pixel 2, Pixel 2XL, iPhone 5/6/7/8/X, iPad and iPad Pro. In all these views the website is responsive and shows content properly.
+* The application was also tested on the following devices: Samsung Galaxy A3, Asus laptop 15", Dell laptop 13.3", a 24" monitor, Kindle Fire tablet. On all of this devices the website is responsive and shows content properly. 
+* On mobile phones, that are shorter, the 'How to play' button is moved to the top and the title is moved to the left and is no longer cenetered.
+* On longer mobile phones, the button is under the canvas and the game is vertically centered, similarly on smaller tablets (like Kindle Fire).
+* On bigger tablets, like iPad, the button is no longer visible, instead the instructions are displayed below the game area, similarly on other taller screens.
+* On standard desktops the instructions are displayed to the left of the game area. 
 
+#### Potential users review
 
+I asked a couple of friends to play the game and give me their feedback.
 
-#### Accessibility
+* most of the people expected that the background will be destroyed when the 'domino' matches are removed, as this is what happens in the match-3 games that they know. I felt that this would make the too easy for the player with the current game board (as this is just a simple rectangle). As this information was already included in the instructions, I decided to highlight this text, to make it stand-out so that a user will read it, and in result will know what to expect before starting the game.
+* I have also received some questions on what happens if there are no more moves. Similarly, to the above, this is described in the instructions, so I decided to highlight this part as well.
+
+The people who tested used:
+* Browsers: Chrome for Android, Chrome on Windows, Safari
+* Devices: iPhone7, Android phone, PC
+
+They did not report any problem with the display of the appliction and its responsiveness. 
 
 
 
@@ -168,9 +186,35 @@ All the features were added to make the navigation simple and intuitive, and the
 
 ## Deployment
 
+This project was developed using the [Visual Studio Code IDE](https://code.visualstudio.com/), committed to Git and pushed to GitHub. 
+
+To deploy this page to GitHub Pages from its GitHub repository, the following steps were taken:
+
+1. Log into GitHub.
+2. From the list of repositories on the screen, select Alicja-Malinowska/Cat-ch3_game.
+3. From the menu items near the top of the page, select Settings.
+4. Scroll down to the GitHub Pages section.
+5. Under Source click the drop-down menu labelled None and select Master Branch.
+6. On selecting Master Branch the page is automatically refreshed, the website is now deployed.
+7. Scroll back down to the GitHub Pages section to retrieve the link to the deployed website.
+
 ### How to run this project locally
 
+To clone this project from GitHub:
 
+1. Follow [this link](https://github.com/Alicja-Malinowska/Cat-ch3_game) to the Project GitHub repository.
+2. Under the repository name, click "Clone or download".
+3. In the Clone with HTTPs section, copy the clone URL for the repository.
+4. In your local IDE open Git Bash.
+5. Change the current working directory to the location where you want the cloned directory to be made.
+6. Type git clone, and then paste the URL you copied in Step 3.
+
+  ```
+  git clone https://github.com/Alicja-Malinowska/Cat-ch3_game.git
+  ```
+7. Press Enter. Your local clone will be created.
+
+More about cloning can be found on this [GitHub Help page](https://help.github.com/en/articles/cloning-a-repository).
 
 
 
@@ -178,6 +222,9 @@ All the features were added to make the navigation simple and intuitive, and the
 
 ### Content
 
+The instructions were written by me. 
+
+The game rules were inspired by other match-3 type games like Candy Crush or Cradle of Empires.
 
 ### Tools used
 * [Balsamiq](https://balsamiq.com/) - used to create wireframes
@@ -193,4 +240,4 @@ All the features were added to make the navigation simple and intuitive, and the
 
 ### Acknowledgements
 
-
+Thanks to all my friends who tested the game and kindly gave me their feedback: David, Kathy, Mateusz, Laertis, Nicolas, Michael. 
