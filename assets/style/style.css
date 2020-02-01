@@ -55,6 +55,12 @@ h2 {
     height: 90%;
 }
 
+.highlight {
+    font-weight: 900;
+    color:#d10202;
+    text-decoration: underline;
+}
+
 #ie {
     display: none;
 }
