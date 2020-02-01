@@ -15,7 +15,7 @@
 
 <body>
 
-
+<!--IMAGES USED IN THE CANVAS, NOT DISPLAYED ANYWHERE ELSE-->
     <img class="start" id="imgStart" src="assets/images/start_image.PNG" alt="Game Cover">
     <img class="icon" id="imgDrunk" src="assets/images/cat_drunk.png" alt="Drunk Cat Icon">
     <img class="icon" id="imgCatEyes" src="assets/images/cat_eyes.png" alt="Cat With Big Eyes Icon">
@@ -23,12 +23,14 @@
     <img class="icon" id="imgCatHunrgy" src="assets/images/cat_hungry.png" alt="Hungry Cat Icon">
     <img class="icon" id="imgCatPaper" src="assets/images/cat_paper.png" alt="Cat With Toilet Paper Icon">
 
+<!--THE MAIN CONTAINER-->
     <div class="container" id="mainContainer">
         <div id="title">
             <h1>Cat-ch3</h1>
             <h2>A match-3 game full of kitties!</h2>
         </div>
         <div class="row" id="content">
+<!--Instructions-->
             <div class="col-12 col-lg-5 d-none d-md-block order-md-last order-lg-first pt-md-5 pt-lg-1 my-auto"
                 id="instructions">
                 <ol>
@@ -50,13 +52,14 @@
                     </li>
                 </ol>
             </div>
+<!--Game area-->
             <div class="col-12 col-lg-7 my-auto" id="game">
                 <canvas id="gameArea" width="350" height="470"></canvas>
                 <button type="button" id="instrButton" class="btn btn-success btn-lg d-md-none" data-toggle="modal"
                     data-target="#formModal">How to play</button>
             </div>
         </div>
-        <!--For IE-->
+<!--For IE-->
         <div id="ie">
             <div class="container">
                 <img src="assets/images/crying_kitty.jpg" class="img-fluid" alt="Crying cat" />
@@ -67,8 +70,8 @@
         </div>
     </div>
 
-    <!--MODAL-->
-    <!---this code was copied from Bootstrap-->
+ <!--MODAL-->
+ <!---this code was copied from Bootstrap-->
     <div class="modal fade" id="formModal" tabindex="-1" role="dialog" aria-labelledby="formModal" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
