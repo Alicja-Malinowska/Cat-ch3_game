@@ -147,6 +147,9 @@ All the features were added to make the navigation simple and intuitive, and the
 * [Cat icons](https://www.iconfinder.com/) 
 * [Images used to create the start screen](https://pixabay.com/)
 * [Font](https://www.fontsc.com/)
+* [The background cat wallpaper](https://www.publicdomainpictures.net/en/index.php)
+* [Cats as a service](https://cataas.com/#/) - an API that is a source of cat images and gifs loaded in the game over screens
+* [Crying cat photo](https://www.flickr.com/)
 
 ### Acknowledgements
 
