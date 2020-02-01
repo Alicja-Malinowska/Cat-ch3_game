@@ -1,16 +1,14 @@
+/*----Custom font----*/
 @font-face {
     font-family: catFont;
     src: url(../fonts/101_marie_luvz_catz/101!\ Marie\ LuvZ\ CatZ.ttf);
 }
 
+/*----GENERAL STYLES----*/
 body {
     background-image: url(../images/cat-wallpaper-background-pink.jpg);
     background-size: contain;
     height: 96vh;
-}
-
-#gameArea {
-    border: 1px solid black;
 }
 
 h1 {
@@ -23,8 +21,14 @@ h2 {
     font-size: 1rem;
 }
 
+/*----don't display elements that will be used on canvas----*/
 .icon,
 .start {
+    display: none;
+}
+
+/*----don't display the content for IE----*/
+#ie {
     display: none;
 }
 
@@ -37,6 +41,11 @@ h2 {
     overflow: hidden;
 }
 
+#content {
+    height: 90%;
+}
+
+/*----STYLES FOR THE COLUMN WITH THE GAME----*/
 .btn,
 #ok {
     display: block;
@@ -47,25 +56,26 @@ h2 {
     padding: 0;
 }
 
+/*----styling canvas----*/
+#gameArea {
+    border: 1px solid black;
+}
+
+/*----STYLES FOR THE COLUMN WITH THE INSTRUCTIONS----*/
+
 #instructions {
     text-align: left;
 }
 
-#content {
-    height: 90%;
-}
 
 .highlight {
     font-weight: 900;
-    color:#d10202;
+    color: #d10202;
     text-decoration: underline;
 }
 
-#ie {
-    display: none;
-}
 
-/*----styles only for large screens----*/
+/*----STYLES ONLY FOR LARGE SCREENS----*/
 @media (min-width: 992px) {
     li {
         padding-bottom: 1vh;
@@ -74,20 +84,20 @@ h2 {
 
 }
 
-/*----styles only for desktops----*/
+/*----STYLES ONLY FOR DESKTOPS----*/
 @media (min-width: 1200px) {
     h1 {
         font-size: 2.5rem;
     }
-
-
 }
 
-/*----styles for shorter devices - with the above style the 'how to play' 
+/*----STYLES FOR SHORTER DEVICES - with the above style the 'how to play' 
 button is only visible when scrolled down and might be 
 missed by user and the game area should keep the same height---*/
 
 @media (max-height: 639px) {
+
+    /*----place the button above the game, to the right----*/
     #instrButton {
         position: absolute;
         top: -4rem;
@@ -96,6 +106,7 @@ missed by user and the game area should keep the same height---*/
         padding: 4px 4px;
     }
 
+    /*----place the title to the left of the and align with game area----*/
     #title {
         position: absolute;
         left: calc((100% - 350px) /2);
@@ -106,18 +117,22 @@ missed by user and the game area should keep the same height---*/
     }
 
 }
-/*----styles for wide and tall devices, like iPadPro---*/
+
+/*----STYLES FOR WIDE AND TALL DEVICES, like iPadPro---*/
 @media (min-height: 1025px) {
+
+    /*----make the instructions come after the game----*/
     #instructions {
         order: 13;
-        
     }
 
     #game {
         padding-bottom: 6vh;
     }
 
-    #game, #instructions {
+    /*----make the columns full width----*/
+    #game,
+    #instructions {
         flex: 0 0 100%;
         max-width: 100%
     }
@@ -128,8 +143,9 @@ missed by user and the game area should keep the same height---*/
     }
 }
 
-
-@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+/*----STYLES FOR IE----*/
+@media screen and (-ms-high-contrast: active),
+(-ms-high-contrast: none) {
     #content {
         display: none;
     }
