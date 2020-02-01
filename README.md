@@ -94,6 +94,13 @@ All the features were added to make the navigation simple and intuitive, and the
 
 ## Technologies Used
 
+* Java Script
+* HTML
+* CSS
+* [Bootstrap](https://getbootstrap.com/) - used for the responsive design, collapsable navbar, modals and collapsed text
+* [Visual Studio Code](https://code.visualstudio.com/) - an IDE used to write the code
+* [Git](https://git-scm.com/) - used for version control
+* [Gifler](http://themadcreator.github.io/gifler/) - a libary used to make gifs work on HTML5 Canvas
 
 
 
@@ -140,7 +147,7 @@ All the features were added to make the navigation simple and intuitive, and the
 
 
 ### Tools used
-
+* [Balsamiq](https://balsamiq.com/) - used to create wireframes
 
 
 ### Media
