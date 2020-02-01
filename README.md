@@ -77,14 +77,17 @@ All the features were added to make the navigation simple and intuitive, and the
 * Lose - if the user did not manage to remove the whole pink background and ran out of move, it is a lose, and the game is over.
 * Game over - regardless the reason the game is over, when it is, initially the game board will fade and a short message will appear together with "Wait fo it..." message. After that, a gif or an image will be loaded with a message about the game result and "Wanna play again?" message. The interim screen is needed to tell the user that something is going to happen and they should wait, otherwise they might miss it. The delay is caused by fetching the resource from an API and drawing it using an external library, so not much can be done to accelerate the process. 
 * Game over messages - the messages inform the user of the outcome of the game:
-    - win - interim screen: "YAY!"; final screen: "You win!"
-    - lose - interim screen: "OH NO!"; final screen: "You lost!"
-    - no more valid moves - interim screen: "UPS..."; final screen: "No more possible valid moves"
+    - win - interim screen: "YAY!"; final screen: "You win!"; gif/image tag: "cute"
+    - lose - interim screen: "OH NO!"; final screen: "You lost!"; gif/image tag: "fail"
+    - no more valid moves - interim screen: "UPS..."; final screen: "No more possible valid moves"; gif/image tag: "fail"
 
 
 ### Features Left to Implement
 
 * Levels - create more levels to keep the player engaged
+* Possible moves information:
+    - a counter that informs how many possible moves are there to make at any given time
+    - a 'hint' button that when clicked, would show one possible move to make
 * Options :
     - difficulty levels - implement different difficulty levels with less moves, more types of tiles, different grid etc.
     - different modes - e.g. instead of number of moves, there is time frame in which the game has to be finished, or a certain amount of points should be achieved
@@ -108,13 +111,43 @@ All the features were added to make the navigation simple and intuitive, and the
 
 ### Automated testing
 
+* [W3 HTML validator](https://validator.w3.org/) was used on the HTML file. No errors were found. 
+
+* [W3 CSS validator](https://jigsaw.w3.org/css-validator/) was used to check the CSS file. No errors were found. 
+
+* [JSHint](https://jshint.com/) was used to test the Java Script code. This revealed a number of missed or unncecessary semicolons - which was immediately corrected. The validator also warned to not use 'new' for side effects, refering to creating the Input Handler object in the Game object contructor. However, in this case I decided to keep it this way, as the input handler holds all the click events in its constructor so it feels acceptable to create it as soon as the game is created. 
 
 
 ### Manual testing 
 
 #### Features testing
 
+* When the button 'PLAY' is clicked the game is started, the button changes to 'New game'
+* If there are any, the initial matches are removed and the board is replenished - all is animated
+* When a cell is clicked, it is highlighted
+* When a click happens in a highlighted cell, the highlight disappears
+* When a not adjacent cell is clicked, the highlight is removed from the first one and added to the second one
+* When two adjacent cells are clicked, the icons swap - this is animated
+* When the swap does not make any match, the icons are swapped back - the animation is applied
+* When there is a match, the matched icons and the background behind them disappear (provided the background is still there)
+* The points are added for each icon in the user-made match
+* The "domino" matches, following the user matches, do not make the background disappear, nor give additional points
+* Number of moves is decremented every time a match is made by user's move
+* User input (on the tiles) is blocked during the resolving phase
+* Multiple fast clicking on the board does not break the game and does not have any unexpected or unsolicited effects
+* When a moved icon makes more than one match, the points are counted for each match it makes
+* When 'New game' is clicked, a new game is started: the icons change, the points and moves are reset, the background color comes back to the whole board. This does not take the user to the starting screen.
+* When there are no more possible valid moves to make, the game ends, the interim screen with the correct message ("UPS...") is displayed, after that a gif/image (fail) is loaded with message informing that there are no more valid moves to make
+* When the moves counter reaches 0, the game ends, the interim screen with the correct message ("OH NO!") is displayed, after that a gif/image (fail) is loaded with message informing that the player lost
+* When the whole background is cleared, the game ends, the interim screen with the correct message ("YAY!") is displayed, after that a gif/image (cute) is loaded with message informing that the player won
+* If the background clearance coincides with the move counter reaching zero, the win option is triggered
+* When the game ends, the 'PLAY AGAIN' button appears. When clicked, it brings the player to the start screen when they can choose when to start another game. 
 
+##### Known bugs
+
+* When the 'New game' button is clicked quickly and repeatedly, sometimes the icons that are falling come down blinking and/or they fall on top of other icons. After this is resolved, the right icons are on the right places and the game can proceed normally. This has no effect on the logic of the game, but it can be visually confusing and breaks the aesthetics of the game. The bug has to do with the asynchronous code and I tried to block the button for some time after it is first clicked but it does not solve the problem. The click event is not applied on the button whie the game is in the 'reset' state, however this also does not solve it. This does not happen when the button is clicked once or more times but with short time intervals. The bug does not interrupt the game flow and with usual use of the 'New game' button (pressing it once in awhile to reset the game), it will not occure. Therefore, I decided not to investigate it further for the time being, as I exhausted all the ways I could try to fix it, with my current knowledge and skills.
+* Some of the gifs are not displayed properly - the image is blinking or the text is broken. This is cause by the library I am using (Gifler) and therefore I cannot do much about it. The majority of the gifs are displayed correctly and the ones that are not, do not prevent user from using the game or learning their outcome.
+* Gifs and images are displayed with a delay. This happens the first time a game is finished with a type of outcome, e.g. first time the game is won, there is a delay, the second time not anymore, because the gif or image are cached so this happens quicker. This has to do with the Cats as a service API and/or Gifler library so, again, there is not much to do with it. As the wait time might confuse the user, I implemented an interim screen that shows immediately after the game ended and provides a short message, depending on the result, as well as message asking the user to wait a bit.
 
 
 #### Browser support
