@@ -103,7 +103,7 @@ All the features were added to make the navigation simple and intuitive, and the
 * [Bootstrap](https://getbootstrap.com/) - used for the responsive design, collapsable navbar, modals and collapsed text
 * [Visual Studio Code](https://code.visualstudio.com/) - an IDE used to write the code
 * [Git](https://git-scm.com/) - used for version control
-* [Gifler](http://themadcreator.github.io/gifler/) - a libary used to make gifs work on HTML5 Canvas
+* [Gifler](http://themadcreator.github.io/gifler/) - a library used to make gifs work on HTML5 Canvas
 
 
 
@@ -231,12 +231,12 @@ The game rules were inspired by other match-3 type games like Candy Crush or Cra
 
 
 ### Media
-* [Cat icons](https://www.iconfinder.com/) 
-* [Images used to create the start screen](https://pixabay.com/)
-* [Font](https://www.fontsc.com/)
-* [The background cat wallpaper](https://www.publicdomainpictures.net/en/index.php)
+* Cat icons were taken from [Iconfinder](https://www.iconfinder.com/) 
+* Images used to create the start screen (apart from the icons) come from [Pixabay](https://pixabay.com/)
+* Cat font used in the page title was downloaded from [Fontsc](https://www.fontsc.com/)
+* The background cat wallpaper comes from [PublicDomainPictures](https://www.publicdomainpictures.net/en/index.php)
 * [Cats as a service](https://cataas.com/#/) - an API that is a source of cat images and gifs loaded in the game over screens
-* [Crying cat photo](https://www.flickr.com/)
+* Crying cat photo used for the IE version of the website was taken from [Flickr](https://www.flickr.com/)
 
 ### Acknowledgements
 
