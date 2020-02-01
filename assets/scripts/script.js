@@ -725,7 +725,7 @@ window.onload = function () {
                 text = "/YOU%20WIN!%0D%0AWANNA%20PLAY%20AGAIN%3F"
             } else if (this.gamestate === GAMESTATE.NO_MOVES) {
                 message = "UPS..."
-                text = "/NO%20MORE%20POSSIBLE%20VALID%20MOVES%0D%0AWANNA%20PLAY%20AGAIN%3F"
+                text = "/NO%20MORE%20POSSIBLE%0D%0AVALID%20MOVES%0D%0AWANNA%20PLAY%20AGAIN%3F"
             }
             // draws semi-transparent white background and a message for user to wait
             // this is needed because sometimes it takes some time for the gif to load
