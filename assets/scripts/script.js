@@ -16,7 +16,7 @@ window.onload = function () {
         LOSE: 5,
         NO_MOVES: 6
 
-    }
+    };
     /**
      * sleep function to delay execution of code
      * @param {Number} ms 
@@ -76,7 +76,7 @@ window.onload = function () {
                         colour: true,
                         row: i,
                         column: j
-                    }
+                    };
                     posX += this.intervalX;
 
                 }
@@ -139,16 +139,16 @@ window.onload = function () {
                 height: 30,
                 x: GAME_WIDTH / 2 - 100 / 2,
                 y: GAME_HEIGHT - 35,
-            }
+            };
 
         }
 
         draw(ctx) {
-            let text = "PLAY"
+            let text = "PLAY";
             if (game.gamestate === GAMESTATE.WIN || game.gamestate === GAMESTATE.LOSE || this.gamestate === GAMESTATE.NO_MOVES) {
-                text += " AGAIN"
+                text += " AGAIN";
             } else if (game.gamestate !== GAMESTATE.MENU) {
-                text = "New Game"
+                text = "New Game";
                 ctx.font = "12px Arial";
                 ctx.fillStyle = "black";
                 ctx.textAlign = "center";
@@ -157,7 +157,7 @@ window.onload = function () {
             }
             //button
             ctx.strokeRect(this.button.x, this.button.y, this.button.width, this.button.height);
-            ctx.fillStyle = "#FFD9B3"
+            ctx.fillStyle = "#FFD9B3";
             ctx.fillRect(this.button.x + 2, this.button.y + 2, this.button.width - 4, this.button.height - 4);
             ctx.fillStyle = "black";
             ctx.textAlign = "center";
@@ -199,7 +199,7 @@ window.onload = function () {
                 x: (grid.intervalX + this.padding) / 2 - this.size / 2,
                 y: (grid.intervalY + this.padding) / 2 - this.size / 2,
             };
-        };
+        }
 
         draw(ctx, currentIcon, posX, posY) {
             ctx.drawImage(currentIcon, posX, posY, this.size, this.size);
@@ -220,7 +220,7 @@ window.onload = function () {
         let position = {
             x: event.clientX - canvasArea.left,
             y: event.clientY - canvasArea.top,
-        }
+        };
         return position;
     }
 
@@ -316,7 +316,7 @@ window.onload = function () {
                     if (previous.image === this.selectedIcons[i][j].image) {
                         if (rowMatch.length === 0) {
                             rowMatch.push(previous);
-                        };
+                        }
 
                         rowMatch.push(this.selectedIcons[i][j]);
                     } else {
@@ -343,7 +343,7 @@ window.onload = function () {
                     if (previous.image === this.selectedIcons[j][i].image) {
                         if (colMatch.length === 0) {
                             colMatch.push(previous);
-                        };
+                        }
 
                         colMatch.push(this.selectedIcons[j][i]);
                     } else {
@@ -390,7 +390,7 @@ window.onload = function () {
                         let removedIcon = this.selectedIcons[i][j];
                         //loop through all the icons above the removed icon
                         for (let k = 1; k <= i; k++) {
-                            let current = this.selectedIcons[i - k][j]
+                            let current = this.selectedIcons[i - k][j];
                             //as soon as not removed icon is reached, give it the destination of the removed icon position
                             if (!(current.removed)) {
                                 current.destinationY = removedIcon.y;
@@ -427,7 +427,7 @@ window.onload = function () {
                         clearInterval(movement);
                     }
                     ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-                    self.drawAll()
+                    self.drawAll();
                     moveArray.forEach(function (obj) {
                         let objDir = direction === "down" ? obj.y : obj.x;
                         let objDes = direction === "down" ? obj.destinationY : obj.destinationX;
@@ -500,7 +500,7 @@ window.onload = function () {
                 return mousePosition.x > position.x &&
                     mousePosition.x < position.xEnd &&
                     mousePosition.y > position.y &&
-                    mousePosition.y < position.yEnd
+                    mousePosition.y < position.yEnd;
             }
             this.clicked.push(this.cellPosArr.find(checkPos));
         }
@@ -525,7 +525,7 @@ window.onload = function () {
         }
 
         swap() {
-            let toSwap = this.findIconsToSwap()
+            let toSwap = this.findIconsToSwap();
             let direction = this.clicked[0].x === this.clicked[1].x ? "down" : "side";
 
             if (direction === "down") {
@@ -639,11 +639,11 @@ window.onload = function () {
                             return obj.row >= game.selectedIcons.length / 2 &&
                                 obj.row < game.selectedIcons.length &&
                                 obj.column >= 0 &&
-                                obj.column < game.selectedIcons[i].length
+                                obj.column < game.selectedIcons[i].length;
                         } else {
                             return false;
                         }
-                    }
+                    };
 
                     //filter for possible moves of an icon (check if within the grid)
                     let toCheck = movePos.filter(pos => exists(pos));
@@ -716,16 +716,16 @@ window.onload = function () {
          * sets the screen when the game is finished, depending on the result
          */
         endGame() {
-            let message = "OH NO!"
+            let message = "OH NO!";
             let category = "/fail";
-            let text = "/YOU%20LOST!%0D%0AWANNA%20PLAY%20AGAIN%3F"
+            let text = "/YOU%20LOST!%0D%0AWANNA%20PLAY%20AGAIN%3F";
             if (this.gamestate === GAMESTATE.WIN) {
-                message = "YAY!"
+                message = "YAY!";
                 category = "/cute";
-                text = "/YOU%20WIN!%0D%0AWANNA%20PLAY%20AGAIN%3F"
+                text = "/YOU%20WIN!%0D%0AWANNA%20PLAY%20AGAIN%3F";
             } else if (this.gamestate === GAMESTATE.NO_MOVES) {
-                message = "UPS..."
-                text = "/NO%20MORE%20POSSIBLE%0D%0AVALID%20MOVES%0D%0AWANNA%20PLAY%20AGAIN%3F"
+                message = "UPS...";
+                text = "/NO%20MORE%20POSSIBLE%0D%0AVALID%20MOVES%0D%0AWANNA%20PLAY%20AGAIN%3F";
             }
             // draws semi-transparent white background and a message for user to wait
             // this is needed because sometimes it takes some time for the gif to load
@@ -760,7 +760,7 @@ window.onload = function () {
 
                 await sleep(300);
                 this.removeMatches();
-                let removeArray = this.findIconsToMove()
+                let removeArray = this.findIconsToMove();
 
                 await this.move(removeArray, "down");
                 this.clicked = [];
@@ -846,4 +846,4 @@ window.onload = function () {
 
 
 
-}
+};
