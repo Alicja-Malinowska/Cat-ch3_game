@@ -17,6 +17,21 @@ window.onload = function () {
         NO_MOVES: 6
 
     };
+
+    /**
+     * get a mouse position
+     * @param {Object} canvas 
+     * @param {Object} event 
+     */
+    function mousePos(canvas, event) {
+        let canvasArea = canvas.getBoundingClientRect();
+        let position = {
+            x: event.clientX - canvasArea.left,
+            y: event.clientY - canvasArea.top,
+        };
+        return position;
+    }
+
     /**
      * sleep function to delay execution of code
      * @param {Number} ms 
@@ -164,6 +179,11 @@ window.onload = function () {
             ctx.fillText(text, GAME_WIDTH / 2, this.button.y + this.button.height / 2 + 2.5);
         }
 
+        /**
+         * checks if the button was clicked and if yes resets the game or reloads the page
+         * @param {*} canvas 
+         * @param {*} e 
+         */
         async checkButton(canvas, e) {
 
             let mousePosition = mousePos(canvas, e);
@@ -181,17 +201,12 @@ window.onload = function () {
                     this.moves = 20;
                     game.init();
                 }
-
-
             }
-
         }
     }
 
     class Icons {
         constructor(grid) {
-            this.gridWidth = grid.width;
-            this.gridHeight = grid.height;
             this.padding = grid.padding;
             this.icons = [...document.querySelectorAll(".icon")];
             this.size = 40;
@@ -204,24 +219,6 @@ window.onload = function () {
         draw(ctx, currentIcon, posX, posY) {
             ctx.drawImage(currentIcon, posX, posY, this.size, this.size);
         }
-
-
-    }
-
-
-
-    /**
-     * get a mouse position
-     * @param {Object} canvas 
-     * @param {Object} event 
-     */
-    function mousePos(canvas, event) {
-        let canvasArea = canvas.getBoundingClientRect();
-        let position = {
-            x: event.clientX - canvasArea.left,
-            y: event.clientY - canvasArea.top,
-        };
-        return position;
     }
 
     class Game {
@@ -238,12 +235,9 @@ window.onload = function () {
             this.validClick = false;
             this.interval = 30;
             new InputHandler(this, this.grid, this.dashboard);
-
-
         }
 
         init() {
-
             this.selectedIcons = [];
             this.clicked = [];
             this.matchesArr = [];
@@ -284,9 +278,12 @@ window.onload = function () {
                 posY += this.grid.intervalY;
                 this.selectedIcons.push(selectedIconsRow);
             }
-
         }
 
+        /**
+         * draws the starting screens
+         * @param {*} ctx 
+         */
         drawMenu(ctx) {
             let startImage = document.getElementById('imgStart');
             ctx.drawImage(startImage, 0, 0, GAME_WIDTH, this.grid.height);
@@ -317,10 +314,8 @@ window.onload = function () {
                         if (rowMatch.length === 0) {
                             rowMatch.push(previous);
                         }
-
                         rowMatch.push(this.selectedIcons[i][j]);
                     } else {
-
                         if (rowMatch.length >= 3) {
                             matchesRows.push(rowMatch);
                             rowMatch = [];
@@ -344,7 +339,6 @@ window.onload = function () {
                         if (colMatch.length === 0) {
                             colMatch.push(previous);
                         }
-
                         colMatch.push(this.selectedIcons[j][i]);
                     } else {
                         if (colMatch.length >= 3) {
@@ -378,6 +372,7 @@ window.onload = function () {
                 });
             }
         }
+
         /**
          * creates and array of icons that need to be moved
          */
@@ -421,7 +416,6 @@ window.onload = function () {
                         resolve('proceed');
                         clearInterval(movement);
                     }
-
                     if (self.gamestate === GAMESTATE.RESET) {
                         resolve('proceed');
                         clearInterval(movement);
@@ -467,16 +461,17 @@ window.onload = function () {
 
                         ctx.drawImage(obj.image, obj.x, obj.y, self.tiles.size, self.tiles.size);
                     });
+
                     //remove icons that finished moving from tha array
                     if (direction === "down") {
                         moveArray = moveArray.filter(obj => obj.y !== obj.destinationY);
                     } else {
                         moveArray = moveArray.filter(obj => obj.x !== obj.destinationX);
                     }
-
                 }, self.interval);
             });
         }
+
         /**
          * finds which cell was clicked and adds it to the clicked array
          * @param {*} canvas 
@@ -520,7 +515,6 @@ window.onload = function () {
                 // copying the object so the changes don't affect the original object
                 toSwap.push(Object.assign({}, iconToSwap));
             }
-
             return toSwap;
         }
 
@@ -535,7 +529,6 @@ window.onload = function () {
                 toSwap[1].destinationX = toSwap[0].x;
                 toSwap[0].destinationX = toSwap[1].x;
             }
-
             this.move(toSwap, direction);
         }
 
@@ -558,9 +551,9 @@ window.onload = function () {
                 if (this.dashboard.moves === 0) {
                     this.gamestate = GAMESTATE.LOSE;
                 }
-
             }
         }
+
         /**
          * finds cells in which icons were matched and removed by user action, and sets colour to false for those
          */
@@ -587,7 +580,6 @@ window.onload = function () {
             let matches = this.updateColour();
             this.dashboard.points += matches.length * 10;
         }
-
 
         /**
          * changes icons to random in the first 6 rows (those not visible) so that there are no empty spaces and icons are different in refill
@@ -712,6 +704,7 @@ window.onload = function () {
                 this.gamestate = GAMESTATE.NO_MOVES;
             }
         }
+
         /**
          * sets the screen when the game is finished, depending on the result
          */
@@ -778,12 +771,8 @@ window.onload = function () {
             } else {
                 this.gamestate = GAMESTATE.USER_INPUT;
             }
-
-
         }
-
     }
-
 
     class InputHandler {
         constructor(game, grid, dashboard) {
@@ -838,12 +827,8 @@ window.onload = function () {
         }
     }
 
-
-
     let game = new Game();
 
     game.drawMenu(ctx);
-
-
 
 };
