@@ -29,7 +29,7 @@ h2 {
 }
 
 
-.container {
+#mainContainer {
     background-color: rgba(255, 255, 255, 0.8);
     height: 96vh;
     margin-top: 2vh;
@@ -53,6 +53,10 @@ h2 {
 
 #content {
     height: 90%;
+}
+
+#ie {
+    display: none;
 }
 
 /*----styles only for large screens----*/
@@ -115,5 +119,16 @@ missed by user and the game area should keep the same height---*/
     li {
         padding-bottom: 1.5vh;
         font-size: 1.2rem;
+    }
+}
+
+
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+    #content {
+        display: none;
+    }
+
+    #ie {
+        display: block;
     }
 }
