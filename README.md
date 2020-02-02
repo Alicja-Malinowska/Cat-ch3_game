@@ -182,6 +182,8 @@ They did not report any problem with the display of the appliction and its respo
 
 #### Peer code review
 
+* It was pointed out to me that the last word of the instructions was cut on a screen of Width: 1280px & Height: 720px. I removed overflow: hidden from the main container and changed its height to % value and this seems to work well now. 
+* A glitch in a gif displayed at the end of the game was also pointed out - this is already mentioned in the 'Known bugs' section below.
 
 
 ## Deployment
