@@ -64,6 +64,8 @@ h2 {
 
 #instructions {
     text-align: left;
+    padding-right: 0;
+    padding: 0;
 }
 
 
@@ -126,7 +128,7 @@ missed by user and the game area should keep the same height---*/
     }
 
     #game {
-        padding-bottom: 6vh;
+        padding-bottom: 3vh;
     }
 
     /*----make the columns full width----*/
