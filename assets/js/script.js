@@ -707,6 +707,8 @@ window.onload = function () {
 
         /**
          * sets the screen when the game is finished, depending on the result
+         * gets a cats photo/gif from Cats as a Service API
+         * a url is created to get an image or gif
          */
         endGame() {
             let message = "OH NO!";
